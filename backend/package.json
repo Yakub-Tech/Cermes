@@ -8,7 +8,7 @@
   },
   "type": "module",
   "dependencies": {
-    "archiver": "^8.0.0",
+    "archiver": "^7.0.1",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.11.1",
     "cookie-session": "^2.1.1",
