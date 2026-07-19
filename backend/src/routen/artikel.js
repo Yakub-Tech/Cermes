@@ -85,6 +85,31 @@ router.put('/api/artikel/:id', brauchtRolle('admin'), (anfrage, antwort) => {
   antwort.json(artikelMitDetails(db, neu));
 });
 
+router.post('/api/artikel/:id/startnummer', brauchtRolle('admin'), (anfrage, antwort) => {
+  const db = oeffneDatenbank();
+  const artikelId = Number(anfrage.params.id);
+  const neueNummer = Number(anfrage.body.naechste_nummer);
+  if (!Number.isInteger(neueNummer) || neueNummer < 1) {
+    return antwort.status(400).json({ fehler: 'Die Startnummer muss eine ganze Zahl ab 1 sein.' });
+  }
+  const hoechsteHeute = db.prepare(
+    `SELECT MAX(nummer) AS n FROM kaertchen
+     WHERE artikel_id = ? AND substr(erstellt_am, 1, 10) = ? AND status != 'storniert'`
+  ).get(artikelId, heutigesDatum()).n;
+  const aktiveKollision = db.prepare(
+    `SELECT COUNT(*) AS n FROM kaertchen
+     WHERE artikel_id = ? AND status IN ('in_bearbeitung', 'abholbereit') AND nummer >= ?`
+  ).get(artikelId, neueNummer).n;
+  const warnungNoetig = (hoechsteHeute !== null && neueNummer <= hoechsteHeute) || aktiveKollision > 0;
+  if (warnungNoetig && !anfrage.body.warnung_bestaetigt) {
+    return antwort.status(409).json({
+      warnung: { hoechste_nummer_heute: hoechsteHeute, aktive_kollisionen: aktiveKollision },
+    });
+  }
+  db.prepare('UPDATE artikel SET naechste_nummer = ? WHERE id = ?').run(neueNummer, artikelId);
+  antwort.json({ ok: true });
+});
+
 router.delete('/api/artikel/:id', brauchtRolle('admin'), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   db.prepare('UPDATE artikel SET geloescht = 1, aktiv = 0 WHERE id = ?').run(anfrage.params.id);

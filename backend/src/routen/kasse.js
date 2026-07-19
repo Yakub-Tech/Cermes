@@ -1,6 +1,6 @@
 import express from 'express';
 import { oeffneDatenbank } from '../db.js';
-import { jetztIso } from '../zeit.js';
+import { jetztIso, heutigesDatum } from '../zeit.js';
 import { brauchtRolle } from '../auth.js';
 
 const router = express.Router();
@@ -89,6 +89,29 @@ router.post('/api/kasse/kassieren', brauchtRolle('kasse'), (anfrage, antwort) =>
   } catch (fehler) {
     antwort.status(fehler.status || 500).json({ fehler: fehler.message });
   }
+});
+
+router.get('/api/kasse/stornierbar', brauchtRolle('kasse'), (_anfrage, antwort) => {
+  const db = oeffneDatenbank();
+  const zeilen = db.prepare(
+    `SELECT id, nummer, artikel_name, artikel_farbe, preis_cent, beilagen, status, erstellt_am
+     FROM kaertchen
+     WHERE status IN ('in_bearbeitung', 'abholbereit') AND substr(erstellt_am, 1, 10) = ?
+     ORDER BY erstellt_am DESC, id DESC`
+  ).all(heutigesDatum());
+  antwort.json(zeilen.map((zeile) => ({ ...zeile, beilagen: JSON.parse(zeile.beilagen) })));
+});
+
+router.post('/api/kasse/storno/:id', brauchtRolle('kasse'), (anfrage, antwort) => {
+  const db = oeffneDatenbank();
+  const ergebnis = db.prepare(
+    `UPDATE kaertchen SET status = 'storniert', storniert_am = ?, storniert_von = ?
+     WHERE id = ? AND status IN ('in_bearbeitung', 'abholbereit')`
+  ).run(jetztIso(), anfrage.benutzer.id, anfrage.params.id);
+  if (ergebnis.changes === 0) {
+    return antwort.status(409).json({ fehler: 'Dieses Kärtchen kann nicht mehr storniert werden.' });
+  }
+  antwort.json({ ok: true });
 });
 
 export default router;

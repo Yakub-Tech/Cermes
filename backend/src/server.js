@@ -4,6 +4,7 @@ import { authEinbinden } from './auth.js';
 import artikelRouter from './routen/artikel.js';
 import beilagenRouter from './routen/beilagen.js';
 import kasseRouter from './routen/kasse.js';
+import ausgabeRouter from './routen/ausgabe.js';
 
 export function erstelleApp() {
   oeffneDatenbank();
@@ -14,6 +15,7 @@ export function erstelleApp() {
   app.use(artikelRouter);
   app.use(beilagenRouter);
   app.use(kasseRouter);
+  app.use(ausgabeRouter);
   return app;
 }
 
