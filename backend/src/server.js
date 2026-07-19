@@ -1,6 +1,8 @@
 import express from 'express';
 import { oeffneDatenbank } from './db.js';
-import { authEinbinden, brauchtRolle } from './auth.js';
+import { authEinbinden } from './auth.js';
+import artikelRouter from './routen/artikel.js';
+import beilagenRouter from './routen/beilagen.js';
 
 export function erstelleApp() {
   oeffneDatenbank();
@@ -8,7 +10,8 @@ export function erstelleApp() {
   app.use(express.json());
   authEinbinden(app);
   app.get('/api/gesundheit', (_anfrage, antwort) => antwort.json({ ok: true }));
-  app.get('/api/artikel', brauchtRolle('admin'), (_anfrage, antwort) => antwort.json([]));
+  app.use(artikelRouter);
+  app.use(beilagenRouter);
   return app;
 }
 
