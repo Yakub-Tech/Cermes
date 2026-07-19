@@ -1,4 +1,7 @@
 import express from 'express';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { oeffneDatenbank } from './db.js';
 import { authEinbinden } from './auth.js';
 import { websocketEinbinden } from './broadcast.js';
@@ -30,7 +33,22 @@ export function erstelleApp() {
   app.use(benutzerRouter);
   app.use(backupRouter);
   app.use('/werbung', express.static(werbeOrdner()));
+  frontendAusliefern(app);
   return app;
+}
+
+function frontendAusliefern(app) {
+  const distOrdner = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'frontend', 'dist'
+  );
+  if (!fs.existsSync(distOrdner)) return;
+  app.use(express.static(distOrdner));
+  app.get('*', (anfrage, antwort, weiter) => {
+    if (anfrage.path.startsWith('/api/') || anfrage.path.startsWith('/werbung/')) {
+      return weiter();
+    }
+    antwort.sendFile(path.join(distOrdner, 'index.html'));
+  });
 }
 
 export function starteServer() {
