@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import request from 'supertest';
 import { frischeApp, angemeldeterAgent } from './helfer.js';
 
 async function verkaufteBestellung(admin, kasse, name = 'Pommes', preis = 350) {
@@ -126,6 +127,29 @@ test('Beilagen-Übersicht zeigt nur aktive Beilagen aktiver Artikel', async () =
   assert.equal(uebersicht.length, 1);
   assert.equal(uebersicht[0].artikel_name, 'Pommes');
   assert.deepEqual(uebersicht[0].beilagen, ['Mayo']);
+});
+
+test('TV-Endpunkt ist offen, zeigt nur Nötiges, keine stornierten, nur heutige', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const kasse = await angemeldeterAgent(app, db, 'kasse');
+  const { artikel, kaertchen } = await verkaufteBestellung(admin, kasse);
+  const zweites = (await kasse.post('/api/kasse/kassieren').send({
+    positionen: [{ artikel_id: artikel.id, beilagen_ids: [] }],
+  })).body.kaertchen[0];
+  await kasse.post(`/api/kasse/storno/${zweites.id}`);
+
+  db.prepare(
+    `INSERT INTO kaertchen (kassiervorgang_id, artikel_id, nummer, artikel_name, artikel_farbe,
+       preis_cent, beilagen, status, erstellt_am)
+     VALUES (1, ?, 99, 'Alt', '#000000', 100, '[]', 'in_bearbeitung', '2020-01-01T12:00:00')`
+  ).run(artikel.id);
+
+  const tv = (await request(app).get('/api/tv/kaertchen')).body;
+  assert.equal(tv.in_bearbeitung.length, 1);
+  assert.deepEqual(Object.keys(tv.in_bearbeitung[0]).sort(), ['artikel_farbe', 'artikel_name', 'nummer']);
+  assert.equal(tv.in_bearbeitung[0].nummer, kaertchen.nummer);
+  assert.equal(tv.zuletzt_abgeholt, undefined);
 });
 
 test('Startnummer: Warnung bei Kollision, Bestätigung erzwingt, hohe Nummer ohne Warnung', async () => {

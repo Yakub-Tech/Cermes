@@ -1,6 +1,9 @@
 import express from 'express';
 import { oeffneDatenbank } from './db.js';
 import { authEinbinden } from './auth.js';
+import tvRouter from './routen/tv.js';
+import werbungRouter, { werbeOrdner } from './routen/werbung.js';
+import einstellungenRouter from './routen/einstellungen.js';
 import artikelRouter from './routen/artikel.js';
 import beilagenRouter from './routen/beilagen.js';
 import kasseRouter from './routen/kasse.js';
@@ -16,6 +19,10 @@ export function erstelleApp() {
   app.use(beilagenRouter);
   app.use(kasseRouter);
   app.use(ausgabeRouter);
+  app.use(tvRouter);
+  app.use(werbungRouter);
+  app.use(einstellungenRouter);
+  app.use('/werbung', express.static(werbeOrdner()));
   return app;
 }
 
