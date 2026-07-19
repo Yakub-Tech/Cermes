@@ -3,6 +3,7 @@ import { oeffneDatenbank } from './db.js';
 import { authEinbinden } from './auth.js';
 import artikelRouter from './routen/artikel.js';
 import beilagenRouter from './routen/beilagen.js';
+import kasseRouter from './routen/kasse.js';
 
 export function erstelleApp() {
   oeffneDatenbank();
@@ -12,6 +13,7 @@ export function erstelleApp() {
   app.get('/api/gesundheit', (_anfrage, antwort) => antwort.json({ ok: true }));
   app.use(artikelRouter);
   app.use(beilagenRouter);
+  app.use(kasseRouter);
   return app;
 }
 
