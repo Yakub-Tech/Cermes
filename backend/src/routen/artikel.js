@@ -2,6 +2,7 @@ import express from 'express';
 import { oeffneDatenbank } from '../db.js';
 import { heutigesDatum } from '../zeit.js';
 import { brauchtRolle } from '../auth.js';
+import { sendeEreignis } from '../broadcast.js';
 
 const router = express.Router();
 
@@ -62,6 +63,7 @@ router.post('/api/artikel', brauchtRolle('admin'), (anfrage, antwort) => {
     daten.einkaufskosten_cent ?? null, daten.aktiv ?? 1, daten.sortierung ?? 0);
   beilagenZuordnen(db, ergebnis.lastInsertRowid, daten.beilagen_ids);
   const neu = db.prepare('SELECT * FROM artikel WHERE id = ?').get(ergebnis.lastInsertRowid);
+  sendeEreignis('artikel');
   antwort.json(artikelMitDetails(db, neu));
 });
 
@@ -82,6 +84,7 @@ router.put('/api/artikel/:id', brauchtRolle('admin'), (anfrage, antwort) => {
     daten.aktiv ?? 1, daten.sortierung ?? 0, vorhanden.id);
   beilagenZuordnen(db, vorhanden.id, daten.beilagen_ids);
   const neu = db.prepare('SELECT * FROM artikel WHERE id = ?').get(vorhanden.id);
+  sendeEreignis('artikel');
   antwort.json(artikelMitDetails(db, neu));
 });
 
@@ -107,12 +110,14 @@ router.post('/api/artikel/:id/startnummer', brauchtRolle('admin'), (anfrage, ant
     });
   }
   db.prepare('UPDATE artikel SET naechste_nummer = ? WHERE id = ?').run(neueNummer, artikelId);
+  sendeEreignis('artikel');
   antwort.json({ ok: true });
 });
 
 router.delete('/api/artikel/:id', brauchtRolle('admin'), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   db.prepare('UPDATE artikel SET geloescht = 1, aktiv = 0 WHERE id = ?').run(anfrage.params.id);
+  sendeEreignis('artikel');
   antwort.json({ ok: true });
 });
 

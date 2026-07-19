@@ -2,6 +2,7 @@ import express from 'express';
 import { oeffneDatenbank } from '../db.js';
 import { jetztIso, heutigesDatum } from '../zeit.js';
 import { brauchtRolle } from '../auth.js';
+import { sendeEreignis } from '../broadcast.js';
 
 const router = express.Router();
 
@@ -56,6 +57,7 @@ router.post('/api/ausgabe/status/:id', brauchtRolle('ausgabe'), (anfrage, antwor
   if (ergebnis.changes === 0) {
     return antwort.status(409).json({ fehler: 'Das Kärtchen wurde inzwischen anderweitig geändert.' });
   }
+  sendeEreignis('kaertchen');
   antwort.json({ ok: true });
 });
 

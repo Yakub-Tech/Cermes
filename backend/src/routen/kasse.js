@@ -2,6 +2,7 @@ import express from 'express';
 import { oeffneDatenbank } from '../db.js';
 import { jetztIso, heutigesDatum } from '../zeit.js';
 import { brauchtRolle } from '../auth.js';
+import { sendeEreignis } from '../broadcast.js';
 
 const router = express.Router();
 
@@ -85,6 +86,7 @@ router.post('/api/kasse/kassieren', brauchtRolle('kasse'), (anfrage, antwort) =>
   const db = oeffneDatenbank();
   try {
     const ergebnis = kassieren(db, anfrage.benutzer.id, anfrage.body.positionen);
+    sendeEreignis('kaertchen');
     antwort.json(ergebnis);
   } catch (fehler) {
     antwort.status(fehler.status || 500).json({ fehler: fehler.message });
@@ -111,6 +113,7 @@ router.post('/api/kasse/storno/:id', brauchtRolle('kasse'), (anfrage, antwort) =
   if (ergebnis.changes === 0) {
     return antwort.status(409).json({ fehler: 'Dieses Kärtchen kann nicht mehr storniert werden.' });
   }
+  sendeEreignis('kaertchen');
   antwort.json({ ok: true });
 });
 

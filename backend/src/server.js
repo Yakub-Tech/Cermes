@@ -1,6 +1,7 @@
 import express from 'express';
 import { oeffneDatenbank } from './db.js';
 import { authEinbinden } from './auth.js';
+import { websocketEinbinden } from './broadcast.js';
 import tvRouter from './routen/tv.js';
 import werbungRouter, { werbeOrdner } from './routen/werbung.js';
 import einstellungenRouter from './routen/einstellungen.js';
@@ -37,6 +38,7 @@ export function starteServer() {
   const server = app.listen(8080, () => {
     console.log('Cermes läuft auf Port 8080');
   });
+  websocketEinbinden(server);
   return server;
 }
 

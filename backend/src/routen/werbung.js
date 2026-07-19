@@ -6,6 +6,7 @@ import path from 'node:path';
 import { oeffneDatenbank, datenVerzeichnis } from '../db.js';
 import { jetztIso } from '../zeit.js';
 import { brauchtRolle } from '../auth.js';
+import { sendeEreignis } from '../broadcast.js';
 
 const router = express.Router();
 
@@ -47,6 +48,7 @@ router.post('/api/werbung', brauchtRolle('admin'), upload.single('bild'), (anfra
     'INSERT INTO werbebild (dateiname, hochgeladen_am) VALUES (?, ?)'
   ).run(dateiname, jetztIso());
   const bild = db.prepare('SELECT * FROM werbebild WHERE id = ?').get(ergebnis.lastInsertRowid);
+  sendeEreignis('werbung');
   antwort.json({ ...bild, url: `/werbung/${bild.dateiname}` });
 });
 
@@ -58,6 +60,7 @@ router.put('/api/werbung/:id', brauchtRolle('admin'), (anfrage, antwort) => {
   if (ergebnis.changes === 0) {
     return antwort.status(404).json({ fehler: 'Dieses Werbebild gibt es nicht mehr.' });
   }
+  sendeEreignis('werbung');
   antwort.json({ ok: true });
 });
 
@@ -70,6 +73,7 @@ router.delete('/api/werbung/:id', brauchtRolle('admin'), (anfrage, antwort) => {
   const datei = path.join(werbeOrdner(), bild.dateiname);
   if (fs.existsSync(datei)) fs.unlinkSync(datei);
   db.prepare('DELETE FROM werbebild WHERE id = ?').run(bild.id);
+  sendeEreignis('werbung');
   antwort.json({ ok: true });
 });
 

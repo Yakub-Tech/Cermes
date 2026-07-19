@@ -1,6 +1,7 @@
 import express from 'express';
 import { oeffneDatenbank } from '../db.js';
 import { brauchtRolle } from '../auth.js';
+import { sendeEreignis } from '../broadcast.js';
 
 const router = express.Router();
 
@@ -16,6 +17,7 @@ router.post('/api/beilagen', brauchtRolle('admin'), (anfrage, antwort) => {
     return antwort.status(400).json({ fehler: 'Bitte einen Namen für die Beilage angeben.' });
   }
   const ergebnis = db.prepare('INSERT INTO beilage (name) VALUES (?)').run(name);
+  sendeEreignis('beilagen');
   antwort.json(db.prepare('SELECT * FROM beilage WHERE id = ?').get(ergebnis.lastInsertRowid));
 });
 
@@ -32,12 +34,14 @@ router.put('/api/beilagen/:id', brauchtRolle('admin'), (anfrage, antwort) => {
   }
   const aktiv = anfrage.body.aktiv ? 1 : 0;
   db.prepare('UPDATE beilage SET name = ?, aktiv = ? WHERE id = ?').run(name, aktiv, vorhanden.id);
+  sendeEreignis('beilagen');
   antwort.json(db.prepare('SELECT * FROM beilage WHERE id = ?').get(vorhanden.id));
 });
 
 router.delete('/api/beilagen/:id', brauchtRolle('admin'), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   db.prepare('UPDATE beilage SET geloescht = 1, aktiv = 0 WHERE id = ?').run(anfrage.params.id);
+  sendeEreignis('beilagen');
   antwort.json({ ok: true });
 });
 

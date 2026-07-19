@@ -1,6 +1,7 @@
 import express from 'express';
 import { oeffneDatenbank } from '../db.js';
 import { brauchtAnmeldung, brauchtRolle } from '../auth.js';
+import { sendeEreignis } from '../broadcast.js';
 
 const router = express.Router();
 
@@ -20,6 +21,7 @@ router.put('/api/einstellungen', brauchtRolle('admin'), (anfrage, antwort) => {
   }
   db.prepare("UPDATE einstellung SET wert = ? WHERE schluessel = 'abholbereit_warnminuten'")
     .run(String(minuten));
+  sendeEreignis('einstellungen');
   antwort.json({ abholbereit_warnminuten: minuten });
 });
 
