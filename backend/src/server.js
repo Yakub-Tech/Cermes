@@ -4,6 +4,7 @@ import { authEinbinden } from './auth.js';
 import tvRouter from './routen/tv.js';
 import werbungRouter, { werbeOrdner } from './routen/werbung.js';
 import einstellungenRouter from './routen/einstellungen.js';
+import statistikRouter from './routen/statistik.js';
 import artikelRouter from './routen/artikel.js';
 import beilagenRouter from './routen/beilagen.js';
 import kasseRouter from './routen/kasse.js';
@@ -22,6 +23,7 @@ export function erstelleApp() {
   app.use(tvRouter);
   app.use(werbungRouter);
   app.use(einstellungenRouter);
+  app.use(statistikRouter);
   app.use('/werbung', express.static(werbeOrdner()));
   return app;
 }
