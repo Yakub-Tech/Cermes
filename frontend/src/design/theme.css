@@ -65,8 +65,16 @@ body {
   animation: einblenden 1s ease-in-out;
 }
 
+@keyframes werbeband-scroll {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+.werbeband-scroll {
+  animation: werbeband-scroll var(--scroll-dauer, 30s) linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .warn-puls, .endlos-scroll, .einblenden {
+  .warn-puls, .endlos-scroll, .einblenden, .werbeband-scroll {
     animation: none;
   }
 }

@@ -1,7 +1,6 @@
 import logo from '../design/logo.png';
 import WerbeSlot from './WerbeSlot.jsx';
-
-const ROTATIONS_VERSATZ_MS = 500;
+import WerbeBand from './WerbeBand.jsx';
 
 export default function WerbeLeiste({ bilder }) {
   if (bilder.length === 0) {
@@ -13,23 +12,9 @@ export default function WerbeLeiste({ bilder }) {
     );
   }
 
-  if (bilder.length === 1) {
-    return <WerbeSlot bilder={bilder} startIndex={0} />;
+  if (bilder.length <= 3) {
+    return bilder.map((bild) => <WerbeSlot key={bild.id} bild={bild} />);
   }
 
-  if (bilder.length === 2) {
-    return (
-      <>
-        <WerbeSlot bilder={[bilder[0]]} startIndex={0} />
-        <WerbeSlot bilder={[bilder[1]]} startIndex={0} />
-      </>
-    );
-  }
-
-  return (
-    <>
-      <WerbeSlot bilder={bilder} startIndex={0} />
-      <WerbeSlot bilder={bilder} startIndex={1} startVerzoegerungMs={ROTATIONS_VERSATZ_MS} />
-    </>
-  );
+  return <WerbeBand bilder={bilder} />;
 }
