@@ -37,15 +37,15 @@ export default function StornoTab() {
       <div className="mb-4 flex gap-3">
         <input value={nummernFilter} onChange={(e) => setNummernFilter(e.target.value)}
           placeholder="Nummer suchen …" inputMode="numeric"
-          className="w-48 rounded border border-linie bg-flaeche px-3 py-3 text-lg outline-none focus:border-gold" />
+          className="w-48 rounded border border-linie bg-flaeche px-3 py-3 text-lg outline-none focus:border-blau-hell" />
         <select value={artikelFilter} onChange={(e) => setArtikelFilter(e.target.value)}
-          className="rounded border border-linie bg-flaeche px-3 py-3 text-lg outline-none focus:border-gold">
+          className="rounded border border-linie bg-flaeche px-3 py-3 text-lg outline-none focus:border-blau-hell">
           <option value="">Alle Artikel</option>
           {artikelNamen.map((name) => <option key={name} value={name}>{name}</option>)}
         </select>
       </div>
 
-      {fehler && <p className="mb-4 rounded bg-rot/30 px-3 py-2 text-rot-hell">{fehler}</p>}
+      {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
 
       {gefiltert.length === 0 && (
         <p className="text-schrift-gedimmt">Keine stornierbaren Kärtchen gefunden.</p>
@@ -89,7 +89,7 @@ export default function StornoTab() {
               Abbrechen
             </button>
             <button onClick={stornieren}
-              className="flex-1 rounded-lg bg-rot py-3 text-lg font-bold hover:bg-rot-hell">
+              className="flex-1 rounded-lg bg-blau py-3 text-lg font-bold text-flaeche hover:bg-blau-hell">
               Ja, stornieren
             </button>
           </div>

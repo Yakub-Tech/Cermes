@@ -48,7 +48,7 @@ export default function ArtikelFormular({ artikel, beilagen, onSpeichern, onAbbr
   }
 
   const eingabeKlasse =
-    'mb-4 w-full rounded border border-linie bg-grund px-3 py-2 text-lg outline-none focus:border-gold';
+    'mb-4 w-full rounded border border-linie bg-grund px-3 py-2 text-lg outline-none focus:border-blau-hell';
 
   return (
     <Dialog titel={artikel ? `${artikel.name} bearbeiten` : 'Artikel anlegen'}
@@ -80,7 +80,7 @@ export default function ArtikelFormular({ artikel, beilagen, onSpeichern, onAbbr
           <label className="mb-1 block text-sm text-schrift-gedimmt">Sortierung in der Kasse</label>
           <input type="number" value={sortierung}
             onChange={(e) => setSortierung(e.target.value)}
-            className="w-24 rounded border border-linie bg-grund px-3 py-2 text-lg outline-none focus:border-gold" />
+            className="w-24 rounded border border-linie bg-grund px-3 py-2 text-lg outline-none focus:border-blau-hell" />
         </div>
       </div>
 
@@ -95,7 +95,7 @@ export default function ArtikelFormular({ artikel, beilagen, onSpeichern, onAbbr
           <button key={beilage.id} type="button" onClick={() => beilageUmschalten(beilage.id)}
             className={`rounded-full px-4 py-1 ${
               beilagenIds.includes(beilage.id)
-                ? 'bg-gold font-semibold text-grund'
+                ? 'bg-navy font-semibold text-grund'
                 : 'border border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
             }`}>
             {beilage.name}
@@ -103,7 +103,7 @@ export default function ArtikelFormular({ artikel, beilagen, onSpeichern, onAbbr
         ))}
       </div>
 
-      {fehler && <p className="mb-4 rounded bg-rot/30 px-3 py-2 text-rot-hell">{fehler}</p>}
+      {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
 
       <div className="flex gap-3">
         <button onClick={onAbbrechen}
@@ -111,7 +111,7 @@ export default function ArtikelFormular({ artikel, beilagen, onSpeichern, onAbbr
           Abbrechen
         </button>
         <button onClick={speichern}
-          className="flex-1 rounded-lg bg-rot py-2 font-bold hover:bg-rot-hell">
+          className="flex-1 rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
           Speichern
         </button>
       </div>

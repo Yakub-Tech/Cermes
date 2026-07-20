@@ -31,10 +31,10 @@ export default function StartnummerDialog({ artikel, onFertig, onAbbrechen }) {
       <label className="mb-1 block text-sm text-schrift-gedimmt">Weiter bei Nummer</label>
       <input type="number" min="1" value={nummerText} autoFocus
         onChange={(e) => { setNummerText(e.target.value); setWarnung(null); }}
-        className="mb-4 w-40 rounded border border-linie bg-grund px-3 py-2 text-lg outline-none focus:border-gold" />
+        className="mb-4 w-40 rounded border border-linie bg-grund px-3 py-2 text-lg outline-none focus:border-blau-hell" />
 
       {warnung && (
-        <div className="mb-4 rounded-lg border border-gold bg-gold/10 px-4 py-3">
+        <div className="mb-4 rounded-lg border border-akzent bg-akzent/10 px-4 py-3">
           <p className="mb-3">
             {warnung.hoechste_nummer_heute !== null
               ? `Heute wurde für diesen Artikel bereits bis Nummer ${warnung.hoechste_nummer_heute} verkauft. `
@@ -51,7 +51,7 @@ export default function StartnummerDialog({ artikel, onFertig, onAbbrechen }) {
         </div>
       )}
 
-      {fehler && <p className="mb-4 rounded bg-rot/30 px-3 py-2 text-rot-hell">{fehler}</p>}
+      {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
 
       <div className="flex gap-3">
         <button onClick={onAbbrechen}
@@ -59,7 +59,7 @@ export default function StartnummerDialog({ artikel, onFertig, onAbbrechen }) {
           Abbrechen
         </button>
         <button onClick={speichern} disabled={warnung !== null && !gelesen}
-          className="flex-1 rounded-lg bg-rot py-2 font-bold hover:bg-rot-hell disabled:opacity-40">
+          className="flex-1 rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell disabled:opacity-40">
           Speichern
         </button>
       </div>

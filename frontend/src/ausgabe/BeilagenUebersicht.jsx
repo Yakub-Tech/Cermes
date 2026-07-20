@@ -13,7 +13,7 @@ export default function BeilagenUebersicht() {
   return (
     <div className="border-t border-linie bg-flaeche">
       <button onClick={() => setOffen(!offen)}
-        className="w-full px-4 py-3 text-left text-lg text-gold hover:bg-flaeche-hell">
+        className="w-full px-4 py-3 text-left text-lg text-navy hover:bg-flaeche-hell">
         {offen ? '▾' : '▸'} Beilagen-Übersicht
       </button>
       {offen && (

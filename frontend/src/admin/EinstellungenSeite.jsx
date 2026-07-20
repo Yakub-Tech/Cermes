@@ -26,7 +26,7 @@ export default function EinstellungenSeite() {
 
   return (
     <div className="max-w-lg">
-      <h2 className="mb-6 font-display text-2xl text-gold">Einstellungen</h2>
+      <h2 className="mb-6 font-display text-2xl text-navy">Einstellungen</h2>
       <form onSubmit={speichern} className="rounded-xl border border-linie bg-flaeche p-6">
         <label className="mb-1 block text-schrift-gedimmt" htmlFor="warnminuten">
           Warnzeit für liegengebliebene abholbereite Kärtchen (Minuten)
@@ -37,11 +37,11 @@ export default function EinstellungenSeite() {
         </p>
         <input id="warnminuten" type="number" min="0" value={warnminuten}
           onChange={(e) => setWarnminuten(e.target.value)}
-          className="mb-4 w-32 rounded border border-linie bg-grund px-3 py-2 text-lg outline-none focus:border-gold" />
-        {meldung && <p className="mb-3 text-gold">{meldung}</p>}
-        {fehler && <p className="mb-3 rounded bg-rot/30 px-3 py-2 text-rot-hell">{fehler}</p>}
+          className="mb-4 w-32 rounded border border-linie bg-grund px-3 py-2 text-lg outline-none focus:border-blau-hell" />
+        {meldung && <p className="mb-3 text-navy">{meldung}</p>}
+        {fehler && <p className="mb-3 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
         <button type="submit"
-          className="block rounded-lg bg-rot px-6 py-2 font-bold hover:bg-rot-hell">
+          className="block rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell">
           Speichern
         </button>
       </form>

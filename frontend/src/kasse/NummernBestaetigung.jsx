@@ -4,7 +4,7 @@ import { lesbareSchriftfarbe } from '../komponenten/farbe.js';
 export default function NummernBestaetigung({ ergebnis, onFertig }) {
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-grund p-6">
-      <h2 className="mb-4 text-center font-display text-3xl text-gold">
+      <h2 className="mb-4 text-center font-display text-3xl text-navy">
         Diese Kärtchen ausgeben
       </h2>
 
@@ -28,10 +28,10 @@ export default function NummernBestaetigung({ ergebnis, onFertig }) {
 
       <div className="mt-4 flex items-center justify-between rounded-xl bg-flaeche px-6 py-4">
         <span className="text-xl text-schrift-gedimmt">
-          Zu zahlen: <span className="nummer text-3xl text-gold">{formatEuro(ergebnis.summe_cent)}</span>
+          Zu zahlen: <span className="nummer text-3xl text-navy">{formatEuro(ergebnis.summe_cent)}</span>
         </span>
         <button onClick={onFertig} autoFocus
-          className="rounded-xl bg-rot px-12 py-4 text-2xl font-bold hover:bg-rot-hell">
+          className="rounded-xl bg-blau px-12 py-4 text-2xl font-bold text-flaeche hover:bg-blau-hell">
           Fertig
         </button>
       </div>

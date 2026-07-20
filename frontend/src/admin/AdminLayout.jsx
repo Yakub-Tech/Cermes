@@ -34,7 +34,7 @@ export default function AdminLayout() {
               className={({ isActive }) =>
                 `block px-6 py-3 text-lg ${
                   isActive
-                    ? 'border-r-2 border-gold bg-flaeche-hell font-semibold text-gold'
+                    ? 'border-r-2 border-navy bg-flaeche-hell font-semibold text-navy'
                     : 'text-schrift-gedimmt hover:bg-flaeche-hell'
                 }`}>
               {beschriftung}

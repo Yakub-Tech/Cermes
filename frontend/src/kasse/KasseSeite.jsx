@@ -62,7 +62,7 @@ export default function KasseSeite() {
             {[['verkauf', 'Verkauf'], ['storno', 'Storno']].map(([wert, beschriftung]) => (
               <button key={wert} onClick={() => setTab(wert)}
                 className={`rounded-md px-5 py-2 text-lg ${
-                  tab === wert ? 'bg-rot font-bold' : 'text-schrift-gedimmt hover:bg-flaeche-hell'
+                  tab === wert ? 'bg-blau font-bold text-flaeche' : 'text-schrift-gedimmt hover:bg-flaeche-hell'
                 }`}>
                 {beschriftung}
               </button>
@@ -78,7 +78,7 @@ export default function KasseSeite() {
                 className="relative min-h-32 rounded-xl border border-linie bg-flaeche p-4 text-left shadow-lg hover:bg-flaeche-hell active:scale-[0.98]"
                 style={{ borderTop: `6px solid ${artikel.farbe}` }}>
                 <p className="text-2xl font-semibold">{artikel.name}</p>
-                <p className="nummer mt-2 text-xl text-gold">{formatEuro(artikel.preis_cent)}</p>
+                <p className="nummer mt-2 text-xl text-navy">{formatEuro(artikel.preis_cent)}</p>
                 {artikel.beilagen.length > 0 && (
                   <p className="mt-1 text-sm text-schrift-gedimmt">mit Beilagen-Auswahl</p>
                 )}

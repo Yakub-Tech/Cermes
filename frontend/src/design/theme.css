@@ -1,17 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  --color-grund: #171210;
-  --color-flaeche: #251b16;
-  --color-flaeche-hell: #33261e;
-  --color-linie: #3d2e24;
-  --color-rot: #8f1f1a;
-  --color-rot-hell: #b53030;
-  --color-gold: #d9b24a;
-  --color-gold-hell: #f0d98c;
-  --color-gold-matt: #a8893a;
-  --color-schrift: #f4ede1;
-  --color-schrift-gedimmt: #b9aa96;
+  --color-grund: #f4f7fa;
+  --color-flaeche: #ffffff;
+  --color-flaeche-hell: #e9eff6;
+  --color-linie: #ccd8e4;
+  --color-blau: #10538f;
+  --color-blau-hell: #1f74c0;
+  --color-navy: #0f2a44;
+  --color-akzent: #d97a06;
+  --color-akzent-hell: #f2a52c;
+  --color-akzent-text: #a85c02;
+  --color-schrift: #16202b;
+  --color-schrift-gedimmt: #5a6b7d;
 
   --font-display: "Palatino", "Palatino Linotype", "Book Antiqua", Georgia, serif;
 }
@@ -27,9 +28,9 @@ body {
   font-weight: 800;
 }
 
-.goldrand {
+.akzentrand {
   background-image: linear-gradient(90deg,
-    var(--color-gold-matt), var(--color-gold-hell), var(--color-gold-matt));
+    var(--color-blau), var(--color-blau-hell), var(--color-blau));
 }
 
 .stanzung {
@@ -37,12 +38,12 @@ body {
   height: 14px;
   border-radius: 9999px;
   background-color: var(--color-grund);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
 @keyframes warn-puls {
-  0%, 100% { box-shadow: 0 0 0 2px var(--color-gold); }
-  50% { box-shadow: 0 0 0 6px var(--color-gold-hell); }
+  0%, 100% { box-shadow: 0 0 0 2px var(--color-akzent); }
+  50% { box-shadow: 0 0 0 6px var(--color-akzent-hell); }
 }
 .warn-puls {
   animation: warn-puls 1.2s ease-in-out infinite;

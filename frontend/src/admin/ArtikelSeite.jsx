@@ -33,14 +33,14 @@ export default function ArtikelSeite() {
 
   return (
     <div className="max-w-4xl">
-      <h2 className="mb-6 font-display text-2xl text-gold">Artikel</h2>
+      <h2 className="mb-6 font-display text-2xl text-navy">Artikel</h2>
 
       <button onClick={() => setFormular({ artikel: null })}
-        className="mb-6 rounded-lg bg-rot px-6 py-2 font-bold hover:bg-rot-hell">
+        className="mb-6 rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell">
         Artikel anlegen
       </button>
 
-      {fehler && <p className="mb-4 rounded bg-rot/30 px-3 py-2 text-rot-hell">{fehler}</p>}
+      {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
 
       <div className="overflow-x-auto rounded-xl border border-linie bg-flaeche">
         <table className="w-full text-left">
@@ -94,7 +94,7 @@ export default function ArtikelSeite() {
                       ...artikel, aktiv: artikel.aktiv ? 0 : 1,
                     }).catch((f) => setFehler(f.message))}
                     className={`rounded-full px-4 py-1 text-sm font-semibold ${
-                      artikel.aktiv ? 'bg-gold text-grund' : 'border border-linie text-schrift-gedimmt'
+                      artikel.aktiv ? 'bg-navy text-grund' : 'border border-linie text-schrift-gedimmt'
                     }`}>
                     {artikel.aktiv ? 'aktiv' : 'inaktiv'}
                   </button>
@@ -105,7 +105,7 @@ export default function ArtikelSeite() {
                     Bearbeiten
                   </button>
                   <button onClick={() => setLoeschung(artikel)}
-                    className="rounded border border-linie px-3 py-1 text-rot-hell hover:bg-flaeche-hell">
+                    className="rounded border border-linie px-3 py-1 text-blau-hell hover:bg-flaeche-hell">
                     Löschen
                   </button>
                 </td>
@@ -141,7 +141,7 @@ export default function ArtikelSeite() {
               onClick={() => apiDelete(`/api/artikel/${loeschung.id}`)
                 .then(() => setLoeschung(null))
                 .catch((f) => { setFehler(f.message); setLoeschung(null); })}
-              className="flex-1 rounded-lg bg-rot py-2 font-bold hover:bg-rot-hell">
+              className="flex-1 rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
               Ja, löschen
             </button>
           </div>

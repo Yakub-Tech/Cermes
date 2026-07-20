@@ -34,7 +34,7 @@ export default function EndlosSpalte({ titel, kaertchen }) {
 
   return (
     <section className="flex h-full min-h-0 flex-col">
-      <h2 className="py-4 text-center font-display text-4xl text-gold">{titel}</h2>
+      <h2 className="bg-blau py-4 text-center font-display text-4xl text-flaeche">{titel}</h2>
       <div ref={rahmen} className="flex-1 overflow-hidden">
         {ueberlauf ? (
           <div className="endlos-scroll"

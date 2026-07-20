@@ -52,18 +52,18 @@ export default function BenutzerSeite() {
   }
 
   const eingabeKlasse =
-    'mb-4 w-full rounded border border-linie bg-grund px-3 py-2 text-lg outline-none focus:border-gold';
+    'mb-4 w-full rounded border border-linie bg-grund px-3 py-2 text-lg outline-none focus:border-blau-hell';
 
   return (
     <div className="max-w-2xl">
-      <h2 className="mb-6 font-display text-2xl text-gold">Benutzer</h2>
+      <h2 className="mb-6 font-display text-2xl text-navy">Benutzer</h2>
 
       <button onClick={() => setAnlage({ benutzername: '', passwort: '', rolle: 'kasse' })}
-        className="mb-6 rounded-lg bg-rot px-6 py-2 font-bold hover:bg-rot-hell">
+        className="mb-6 rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell">
         Benutzer anlegen
       </button>
 
-      {fehler && <p className="mb-4 rounded bg-rot/30 px-3 py-2 text-rot-hell">{fehler}</p>}
+      {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
 
       <ul className="divide-y divide-linie rounded-xl border border-linie bg-flaeche">
         {benutzer.map((konto) => (
@@ -77,7 +77,7 @@ export default function BenutzerSeite() {
               Passwort zurücksetzen
             </button>
             <button onClick={() => setLoeschung(konto)}
-              className="rounded border border-linie px-3 py-1 text-rot-hell hover:bg-flaeche-hell">
+              className="rounded border border-linie px-3 py-1 text-blau-hell hover:bg-flaeche-hell">
               Löschen
             </button>
           </li>
@@ -108,7 +108,7 @@ export default function BenutzerSeite() {
               Abbrechen
             </button>
             <button onClick={anlegen}
-              className="flex-1 rounded-lg bg-rot py-2 font-bold hover:bg-rot-hell">
+              className="flex-1 rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
               Anlegen
             </button>
           </div>
@@ -128,7 +128,7 @@ export default function BenutzerSeite() {
               Abbrechen
             </button>
             <button onClick={passwortSetzen}
-              className="flex-1 rounded-lg bg-rot py-2 font-bold hover:bg-rot-hell">
+              className="flex-1 rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
               Speichern
             </button>
           </div>
@@ -147,7 +147,7 @@ export default function BenutzerSeite() {
               Abbrechen
             </button>
             <button onClick={loeschen}
-              className="flex-1 rounded-lg bg-rot py-2 font-bold hover:bg-rot-hell">
+              className="flex-1 rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
               Ja, löschen
             </button>
           </div>

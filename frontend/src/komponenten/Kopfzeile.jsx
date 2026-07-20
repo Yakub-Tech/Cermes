@@ -11,7 +11,7 @@ export default function Kopfzeile({ titel, benutzername, rechts }) {
     <header>
       <div className="flex items-center gap-4 bg-flaeche px-4 py-2">
         <img src={logo} alt="Vereinslogo" className="h-12 w-12" />
-        <h1 className="font-display text-2xl text-gold">{titel}</h1>
+        <h1 className="font-display text-2xl text-navy">{titel}</h1>
         <div className="ml-auto flex items-center gap-4">
           {rechts}
           {benutzername && (
@@ -27,7 +27,7 @@ export default function Kopfzeile({ titel, benutzername, rechts }) {
           )}
         </div>
       </div>
-      <div className="goldrand h-px" />
+      <div className="akzentrand h-px" />
     </header>
   );
 }

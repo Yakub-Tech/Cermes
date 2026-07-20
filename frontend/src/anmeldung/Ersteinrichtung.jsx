@@ -33,7 +33,7 @@ export default function Ersteinrichtung() {
       <form onSubmit={einrichten}
         className="w-full max-w-md rounded-xl border border-linie bg-flaeche p-8 shadow-2xl">
         <img src={logo} alt="Vereinslogo" className="mx-auto mb-4 h-28 w-28" />
-        <h1 className="mb-1 text-center font-display text-3xl text-gold">Willkommen bei Cermes</h1>
+        <h1 className="mb-1 text-center font-display text-3xl text-navy">Willkommen bei Cermes</h1>
         <p className="mb-6 text-center text-schrift-gedimmt">
           Zum Start wird das erste Verwaltungs-Konto angelegt. Damit verwaltest du
           später Artikel, Benutzer und Statistik.
@@ -44,28 +44,28 @@ export default function Ersteinrichtung() {
         </label>
         <input id="benutzername" value={benutzername} autoFocus autoComplete="username"
           onChange={(e) => setBenutzername(e.target.value)}
-          className="mb-4 w-full rounded border border-linie bg-grund px-3 py-3 text-lg outline-none focus:border-gold" />
+          className="mb-4 w-full rounded border border-linie bg-grund px-3 py-3 text-lg outline-none focus:border-blau-hell" />
 
         <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="passwort">
           Passwort (mindestens 8 Zeichen)
         </label>
         <input id="passwort" type="password" value={passwort} autoComplete="new-password"
           onChange={(e) => setPasswort(e.target.value)}
-          className="mb-4 w-full rounded border border-linie bg-grund px-3 py-3 text-lg outline-none focus:border-gold" />
+          className="mb-4 w-full rounded border border-linie bg-grund px-3 py-3 text-lg outline-none focus:border-blau-hell" />
 
         <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="wiederholung">
           Passwort wiederholen
         </label>
         <input id="wiederholung" type="password" value={wiederholung} autoComplete="new-password"
           onChange={(e) => setWiederholung(e.target.value)}
-          className="mb-4 w-full rounded border border-linie bg-grund px-3 py-3 text-lg outline-none focus:border-gold" />
+          className="mb-4 w-full rounded border border-linie bg-grund px-3 py-3 text-lg outline-none focus:border-blau-hell" />
 
         {fehler && (
-          <p className="mb-4 rounded bg-rot/30 px-3 py-2 text-rot-hell">{fehler}</p>
+          <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>
         )}
 
         <button type="submit" disabled={laeuft}
-          className="w-full rounded bg-rot py-3 text-lg font-bold text-schrift hover:bg-rot-hell disabled:opacity-50">
+          className="w-full rounded bg-blau py-3 text-lg font-bold text-flaeche hover:bg-blau-hell disabled:opacity-50">
           Admin-Konto anlegen
         </button>
       </form>

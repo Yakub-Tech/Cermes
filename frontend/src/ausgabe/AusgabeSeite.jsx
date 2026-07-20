@@ -96,7 +96,7 @@ export default function AusgabeSeite() {
       <div className="grid min-h-0 flex-1 grid-cols-3 gap-px bg-linie">
         {spalten.map((spalte) => (
           <section key={spalte.titel} className="flex min-h-0 flex-col bg-grund">
-            <h2 className="px-4 py-3 text-center font-display text-xl text-gold">
+            <h2 className="px-4 py-3 text-center font-display text-xl text-navy">
               {spalte.titel} ({spalte.kaertchen.length})
             </h2>
             <div className="flex-1 space-y-3 overflow-y-auto px-4 pb-4">

@@ -6,15 +6,15 @@ import { apiGet, formatEuro } from '../api.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { heutigesDatum, datumAnzeigen } from './datum.js';
 
-const balkenFarbe = '#a8893a';
-const achsenFarbe = '#b9aa96';
-const gitterFarbe = '#3d2e24';
+const balkenFarbe = '#10538f';
+const achsenFarbe = '#5a6b7d';
+const gitterFarbe = '#ccd8e4';
 
 function KennzahlKachel({ beschriftung, wert, fussnote }) {
   return (
     <div className="rounded-xl border border-linie bg-flaeche px-5 py-4">
       <p className="text-sm text-schrift-gedimmt">{beschriftung}</p>
-      <p className="nummer mt-1 text-3xl text-gold">{wert}</p>
+      <p className="nummer mt-1 text-3xl text-navy">{wert}</p>
       {fussnote && <p className="mt-1 text-xs text-schrift-gedimmt">{fussnote}</p>}
     </div>
   );
@@ -36,13 +36,13 @@ function BalkenDiagramm({ titel, daten, xSchluessel, ySchluessel, werteFormat, k
             <XAxis dataKey={xSchluessel} stroke={achsenFarbe} tickLine={false} />
             <YAxis stroke={achsenFarbe} tickLine={false} allowDecimals={false}
               tickFormatter={werteFormat} width={70} />
-            <Tooltip cursor={{ fill: 'rgba(212, 175, 55, 0.08)' }}
+            <Tooltip cursor={{ fill: 'rgba(16, 83, 143, 0.08)' }}
               contentStyle={{
-                backgroundColor: '#251b16', border: '1px solid #3d2e24',
-                borderRadius: 8, color: '#f4ede1',
+                backgroundColor: '#ffffff', border: '1px solid #ccd8e4',
+                borderRadius: 8, color: '#16202b',
               }}
               formatter={(wert) => [werteFormat ? werteFormat(wert) : wert, null]}
-              labelStyle={{ color: '#b9aa96' }} />
+              labelStyle={{ color: '#5a6b7d' }} />
             <Bar dataKey={ySchluessel} fill={balkenFarbe} radius={[4, 4, 0, 0]} maxBarSize={48} />
           </BarChart>
         </ResponsiveContainer>
@@ -95,15 +95,15 @@ export default function StatistikSeite() {
   return (
     <div className="max-w-5xl space-y-6">
       <div className="flex flex-wrap items-center gap-3">
-        <h2 className="mr-4 font-display text-2xl text-gold">Statistik</h2>
+        <h2 className="mr-4 font-display text-2xl text-navy">Statistik</h2>
         <button onClick={() => tagWaehlen(heutigesDatum())}
           className={`rounded-lg px-4 py-2 ${
-            datum === heutigesDatum() ? 'bg-rot font-bold' : 'border border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
+            datum === heutigesDatum() ? 'bg-blau font-bold text-flaeche' : 'border border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
           }`}>
           Heute
         </button>
         <select value={datum} onChange={(e) => tagWaehlen(e.target.value)}
-          className="rounded-lg border border-linie bg-flaeche px-3 py-2 outline-none focus:border-gold">
+          className="rounded-lg border border-linie bg-flaeche px-3 py-2 outline-none focus:border-blau-hell">
           {!tage.includes(datum) && <option value={datum}>{datumAnzeigen(datum)}</option>}
           {tage.map((tag) => <option key={tag} value={tag}>{datumAnzeigen(tag)}</option>)}
         </select>
@@ -129,7 +129,7 @@ export default function StatistikSeite() {
         kinder={
           <select value={stundenArtikel}
             onChange={(e) => stundenArtikelWaehlen(e.target.value)}
-            className="rounded-lg border border-linie bg-grund px-3 py-1 text-sm outline-none focus:border-gold">
+            className="rounded-lg border border-linie bg-grund px-3 py-1 text-sm outline-none focus:border-blau-hell">
             <option value="">Alle Artikel</option>
             {artikelListe.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
           </select>

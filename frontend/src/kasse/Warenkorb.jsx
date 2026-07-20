@@ -5,7 +5,7 @@ export default function Warenkorb({ positionen, onEntfernen, onKassieren, laeuft
 
   return (
     <aside className="flex w-96 shrink-0 flex-col border-l border-linie bg-flaeche">
-      <h2 className="border-b border-linie px-4 py-3 font-display text-xl text-gold">Warenkorb</h2>
+      <h2 className="border-b border-linie px-4 py-3 font-display text-xl text-navy">Warenkorb</h2>
 
       <ul className="flex-1 overflow-y-auto">
         {positionen.length === 0 && (
@@ -29,7 +29,7 @@ export default function Warenkorb({ positionen, onEntfernen, onKassieren, laeuft
             <span className="nummer text-lg">{formatEuro(position.artikel.preis_cent)}</span>
             <button onClick={() => onEntfernen(position.schluessel)}
               aria-label={`${position.artikel.name} entfernen`}
-              className="rounded-lg border border-linie px-3 py-2 text-rot-hell hover:bg-flaeche-hell">
+              className="rounded-lg border border-linie px-3 py-2 text-blau-hell hover:bg-flaeche-hell">
               ✕
             </button>
           </li>
@@ -37,16 +37,16 @@ export default function Warenkorb({ positionen, onEntfernen, onKassieren, laeuft
       </ul>
 
       {fehler && (
-        <p className="mx-4 mb-2 rounded bg-rot/30 px-3 py-2 text-rot-hell">{fehler}</p>
+        <p className="mx-4 mb-2 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>
       )}
 
       <div className="border-t border-linie p-4">
         <div className="mb-3 flex items-baseline justify-between">
           <span className="text-schrift-gedimmt">Gesamt</span>
-          <span className="nummer text-4xl text-gold">{formatEuro(summe)}</span>
+          <span className="nummer text-4xl text-navy">{formatEuro(summe)}</span>
         </div>
         <button onClick={onKassieren} disabled={laeuft || positionen.length === 0}
-          className="w-full rounded-xl bg-rot py-5 text-2xl font-bold hover:bg-rot-hell disabled:opacity-40">
+          className="w-full rounded-xl bg-blau py-5 text-2xl font-bold text-flaeche hover:bg-blau-hell disabled:opacity-40">
           {laeuft ? 'Wird gebucht …' : 'Kassieren'}
         </button>
       </div>

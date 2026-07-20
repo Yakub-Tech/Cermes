@@ -39,19 +39,19 @@ export default function BeilagenSeite() {
 
   return (
     <div className="max-w-2xl">
-      <h2 className="mb-6 font-display text-2xl text-gold">Beilagen</h2>
+      <h2 className="mb-6 font-display text-2xl text-navy">Beilagen</h2>
 
       <form onSubmit={anlegen} className="mb-6 flex gap-3">
         <input value={neuerName} onChange={(e) => setNeuerName(e.target.value)}
           placeholder="Neue Beilage, z. B. Ketchup"
-          className="flex-1 rounded border border-linie bg-flaeche px-3 py-2 outline-none focus:border-gold" />
+          className="flex-1 rounded border border-linie bg-flaeche px-3 py-2 outline-none focus:border-blau-hell" />
         <button type="submit" disabled={neuerName.trim() === ''}
-          className="rounded-lg bg-rot px-6 py-2 font-bold hover:bg-rot-hell disabled:opacity-40">
+          className="rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell disabled:opacity-40">
           Anlegen
         </button>
       </form>
 
-      {fehler && <p className="mb-4 rounded bg-rot/30 px-3 py-2 text-rot-hell">{fehler}</p>}
+      {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
 
       <ul className="divide-y divide-linie rounded-xl border border-linie bg-flaeche">
         {beilagen.length === 0 && (
@@ -67,7 +67,7 @@ export default function BeilagenSeite() {
                 name: beilage.name, aktiv: beilage.aktiv ? 0 : 1,
               }).catch((f) => setFehler(f.message))}
               className={`rounded-full px-4 py-1 text-sm font-semibold ${
-                beilage.aktiv ? 'bg-gold text-grund' : 'border border-linie text-schrift-gedimmt'
+                beilage.aktiv ? 'bg-navy text-grund' : 'border border-linie text-schrift-gedimmt'
               }`}>
               {beilage.aktiv ? 'aktiv' : 'inaktiv'}
             </button>
@@ -76,7 +76,7 @@ export default function BeilagenSeite() {
               Umbenennen
             </button>
             <button onClick={() => setLoeschung(beilage)}
-              className="rounded border border-linie px-3 py-1 text-rot-hell hover:bg-flaeche-hell">
+              className="rounded border border-linie px-3 py-1 text-blau-hell hover:bg-flaeche-hell">
               Löschen
             </button>
           </li>
@@ -87,14 +87,14 @@ export default function BeilagenSeite() {
         <Dialog titel="Beilage umbenennen" onSchliessen={() => setBearbeitung(null)}>
           <input value={bearbeitung.name} autoFocus
             onChange={(e) => setBearbeitung({ ...bearbeitung, name: e.target.value })}
-            className="mb-4 w-full rounded border border-linie bg-grund px-3 py-2 text-lg outline-none focus:border-gold" />
+            className="mb-4 w-full rounded border border-linie bg-grund px-3 py-2 text-lg outline-none focus:border-blau-hell" />
           <div className="flex gap-3">
             <button onClick={() => setBearbeitung(null)}
               className="flex-1 rounded-lg border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button onClick={speichern}
-              className="flex-1 rounded-lg bg-rot py-2 font-bold hover:bg-rot-hell">
+              className="flex-1 rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
               Speichern
             </button>
           </div>
@@ -116,7 +116,7 @@ export default function BeilagenSeite() {
               onClick={() => apiDelete(`/api/beilagen/${loeschung.id}`)
                 .then(() => setLoeschung(null))
                 .catch((f) => { setFehler(f.message); setLoeschung(null); })}
-              className="flex-1 rounded-lg bg-rot py-2 font-bold hover:bg-rot-hell">
+              className="flex-1 rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
               Ja, löschen
             </button>
           </div>

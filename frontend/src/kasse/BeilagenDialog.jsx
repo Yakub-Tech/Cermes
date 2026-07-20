@@ -30,7 +30,7 @@ export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen }) 
             <button key={beilage.id} onClick={() => umschalten(beilage)}
               className={`rounded-lg border px-4 py-4 text-center text-lg ${
                 aktivGewaehlt
-                  ? 'border-gold bg-gold text-grund font-bold'
+                  ? 'border-navy bg-navy text-grund font-bold'
                   : 'border-linie bg-grund hover:bg-flaeche-hell'
               }`}>
               {beilage.name}
@@ -44,7 +44,7 @@ export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen }) 
           Abbrechen
         </button>
         <button onClick={() => onBestaetigen(gewaehlt)}
-          className="flex-1 rounded-lg bg-rot py-3 text-lg font-bold hover:bg-rot-hell">
+          className="flex-1 rounded-lg bg-blau py-3 text-lg font-bold text-flaeche hover:bg-blau-hell">
           In den Warenkorb
         </button>
       </div>
