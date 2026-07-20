@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { apiGet } from '../api.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
-import WerbeKarussell from './WerbeKarussell.jsx';
-import EndlosSpalte from './EndlosSpalte.jsx';
-import logo from '../design/logo.png';
+import StatusSpalte from './StatusSpalte.jsx';
+import WerbeLeiste from './WerbeLeiste.jsx';
 
 export default function TvSeite() {
   const [kaertchen, setKaertchen] = useState({ in_bearbeitung: [], abholbereit: [] });
@@ -15,16 +14,18 @@ export default function TvSeite() {
   });
 
   return (
-    <main className="grid h-screen cursor-none select-none overflow-hidden"
-      style={{ gridTemplateColumns: '30fr 35fr 35fr' }}>
-      <section className="relative min-h-0 border-r border-linie">
-        <WerbeKarussell bilder={werbung} />
-        <img src={logo} alt="" className="absolute bottom-4 left-4 h-16 w-16 opacity-70" />
-      </section>
-      <EndlosSpalte titel="In Bearbeitung" kaertchen={kaertchen.in_bearbeitung} />
-      <div className="min-h-0 border-l border-linie">
-        <EndlosSpalte titel="Abholbereit" kaertchen={kaertchen.abholbereit} />
+    <main className="flex h-screen cursor-none select-none flex-col overflow-hidden">
+      <div className="flex min-h-0 flex-1">
+        <div className="min-w-0 flex-1 border-r border-linie">
+          <StatusSpalte titel="In Bearbeitung" kaertchen={kaertchen.in_bearbeitung} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <StatusSpalte titel="Abholbereit" kaertchen={kaertchen.abholbereit} />
+        </div>
       </div>
+      <footer className="flex h-[22vh] border-t border-linie">
+        <WerbeLeiste bilder={werbung} />
+      </footer>
     </main>
   );
 }
