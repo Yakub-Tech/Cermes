@@ -47,8 +47,8 @@ function BalkenDiagramm({
               formatter={(wert) => [werteFormat ? werteFormat(wert) : wert, null]}
               labelStyle={{ color: '#5a6b7d' }} />
             <Bar dataKey={ySchluessel} fill={balkenFarbe} radius={[4, 4, 0, 0]} maxBarSize={48}>
-              {balkenFarbFunktion && daten.map((zeile, index) => (
-                <Cell key={index} fill={balkenFarbFunktion(zeile)} />
+              {balkenFarbFunktion && daten.map((zeile) => (
+                <Cell key={zeile[xSchluessel]} fill={balkenFarbFunktion(zeile)} />
               ))}
             </Bar>
           </BarChart>
