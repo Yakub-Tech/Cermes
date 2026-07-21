@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { euroZuCent, formatEuro } from '../api.js';
 import Dialog from '../komponenten/Dialog.jsx';
 
+const NAME_MAX_LAENGE = 24;
+
 export default function ArtikelFormular({ artikel, beilagen, onSpeichern, onAbbrechen }) {
   const [name, setName] = useState(artikel?.name ?? '');
   const [farbe, setFarbe] = useState(artikel?.farbe ?? '#b53030');
@@ -54,8 +56,11 @@ export default function ArtikelFormular({ artikel, beilagen, onSpeichern, onAbbr
     <Dialog titel={artikel ? `${artikel.name} bearbeiten` : 'Artikel anlegen'}
       onSchliessen={onAbbrechen}>
       <label className="mb-1 block text-sm text-schrift-gedimmt">Name</label>
-      <input value={name} autoFocus onChange={(e) => setName(e.target.value)}
-        className={eingabeKlasse} />
+      <input value={name} autoFocus maxLength={NAME_MAX_LAENGE} onChange={(e) => setName(e.target.value)}
+        className={eingabeKlasse.replace('mb-4', 'mb-1')} />
+      <p className="mb-4 text-right text-xs text-schrift-gedimmt">
+        {name.length}/{NAME_MAX_LAENGE} Zeichen
+      </p>
 
       <div className="flex gap-4">
         <div className="flex-1">
