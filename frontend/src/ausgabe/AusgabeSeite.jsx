@@ -64,10 +64,19 @@ export default function AusgabeSeite() {
       karte: (k) => {
         const wartet = minutenSeit(k.abholbereit_am, jetzt);
         return (
-          <KaertchenKarte key={k.id} kaertchen={k}
-            zeitText={wartet >= warnminuten ? `wartet seit ${wartet} min!` : alterText(k.abholbereit_am, jetzt)}
-            warnung={wartet >= warnminuten}
-            onTippen={() => statusWechsel(k, 'abgeholt', 'abholbereit', 'wurde abgeholt')} />
+          <div key={k.id} className="flex items-center gap-2">
+            <div className="flex-1">
+              <KaertchenKarte kaertchen={k}
+                zeitText={wartet >= warnminuten ? `wartet seit ${wartet} min!` : alterText(k.abholbereit_am, jetzt)}
+                warnung={wartet >= warnminuten}
+                onTippen={() => statusWechsel(k, 'abgeholt', 'abholbereit', 'wurde abgeholt')} />
+            </div>
+            <button
+              onClick={() => apiPost(`/api/ausgabe/status/${k.id}`, { status: 'in_bearbeitung' }).catch(() => {})}
+              className="rounded-lg border border-linie px-3 py-6 text-schrift-gedimmt hover:bg-flaeche-hell">
+              Rückgängig
+            </button>
+          </div>
         );
       },
     },

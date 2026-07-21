@@ -13,7 +13,7 @@ const erlaubteWechsel = [
   ['abgeholt', 'abholbereit'],
 ];
 
-function kaertchenFuerAusgabe(db, status, sortierung) {
+function kaertchenFuerAusgabe(db, status, sortierung = 'id') {
   const zeilen = db.prepare(
     `SELECT id, nummer, artikel_name, artikel_farbe, beilagen, erstellt_am, abholbereit_am, abgeholt_am
      FROM kaertchen
@@ -23,12 +23,22 @@ function kaertchenFuerAusgabe(db, status, sortierung) {
   return zeilen.map((zeile) => ({ ...zeile, beilagen: JSON.parse(zeile.beilagen) }));
 }
 
+function nachArtikelUndNummerAufsteigend(a, b) {
+  return a.artikel_name.localeCompare(b.artikel_name, 'de') || a.nummer - b.nummer;
+}
+
+function nachArtikelUndNummerAbsteigend(a, b) {
+  return a.artikel_name.localeCompare(b.artikel_name, 'de') || b.nummer - a.nummer;
+}
+
 router.get('/api/ausgabe/kaertchen', brauchtRolle('ausgabe'), (_anfrage, antwort) => {
   const db = oeffneDatenbank();
   antwort.json({
-    in_bearbeitung: kaertchenFuerAusgabe(db, 'in_bearbeitung', 'erstellt_am, id'),
-    abholbereit: kaertchenFuerAusgabe(db, 'abholbereit', 'abholbereit_am, id'),
-    zuletzt_abgeholt: kaertchenFuerAusgabe(db, 'abgeholt', 'abgeholt_am DESC, id DESC').slice(0, 10),
+    in_bearbeitung: kaertchenFuerAusgabe(db, 'in_bearbeitung').sort(nachArtikelUndNummerAufsteigend),
+    abholbereit: kaertchenFuerAusgabe(db, 'abholbereit').sort(nachArtikelUndNummerAufsteigend),
+    zuletzt_abgeholt: kaertchenFuerAusgabe(db, 'abgeholt', 'abgeholt_am DESC, id DESC')
+      .slice(0, 30)
+      .sort(nachArtikelUndNummerAbsteigend),
   });
 });
 
