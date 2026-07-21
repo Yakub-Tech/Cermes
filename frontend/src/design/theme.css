@@ -24,7 +24,7 @@ body {
 }
 
 .nummer {
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
   font-weight: 800;
 }
 
