@@ -25,9 +25,14 @@ export default function StatusSpalte({ titel, kaertchen }) {
   return (
     <section className="flex h-full min-h-0 flex-col">
       <h2 className="bg-blau py-4 text-center font-display text-4xl text-flaeche">{titel}</h2>
-      <div ref={rahmen} className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-3">
+      <div ref={rahmen} className="flex min-h-0 flex-1 flex-col overflow-hidden p-3">
         {zeilen.map((zeile, zeilenIndex) => (
-          <div key={zeilenIndex} className="flex min-h-0 flex-1 gap-3">
+          <div
+            key={zeilenIndex}
+            className={`flex min-h-0 flex-1 gap-3${
+              zeilenIndex > 0 ? ' mt-3 border-t border-navy pt-3' : ''
+            }`}
+          >
             {zeile.map((gruppe) => (
               <ArtikelSpalte key={gruppe.artikelName} kaertchen={gruppe.kaertchen} />
             ))}
