@@ -15,21 +15,21 @@ export default function Warenkorb({ positionen, onEntfernen, onKassieren, laeuft
         )}
         {positionen.map((position) => (
           <li key={position.schluessel}
-            className="flex items-center gap-3 border-b border-linie px-4 py-3">
-            <span className="h-10 w-1.5 rounded"
+            className="flex gap-3 border-b border-linie px-4 py-3">
+            <span className="w-1.5 shrink-0 rounded"
               style={{ backgroundColor: position.artikel.farbe }} />
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 self-center">
               <p className="truncate text-lg">{position.artikel.name}</p>
               {position.beilagen.length > 0 && (
-                <p className="truncate text-sm text-schrift-gedimmt">
+                <p className="text-sm text-schrift-gedimmt">
                   {position.beilagen.map((b) => b.name).join(', ')}
                 </p>
               )}
             </div>
-            <span className="nummer text-lg">{formatEuro(position.artikel.preis_cent)}</span>
+            <span className="nummer self-center text-lg">{formatEuro(position.artikel.preis_cent)}</span>
             <button onClick={() => onEntfernen(position.schluessel)}
               aria-label={`${position.artikel.name} entfernen`}
-              className="rounded-lg border border-linie px-3 py-2 text-blau-hell hover:bg-flaeche-hell">
+              className="self-center rounded-lg border border-linie px-3 py-2 text-blau-hell hover:bg-flaeche-hell">
               ✕
             </button>
           </li>
