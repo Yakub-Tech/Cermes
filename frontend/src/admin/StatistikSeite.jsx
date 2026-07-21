@@ -7,6 +7,7 @@ import { useLiveUpdate } from '../useLiveUpdate.js';
 import { heutigesDatum, datumAnzeigen } from './datum.js';
 
 const balkenFarbe = '#10538f';
+const farbeOhneKosten = '#8a97a6';
 const achsenFarbe = '#5a6b7d';
 const gitterFarbe = '#ccd8e4';
 
@@ -54,6 +55,21 @@ function BalkenDiagramm({
         </ResponsiveContainer>
       )}
     </section>
+  );
+}
+
+function FarbLegende() {
+  return (
+    <div className="flex items-center gap-3 text-xs text-schrift-gedimmt">
+      <span className="flex items-center gap-1">
+        <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: balkenFarbe }} />
+        mit hinterlegten Kosten
+      </span>
+      <span className="flex items-center gap-1">
+        <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: farbeOhneKosten }} />
+        ohne hinterlegte Kosten
+      </span>
+    </div>
   );
 }
 
@@ -129,6 +145,11 @@ export default function StatistikSeite() {
 
       <BalkenDiagramm titel="Umsatz pro Artikel" daten={statistik.artikel}
         xSchluessel="artikel_name" ySchluessel="umsatz_cent" werteFormat={formatEuro} />
+
+      <BalkenDiagramm titel="Gewinn pro Artikel" daten={statistik.artikel}
+        xSchluessel="artikel_name" ySchluessel="gewinn_cent" werteFormat={formatEuro}
+        balkenFarbFunktion={(zeile) => (zeile.stueck_ohne_kosten > 0 ? farbeOhneKosten : balkenFarbe)}
+        kinder={<FarbLegende />} />
 
       <BalkenDiagramm titel="Verkäufe im Tagesverlauf" daten={stundenDaten}
         xSchluessel="stunde" ySchluessel="stueck"
