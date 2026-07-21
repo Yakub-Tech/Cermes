@@ -16,14 +16,14 @@ export default function TvSeite() {
   return (
     <main className="flex h-screen cursor-none select-none flex-col overflow-hidden">
       <div className="flex min-h-0 flex-1">
-        <div className="min-w-0 flex-1 border-r border-linie">
+        <div className="min-w-0 flex-1 border-r-2 border-navy">
           <StatusSpalte titel="In Bearbeitung" kaertchen={kaertchen.in_bearbeitung} />
         </div>
         <div className="min-w-0 flex-1">
           <StatusSpalte titel="Abholbereit" kaertchen={kaertchen.abholbereit} />
         </div>
       </div>
-      <footer className="flex h-[22vh] border-t border-linie">
+      <footer className="flex h-[22vh] border-t-4 border-navy">
         <WerbeLeiste bilder={werbung} />
       </footer>
     </main>
