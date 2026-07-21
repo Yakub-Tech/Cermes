@@ -15,8 +15,8 @@ function tvKaertchen(db, status, sortierung) {
 router.get('/api/tv/kaertchen', (_anfrage, antwort) => {
   const db = oeffneDatenbank();
   antwort.json({
-    in_bearbeitung: tvKaertchen(db, 'in_bearbeitung', 'erstellt_am, id'),
-    abholbereit: tvKaertchen(db, 'abholbereit', 'abholbereit_am, id'),
+    in_bearbeitung: tvKaertchen(db, 'in_bearbeitung', 'nummer'),
+    abholbereit: tvKaertchen(db, 'abholbereit', 'nummer'),
   });
 });
 
