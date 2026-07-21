@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts';
 import { apiGet, formatEuro } from '../api.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
@@ -20,7 +20,9 @@ function KennzahlKachel({ beschriftung, wert, fussnote }) {
   );
 }
 
-function BalkenDiagramm({ titel, daten, xSchluessel, ySchluessel, werteFormat, kinder }) {
+function BalkenDiagramm({
+  titel, daten, xSchluessel, ySchluessel, werteFormat, kinder, balkenFarbFunktion,
+}) {
   return (
     <section className="rounded-xl border border-linie bg-flaeche p-4">
       <div className="mb-2 flex items-center justify-between">
@@ -43,7 +45,11 @@ function BalkenDiagramm({ titel, daten, xSchluessel, ySchluessel, werteFormat, k
               }}
               formatter={(wert) => [werteFormat ? werteFormat(wert) : wert, null]}
               labelStyle={{ color: '#5a6b7d' }} />
-            <Bar dataKey={ySchluessel} fill={balkenFarbe} radius={[4, 4, 0, 0]} maxBarSize={48} />
+            <Bar dataKey={ySchluessel} fill={balkenFarbe} radius={[4, 4, 0, 0]} maxBarSize={48}>
+              {balkenFarbFunktion && daten.map((zeile, index) => (
+                <Cell key={index} fill={balkenFarbFunktion(zeile)} />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       )}
