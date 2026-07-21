@@ -78,3 +78,8 @@ body {
     animation: none;
   }
 }
+
+.verlauf-rand {
+  mask-image: linear-gradient(to bottom, transparent 0%, black 2%, black 98%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 2%, black 98%, transparent 100%);
+}

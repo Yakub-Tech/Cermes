@@ -11,7 +11,8 @@ export default function ArtikelSpalte({ kaertchen }) {
   );
 
   return (
-    <div ref={rahmen} className="min-w-[130px] shrink grow-0 basis-1/6 overflow-hidden">
+    <div ref={rahmen}
+      className={`min-w-[130px] shrink grow-0 basis-1/6 overflow-hidden ${ueberlauf ? 'verlauf-rand' : ''}`}>
       {ueberlauf ? (
         <div className="endlos-scroll"
           style={{ '--scroll-dauer': `${kaertchen.length * 3}s` }}>
