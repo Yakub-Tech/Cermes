@@ -12,10 +12,12 @@ export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen }) 
     }
   }
 
+  const beilagenSortiert = [...artikel.beilagen].sort((a, b) => a.name.localeCompare(b.name, 'de'));
+
   return (
     <Dialog titel={`${artikel.name}: Beilagen wählen`} onSchliessen={onAbbrechen}>
       <div className="mb-6 grid grid-cols-2 gap-3">
-        {artikel.beilagen.map((beilage) => {
+        {beilagenSortiert.map((beilage) => {
           const aktivGewaehlt = gewaehlt.some((b) => b.id === beilage.id);
           if (!beilage.aktiv) {
             return (
