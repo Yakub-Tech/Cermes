@@ -136,7 +136,7 @@ export default function StatistikSeite() {
         <KennzahlKachel beschriftung="Umsatz" wert={formatEuro(statistik.gesamt.umsatz_cent)} />
         <KennzahlKachel beschriftung="Gewinn" wert={formatEuro(statistik.gesamt.gewinn_cent)}
           fussnote={statistik.gesamt.stueck_ohne_kosten > 0
-            ? `${statistik.gesamt.stueck_ohne_kosten} Stück ohne Kostenangabe nicht eingerechnet`
+            ? `${statistik.gesamt.stueck_ohne_kosten} Stück ohne Kostenangabe, Gewinn dort ohne Kostenabzug berechnet`
             : null} />
       </div>
 

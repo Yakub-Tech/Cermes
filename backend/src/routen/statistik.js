@@ -21,8 +21,7 @@ router.get('/api/statistik/tag/:datum', brauchtRolle('admin'), (anfrage, antwort
     `SELECT artikel_name,
             COUNT(*) AS stueck,
             SUM(preis_cent) AS umsatz_cent,
-            COALESCE(SUM(CASE WHEN einkaufskosten_cent IS NOT NULL
-                              THEN preis_cent - einkaufskosten_cent END), 0) AS gewinn_cent,
+            SUM(preis_cent - COALESCE(einkaufskosten_cent, 0)) AS gewinn_cent,
             SUM(CASE WHEN einkaufskosten_cent IS NULL THEN 1 ELSE 0 END) AS stueck_ohne_kosten
      FROM kaertchen
      WHERE substr(erstellt_am, 1, 10) = ? AND status != 'storniert'

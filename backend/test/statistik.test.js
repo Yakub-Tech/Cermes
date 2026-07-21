@@ -37,12 +37,12 @@ test('Tagesstatistik: Stückzahlen, Umsatz, Gewinn, Stunden, Stornos', async () 
   assert.equal(proArtikel.Pommes.stueck_ohne_kosten, 0);
   assert.equal(proArtikel.Cola.stueck, 2);
   assert.equal(proArtikel.Cola.umsatz_cent, 500);
-  assert.equal(proArtikel.Cola.gewinn_cent, 0);
+  assert.equal(proArtikel.Cola.gewinn_cent, 500);
   assert.equal(proArtikel.Cola.stueck_ohne_kosten, 2);
 
   assert.equal(statistik.gesamt.stueck, 4);
   assert.equal(statistik.gesamt.umsatz_cent, 1200);
-  assert.equal(statistik.gesamt.gewinn_cent, 460);
+  assert.equal(statistik.gesamt.gewinn_cent, 460 + 500);
   assert.equal(statistik.gesamt.stueck_ohne_kosten, 2);
 
   const stunde = Number(jetztIso().slice(11, 13));
