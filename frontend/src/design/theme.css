@@ -66,8 +66,8 @@ body {
 }
 
 @keyframes werbeband-scroll {
-  from { transform: translateX(-50%); }
-  to { transform: translateX(0); }
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 .werbeband-scroll {
   animation: werbeband-scroll var(--scroll-dauer, 30s) linear infinite;

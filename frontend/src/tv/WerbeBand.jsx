@@ -15,26 +15,22 @@ export default function WerbeBand({ bilder }) {
     return () => beobachter.disconnect();
   }, []);
 
-  const bildBreite = breite / 3;
-
-  const reihe = (praefix, versteckt) => (
-    <div className="flex h-full" aria-hidden={versteckt || undefined}>
-      {bilder.map((bild) => (
-        <div key={`${praefix}-${bild.id}`} style={{ width: bildBreite, flex: 'none' }}
-          className="flex h-full items-center justify-center p-2">
-          <img src={bild.url} alt="Werbung"
-            className="max-h-full max-w-full rounded-xl object-contain" />
-        </div>
-      ))}
-    </div>
-  );
+  const bildBreite = Math.floor(breite / 3);
+  const doppelteListe = [...bilder, ...bilder];
 
   return (
-    <div ref={rahmen} className="h-full flex-1 overflow-hidden">
-      <div className="werbeband-scroll flex h-full"
+    <div ref={rahmen} className="h-full min-w-0 flex-1 overflow-hidden">
+      <div className="werbeband-scroll flex h-full w-max"
         style={{ '--scroll-dauer': `${bilder.length * SEKUNDEN_JE_BILD}s` }}>
-        {reihe('original', false)}
-        {reihe('kopie', true)}
+        {doppelteListe.map((bild, index) => (
+          <div key={`${index < bilder.length ? 'original' : 'kopie'}-${bild.id}`}
+            aria-hidden={index < bilder.length ? undefined : 'true'}
+            style={{ width: bildBreite }}
+            className="flex h-full shrink-0 items-center justify-center p-2">
+            <img src={bild.url} alt="Werbung"
+              className="max-h-full max-w-full rounded-xl object-contain" />
+          </div>
+        ))}
       </div>
     </div>
   );
