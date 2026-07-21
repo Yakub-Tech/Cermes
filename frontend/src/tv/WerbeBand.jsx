@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-const SEKUNDEN_JE_BILD = 4;
+const SEKUNDEN_JE_BILD = 4.8;
 
 export default function WerbeBand({ bilder }) {
   const rahmen = useRef(null);
