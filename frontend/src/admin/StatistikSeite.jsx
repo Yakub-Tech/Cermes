@@ -119,7 +119,7 @@ export default function StatistikSeite() {
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="mr-4 font-display text-2xl text-navy">Statistik</h2>
         <button onClick={() => tagWaehlen(heutigesDatum())}
-          className={`rounded-lg px-4 py-2 ${
+          className={`cursor-pointer rounded-lg px-4 py-2 ${
             datum === heutigesDatum() ? 'bg-blau font-bold text-flaeche' : 'border border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
           }`}>
           Heute

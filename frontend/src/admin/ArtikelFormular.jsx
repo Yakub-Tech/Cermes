@@ -98,7 +98,7 @@ export default function ArtikelFormular({ artikel, beilagen, onSpeichern, onAbbr
         )}
         {beilagen.map((beilage) => (
           <button key={beilage.id} type="button" onClick={() => beilageUmschalten(beilage.id)}
-            className={`rounded-full px-4 py-1 ${
+            className={`cursor-pointer rounded-full px-4 py-1 ${
               beilagenIds.includes(beilage.id)
                 ? 'bg-navy font-semibold text-grund'
                 : 'border border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
@@ -112,11 +112,11 @@ export default function ArtikelFormular({ artikel, beilagen, onSpeichern, onAbbr
 
       <div className="flex gap-3">
         <button onClick={onAbbrechen}
-          className="flex-1 rounded-lg border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
+          className="flex-1 cursor-pointer rounded-lg border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
           Abbrechen
         </button>
         <button onClick={speichern}
-          className="flex-1 rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
+          className="flex-1 cursor-pointer rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
           Speichern
         </button>
       </div>

@@ -59,7 +59,7 @@ export default function LoginSeite() {
         )}
 
         <button type="submit" disabled={laeuft}
-          className="w-full rounded bg-blau py-3 text-lg font-bold text-flaeche hover:bg-blau-hell disabled:opacity-50">
+          className="w-full cursor-pointer rounded bg-blau py-3 text-lg font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-50">
           Anmelden
         </button>
       </form>

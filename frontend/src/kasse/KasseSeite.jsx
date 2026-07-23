@@ -61,7 +61,7 @@ export default function KasseSeite() {
           <nav className="flex gap-1 rounded-lg border border-linie p-1">
             {[['verkauf', 'Verkauf'], ['storno', 'Storno']].map(([wert, beschriftung]) => (
               <button key={wert} onClick={() => setTab(wert)}
-                className={`rounded-md px-5 py-2 text-lg ${
+                className={`cursor-pointer rounded-md px-5 py-2 text-lg ${
                   tab === wert ? 'bg-blau font-bold text-flaeche' : 'text-schrift-gedimmt hover:bg-flaeche-hell'
                 }`}>
                 {beschriftung}
@@ -75,7 +75,7 @@ export default function KasseSeite() {
           <div className="grid flex-1 auto-rows-min grid-cols-2 gap-4 overflow-y-auto p-4 md:grid-cols-3 xl:grid-cols-4">
             {artikelListe.map((artikel) => (
               <button key={artikel.id} onClick={() => artikelTippen(artikel)}
-                className="relative min-h-32 rounded-xl border border-linie bg-flaeche p-4 text-left shadow-lg hover:bg-flaeche-hell active:scale-[0.98]"
+                className="relative min-h-32 cursor-pointer rounded-xl border border-linie bg-flaeche p-4 text-left shadow-lg hover:bg-flaeche-hell active:scale-[0.98]"
                 style={{ borderTop: `6px solid ${artikel.farbe}` }}>
                 <p className="text-2xl font-semibold">{artikel.name}</p>
                 <p className="nummer mt-2 text-xl text-navy">{formatEuro(artikel.preis_cent)}</p>

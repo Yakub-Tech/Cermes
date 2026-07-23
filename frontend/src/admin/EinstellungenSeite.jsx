@@ -41,7 +41,7 @@ export default function EinstellungenSeite() {
         {meldung && <p className="mb-3 text-navy">{meldung}</p>}
         {fehler && <p className="mb-3 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
         <button type="submit"
-          className="block rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell">
+          className="block cursor-pointer rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell">
           Speichern
         </button>
       </form>

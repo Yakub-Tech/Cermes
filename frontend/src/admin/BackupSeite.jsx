@@ -35,7 +35,7 @@ export default function BackupSeite() {
           Am besten nach jedem Verkaufstag einmal machen und die Datei sicher ablegen.
         </p>
         <button onClick={() => { location.href = '/api/backup'; }}
-          className="rounded-xl bg-blau px-8 py-4 text-xl font-bold text-flaeche hover:bg-blau-hell">
+          className="cursor-pointer rounded-xl bg-blau px-8 py-4 text-xl font-bold text-flaeche hover:bg-blau-hell">
           Backup herunterladen
         </button>
       </section>
@@ -50,7 +50,7 @@ export default function BackupSeite() {
           <input type="file" accept=".zip"
             onChange={(e) => setDatei(e.target.files[0] || null)}
             className="mb-4 block w-full text-schrift-gedimmt" />
-          <label className="mb-4 flex items-center gap-2">
+          <label className="mb-4 flex cursor-pointer items-center gap-2">
             <input type="checkbox" checked={bestaetigt}
               onChange={(e) => setBestaetigt(e.target.checked)} />
             <span>Ich habe verstanden, dass alle aktuellen Daten ersetzt werden.</span>
@@ -58,7 +58,7 @@ export default function BackupSeite() {
           {hinweis && <p className="mb-3 rounded bg-akzent/10 px-3 py-2 text-akzent-text">{hinweis}</p>}
           {fehler && <p className="mb-3 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
           <button type="submit" disabled={!datei || !bestaetigt || laeuft}
-            className="rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell disabled:opacity-40">
+            className="cursor-pointer rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
             {laeuft ? 'Wird eingespielt …' : 'Backup einspielen'}
           </button>
         </form>

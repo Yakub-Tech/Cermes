@@ -59,7 +59,7 @@ export default function BenutzerSeite() {
       <h2 className="mb-6 font-display text-2xl text-navy">Benutzer</h2>
 
       <button onClick={() => setAnlage({ benutzername: '', passwort: '', rolle: 'kasse' })}
-        className="mb-6 rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell">
+        className="mb-6 cursor-pointer rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell">
         Benutzer anlegen
       </button>
 
@@ -73,11 +73,11 @@ export default function BenutzerSeite() {
               {rollenNamen[konto.rolle]}
             </span>
             <button onClick={() => setPasswortReset({ id: konto.id, benutzername: konto.benutzername, passwort: '' })}
-              className="rounded border border-linie px-3 py-1 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="cursor-pointer rounded border border-linie px-3 py-1 text-schrift-gedimmt hover:bg-flaeche-hell">
               Passwort zurücksetzen
             </button>
             <button onClick={() => setLoeschung(konto)}
-              className="rounded border border-linie px-3 py-1 text-blau-hell hover:bg-flaeche-hell">
+              className="cursor-pointer rounded border border-linie px-3 py-1 text-blau-hell hover:bg-flaeche-hell">
               Löschen
             </button>
           </li>
@@ -104,11 +104,11 @@ export default function BenutzerSeite() {
           </select>
           <div className="flex gap-3">
             <button onClick={() => setAnlage(null)}
-              className="flex-1 rounded-lg border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="flex-1 cursor-pointer rounded-lg border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button onClick={anlegen}
-              className="flex-1 rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
               Anlegen
             </button>
           </div>
@@ -124,11 +124,11 @@ export default function BenutzerSeite() {
             className={eingabeKlasse} />
           <div className="flex gap-3">
             <button onClick={() => setPasswortReset(null)}
-              className="flex-1 rounded-lg border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="flex-1 cursor-pointer rounded-lg border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button onClick={passwortSetzen}
-              className="flex-1 rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
               Speichern
             </button>
           </div>
@@ -143,11 +143,11 @@ export default function BenutzerSeite() {
           </p>
           <div className="flex gap-3">
             <button onClick={() => setLoeschung(null)}
-              className="flex-1 rounded-lg border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="flex-1 cursor-pointer rounded-lg border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button onClick={loeschen}
-              className="flex-1 rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
               Ja, löschen
             </button>
           </div>

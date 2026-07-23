@@ -5,9 +5,9 @@ export default function KaertchenKarte({ kaertchen, zeitText, warnung, onTippen 
 
   return (
     <button onClick={onTippen}
-      className={`relative w-full rounded-2xl p-3 pt-6 text-center shadow-lg active:scale-[0.98] ${
-        warnung ? 'warn-puls' : ''
-      }`}
+      className={`relative w-full rounded-2xl p-3 pt-6 text-center shadow-lg ${
+        onTippen ? 'cursor-pointer active:scale-[0.98]' : ''
+      } ${warnung ? 'warn-puls' : ''}`}
       style={{ backgroundColor: kaertchen.artikel_farbe, color: schrift }}>
       <span className="stanzung absolute left-1/2 top-2 -translate-x-1/2" />
       <span className="nummer block text-5xl">{kaertchen.nummer}</span>

@@ -38,7 +38,7 @@ export default function WerbungSeite() {
       <input ref={dateiFeld} type="file" accept="image/png,image/jpeg,image/webp"
         onChange={hochladen} className="hidden" />
       <button onClick={() => dateiFeld.current.click()}
-        className="mb-6 rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell">
+        className="mb-6 cursor-pointer rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell">
         Bild hochladen
       </button>
 
@@ -57,13 +57,13 @@ export default function WerbungSeite() {
               <button
                 onClick={() => apiPut(`/api/werbung/${bild.id}`, { aktiv: bild.aktiv ? 0 : 1 })
                   .catch((f) => setFehler(f.message))}
-                className={`rounded-full px-4 py-1 text-sm font-semibold ${
+                className={`cursor-pointer rounded-full px-4 py-1 text-sm font-semibold ${
                   bild.aktiv ? 'bg-navy text-grund' : 'border border-linie text-schrift-gedimmt'
                 }`}>
                 {bild.aktiv ? 'aktiv' : 'inaktiv'}
               </button>
               <button onClick={() => setLoeschung(bild)}
-                className="rounded border border-linie px-3 py-1 text-blau-hell hover:bg-flaeche-hell">
+                className="cursor-pointer rounded border border-linie px-3 py-1 text-blau-hell hover:bg-flaeche-hell">
                 Entfernen
               </button>
             </div>
@@ -77,14 +77,14 @@ export default function WerbungSeite() {
           <p className="mb-6">Das Bild wird dauerhaft gelöscht.</p>
           <div className="flex gap-3">
             <button onClick={() => setLoeschung(null)}
-              className="flex-1 rounded-lg border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="flex-1 cursor-pointer rounded-lg border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button
               onClick={() => apiDelete(`/api/werbung/${loeschung.id}`)
                 .then(() => setLoeschung(null))
                 .catch((f) => { setFehler(f.message); setLoeschung(null); })}
-              className="flex-1 rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
               Ja, entfernen
             </button>
           </div>

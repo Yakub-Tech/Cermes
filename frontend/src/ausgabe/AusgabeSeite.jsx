@@ -73,7 +73,7 @@ export default function AusgabeSeite() {
             </div>
             <button
               onClick={() => apiPost(`/api/ausgabe/status/${k.id}`, { status: 'in_bearbeitung' }).catch(() => {})}
-              className="rounded-lg border border-linie px-3 py-6 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="cursor-pointer rounded-lg border border-linie px-3 py-6 text-schrift-gedimmt hover:bg-flaeche-hell">
               Rückgängig
             </button>
           </div>
@@ -90,7 +90,7 @@ export default function AusgabeSeite() {
           </div>
           <button
             onClick={() => apiPost(`/api/ausgabe/status/${k.id}`, { status: 'abholbereit' }).catch(() => {})}
-            className="rounded-lg border border-linie px-3 py-6 text-schrift-gedimmt hover:bg-flaeche-hell">
+            className="cursor-pointer rounded-lg border border-linie px-3 py-6 text-schrift-gedimmt hover:bg-flaeche-hell">
             Rückgängig
           </button>
         </div>
