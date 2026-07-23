@@ -63,9 +63,9 @@ export default function BenutzerSeite() {
         Benutzer anlegen
       </button>
 
-      {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
+      {fehler && <p className="mb-4 max-w-2xl rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
 
-      <ul className="divide-y divide-linie rounded-xl border border-linie bg-flaeche">
+      <ul className="max-w-2xl divide-y divide-linie rounded-xl border border-linie bg-flaeche">
         {benutzer.map((konto) => (
           <li key={konto.id} className="flex items-center gap-4 px-4 py-3">
             <span className="flex-1 text-lg">{konto.benutzername}</span>

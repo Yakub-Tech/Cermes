@@ -41,7 +41,7 @@ export default function BeilagenSeite() {
     <div>
       <h2 className="mb-6 font-display text-2xl text-navy">Beilagen</h2>
 
-      <form onSubmit={anlegen} className="mb-6 flex gap-3">
+      <form onSubmit={anlegen} className="mb-6 flex max-w-2xl gap-3">
         <input value={neuerName} onChange={(e) => setNeuerName(e.target.value)}
           placeholder="Neue Beilage, z. B. Ketchup"
           className="flex-1 rounded border border-linie bg-flaeche px-3 py-2 outline-none focus:border-blau-hell" />
@@ -51,9 +51,9 @@ export default function BeilagenSeite() {
         </button>
       </form>
 
-      {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
+      {fehler && <p className="mb-4 max-w-2xl rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
 
-      <ul className="divide-y divide-linie rounded-xl border border-linie bg-flaeche">
+      <ul className="max-w-2xl divide-y divide-linie rounded-xl border border-linie bg-flaeche">
         {beilagen.length === 0 && (
           <li className="px-4 py-6 text-schrift-gedimmt">Noch keine Beilagen angelegt.</li>
         )}
