@@ -1,7 +1,7 @@
 import { useUeberlaufErkennung } from './useUeberlaufErkennung.js';
 import TvKarte from './TvKarte.jsx';
 
-const LUECKE_ANZAHL = 4;
+const LUECKE_ANZAHL = 2;
 
 export default function ArtikelSpalte({ kaertchen }) {
   const { rahmen, inhalt, ueberlauf } = useUeberlaufErkennung(kaertchen);
