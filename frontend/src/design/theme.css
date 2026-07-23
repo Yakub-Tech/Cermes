@@ -73,9 +73,25 @@ body {
   animation: werbeband-scroll var(--scroll-dauer, 30s) linear infinite;
 }
 
+@keyframes sprachwechsel {
+  0%, 47% { opacity: 1; }
+  50%, 97% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.sprachwechsel {
+  grid-area: 1 / 1;
+  animation: sprachwechsel 20s ease-in-out infinite;
+}
+.sprachwechsel-tr {
+  animation-delay: -10s;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .warn-puls, .endlos-scroll, .einblenden, .werbeband-scroll {
+  .warn-puls, .endlos-scroll, .einblenden, .werbeband-scroll, .sprachwechsel {
     animation: none;
+  }
+  .sprachwechsel-tr {
+    opacity: 0;
   }
 }
 

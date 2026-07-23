@@ -6,7 +6,7 @@ import ArtikelSpalte from './ArtikelSpalte.jsx';
 const MINDESTBREITE_PX = 130;
 const ABSTAND_PX = 12;
 
-export default function StatusSpalte({ titel, kaertchen }) {
+export default function StatusSpalte({ titel, titelTuerkisch, kaertchen }) {
   const rahmen = useRef(null);
   const [breite, setBreite] = useState(0);
 
@@ -24,7 +24,10 @@ export default function StatusSpalte({ titel, kaertchen }) {
 
   return (
     <section className="flex h-full min-h-0 flex-col">
-      <h2 className="bg-blau py-4 text-center font-display text-4xl text-flaeche">{titel}</h2>
+      <div className="grid bg-blau py-4 text-center font-display text-4xl text-flaeche">
+        <h2 className="sprachwechsel sprachwechsel-de">{titel}</h2>
+        <h2 className="sprachwechsel sprachwechsel-tr">{titelTuerkisch}</h2>
+      </div>
       <div ref={rahmen} className="flex min-h-0 flex-1 flex-col overflow-hidden p-3">
         {zeilen.map((zeile, zeilenIndex) => (
           <div
