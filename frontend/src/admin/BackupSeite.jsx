@@ -27,10 +27,10 @@ export default function BackupSeite() {
   }
 
   return (
-    <div className="max-w-lg space-y-8">
+    <div className="space-y-8">
       <section>
         <h2 className="mb-4 font-display text-2xl text-navy">Backup herunterladen</h2>
-        <p className="mb-4 text-schrift-gedimmt">
+        <p className="mb-4 max-w-lg text-schrift-gedimmt">
           Lädt eine ZIP-Datei mit der kompletten Datenbank und allen Werbebildern herunter.
           Am besten nach jedem Verkaufstag einmal machen und die Datei sicher ablegen.
         </p>
@@ -42,7 +42,7 @@ export default function BackupSeite() {
 
       <section>
         <h2 className="mb-4 font-display text-2xl text-navy">Backup einspielen</h2>
-        <form onSubmit={einspielen} className="rounded-xl border border-linie bg-flaeche p-6">
+        <form onSubmit={einspielen} className="max-w-lg rounded-xl border border-linie bg-flaeche p-6">
           <p className="mb-4 rounded-lg border border-blau bg-blau/20 px-4 py-3 text-blau">
             Achtung: Das Einspielen <strong>ersetzt alle aktuellen Daten</strong>,
             also Verkäufe, Artikel, Benutzer und Werbebilder, durch den Stand aus der Backup-Datei.

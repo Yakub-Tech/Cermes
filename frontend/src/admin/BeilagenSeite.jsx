@@ -38,7 +38,7 @@ export default function BeilagenSeite() {
   }
 
   return (
-    <div className="max-w-2xl">
+    <div>
       <h2 className="mb-6 font-display text-2xl text-navy">Beilagen</h2>
 
       <form onSubmit={anlegen} className="mb-6 flex gap-3">

@@ -55,7 +55,7 @@ export default function BenutzerSeite() {
     'mb-4 w-full rounded border border-linie bg-grund px-3 py-2 text-lg outline-none focus:border-blau-hell';
 
   return (
-    <div className="max-w-2xl">
+    <div>
       <h2 className="mb-6 font-display text-2xl text-navy">Benutzer</h2>
 
       <button onClick={() => setAnlage({ benutzername: '', passwort: '', rolle: 'kasse' })}

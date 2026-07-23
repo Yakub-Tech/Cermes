@@ -115,7 +115,7 @@ export default function StatistikSeite() {
   const stundenDaten = stunden.map((s) => ({ ...s, stunde: `${s.stunde} Uhr` }));
 
   return (
-    <div className="max-w-5xl space-y-6">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="mr-4 font-display text-2xl text-navy">Statistik</h2>
         <button onClick={() => tagWaehlen(heutigesDatum())}

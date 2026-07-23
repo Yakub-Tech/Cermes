@@ -25,9 +25,9 @@ export default function EinstellungenSeite() {
   }
 
   return (
-    <div className="max-w-lg">
+    <div>
       <h2 className="mb-6 font-display text-2xl text-navy">Einstellungen</h2>
-      <form onSubmit={speichern} className="rounded-xl border border-linie bg-flaeche p-6">
+      <form onSubmit={speichern} className="max-w-lg rounded-xl border border-linie bg-flaeche p-6">
         <label className="mb-1 block text-schrift-gedimmt" htmlFor="warnminuten">
           Warnzeit für liegengebliebene abholbereite Kärtchen (Minuten)
         </label>
