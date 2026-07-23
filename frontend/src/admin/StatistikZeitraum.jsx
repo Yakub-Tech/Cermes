@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { apiGet } from '../api.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { heutigesDatum, datumAnzeigen } from './datum.js';
+import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { ArtikelUebersicht, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
 
 function vorauswahlBerechnen(verkaufstage) {
@@ -77,15 +78,11 @@ export default function StatistikZeitraum() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
         <span className="text-schrift-gedimmt">Von</span>
-        <select value={von} onChange={(e) => vonWaehlen(e.target.value)}
-          className="rounded-lg border border-linie bg-flaeche px-3 py-2 outline-none focus:border-blau-hell">
-          {vonOptionen.map((tag) => <option key={tag} value={tag}>{datumAnzeigen(tag)}</option>)}
-        </select>
+        <Auswahlmenue wert={von} onWahl={vonWaehlen}
+          optionen={vonOptionen.map((tag) => ({ wert: tag, text: datumAnzeigen(tag) }))} />
         <span className="text-schrift-gedimmt">Bis</span>
-        <select value={bis} onChange={(e) => bisWaehlen(e.target.value)}
-          className="rounded-lg border border-linie bg-flaeche px-3 py-2 outline-none focus:border-blau-hell">
-          {bisOptionen.map((tag) => <option key={tag} value={tag}>{datumAnzeigen(tag)}</option>)}
-        </select>
+        <Auswahlmenue wert={bis} onWahl={bisWaehlen}
+          optionen={bisOptionen.map((tag) => ({ wert: tag, text: datumAnzeigen(tag) }))} />
       </div>
 
       <ArtikelUebersicht gesamt={statistik.gesamt} artikel={statistik.artikel} />
@@ -94,12 +91,12 @@ export default function StatistikZeitraum() {
         xSchluessel="tag" ySchluessel="stueck"
         leerText="Keine Verkäufe in diesem Zeitraum."
         kinder={
-          <select value={verlaufArtikel}
-            onChange={(e) => verlaufArtikelWaehlen(e.target.value)}
-            className="rounded-lg border border-linie bg-grund px-3 py-1 text-sm outline-none focus:border-blau-hell">
-            <option value="">Alle Artikel</option>
-            {artikelListe.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-          </select>
+          <Auswahlmenue wert={verlaufArtikel} onWahl={verlaufArtikelWaehlen}
+            optionen={[
+              { wert: '', text: 'Alle Artikel' },
+              ...artikelListe.map((a) => ({ wert: String(a.id), text: a.name })),
+            ]}
+            klasse="text-sm" />
         } />
 
       <StornoTabelle stornos={statistik.stornos} mitDatum />

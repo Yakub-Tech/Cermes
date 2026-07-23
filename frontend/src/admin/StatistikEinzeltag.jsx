@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { apiGet } from '../api.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { heutigesDatum, datumAnzeigen } from './datum.js';
+import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { ArtikelUebersicht, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
 
 export default function StatistikEinzeltag() {
@@ -54,11 +55,11 @@ export default function StatistikEinzeltag() {
           }`}>
           Heute
         </button>
-        <select value={datum} onChange={(e) => tagWaehlen(e.target.value)}
-          className="rounded-lg border border-linie bg-flaeche px-3 py-2 outline-none focus:border-blau-hell">
-          {!tage.includes(datum) && <option value={datum}>{datumAnzeigen(datum)}</option>}
-          {tage.map((tag) => <option key={tag} value={tag}>{datumAnzeigen(tag)}</option>)}
-        </select>
+        <Auswahlmenue wert={datum} onWahl={tagWaehlen}
+          optionen={[
+            ...(!tage.includes(datum) ? [{ wert: datum, text: datumAnzeigen(datum) }] : []),
+            ...tage.map((tag) => ({ wert: tag, text: datumAnzeigen(tag) })),
+          ]} />
       </div>
 
       <ArtikelUebersicht gesamt={statistik.gesamt} artikel={statistik.artikel} />
@@ -66,12 +67,12 @@ export default function StatistikEinzeltag() {
       <BalkenDiagramm titel="Verkäufe im Tagesverlauf" daten={stundenDaten}
         xSchluessel="stunde" ySchluessel="stueck"
         kinder={
-          <select value={stundenArtikel}
-            onChange={(e) => stundenArtikelWaehlen(e.target.value)}
-            className="rounded-lg border border-linie bg-grund px-3 py-1 text-sm outline-none focus:border-blau-hell">
-            <option value="">Alle Artikel</option>
-            {artikelListe.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-          </select>
+          <Auswahlmenue wert={stundenArtikel} onWahl={stundenArtikelWaehlen}
+            optionen={[
+              { wert: '', text: 'Alle Artikel' },
+              ...artikelListe.map((a) => ({ wert: String(a.id), text: a.name })),
+            ]}
+            klasse="text-sm" />
         } />
 
       <StornoTabelle stornos={statistik.stornos} />

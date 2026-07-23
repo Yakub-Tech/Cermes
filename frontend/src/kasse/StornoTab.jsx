@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { apiGet, apiPost, formatEuro } from '../api.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import Dialog from '../komponenten/Dialog.jsx';
+import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { lesbareSchriftfarbe } from '../komponenten/farbe.js';
 
 export default function StornoTab() {
@@ -38,11 +39,12 @@ export default function StornoTab() {
         <input value={nummernFilter} onChange={(e) => setNummernFilter(e.target.value)}
           placeholder="Nummer suchen …" inputMode="numeric"
           className="w-48 rounded border border-linie bg-flaeche px-3 py-3 text-lg outline-none focus:border-blau-hell" />
-        <select value={artikelFilter} onChange={(e) => setArtikelFilter(e.target.value)}
-          className="rounded border border-linie bg-flaeche px-3 py-3 text-lg outline-none focus:border-blau-hell">
-          <option value="">Alle Artikel</option>
-          {artikelNamen.map((name) => <option key={name} value={name}>{name}</option>)}
-        </select>
+        <Auswahlmenue wert={artikelFilter} onWahl={setArtikelFilter}
+          optionen={[
+            { wert: '', text: 'Alle Artikel' },
+            ...artikelNamen.map((name) => ({ wert: name, text: name })),
+          ]}
+          klasse="text-lg" />
       </div>
 
       {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
