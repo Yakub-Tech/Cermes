@@ -82,11 +82,6 @@ export default function ArtikelSeite() {
                     className="nummer rounded border border-linie px-3 py-1 hover:bg-flaeche-hell">
                     {artikel.naechste_nummer}
                   </button>
-                  {artikel.hoechste_nummer_heute !== null && (
-                    <span className="ml-2 text-sm text-schrift-gedimmt">
-                      heute bis {artikel.hoechste_nummer_heute}
-                    </span>
-                  )}
                 </td>
                 <td className="px-4 py-3">
                   <button
