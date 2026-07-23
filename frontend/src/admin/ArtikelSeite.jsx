@@ -32,7 +32,7 @@ export default function ArtikelSeite() {
   }
 
   return (
-    <div className="max-w-4xl">
+    <div>
       <h2 className="mb-6 font-display text-2xl text-navy">Artikel</h2>
 
       <button onClick={() => setFormular({ artikel: null })}
