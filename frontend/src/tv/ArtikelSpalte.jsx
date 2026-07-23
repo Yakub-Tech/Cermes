@@ -4,7 +4,7 @@ import TvKarte from './TvKarte.jsx';
 
 const LUECKE_ANZAHL = 2;
 
-export default function ArtikelSpalte({ kaertchen, zielAnzahl = kaertchen.length }) {
+export default function ArtikelSpalte({ kaertchen, zielAnzahl = kaertchen.length, breitePx = 130 }) {
   const { rahmen, inhalt, ueberlauf } = useUeberlaufErkennung(kaertchen);
   const lueckeAnzahl = LUECKE_ANZAHL + Math.max(0, zielAnzahl - kaertchen.length);
   const scrollDauerSekunden = (kaertchen.length + lueckeAnzahl) * 3;
@@ -32,7 +32,8 @@ export default function ArtikelSpalte({ kaertchen, zielAnzahl = kaertchen.length
 
   return (
     <div ref={rahmen}
-      className={`min-w-[130px] shrink grow-0 basis-1/6 overflow-hidden ${ueberlauf ? 'verlauf-rand' : ''}`}>
+      className={`shrink-0 grow-0 overflow-hidden ${ueberlauf ? 'verlauf-rand' : ''}`}
+      style={{ flexBasis: `${breitePx}px`, width: `${breitePx}px` }}>
       {ueberlauf ? (
         <div className="endlos-scroll"
           style={{

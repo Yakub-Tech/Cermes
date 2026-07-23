@@ -20,7 +20,12 @@ export default function StatusSpalte({ titel, titelTuerkisch, kaertchen }) {
   }, []);
 
   const gruppen = gruppiereNachArtikel(kaertchen);
-  const zeilen = teileInZeilen(gruppen, breite, MINDESTBREITE_PX, ABSTAND_PX);
+  const { zeilen, jeZeile } = teileInZeilen(gruppen, breite, MINDESTBREITE_PX, ABSTAND_PX);
+
+  const spaltenBreitePx =
+    breite > 0
+      ? Math.max(MINDESTBREITE_PX, Math.floor((breite - (jeZeile - 1) * ABSTAND_PX) / jeZeile))
+      : MINDESTBREITE_PX;
 
   return (
     <section className="flex h-full min-h-0 flex-col">
@@ -43,6 +48,7 @@ export default function StatusSpalte({ titel, titelTuerkisch, kaertchen }) {
                   key={gruppe.artikelName}
                   kaertchen={gruppe.kaertchen}
                   zielAnzahl={zielAnzahl}
+                  breitePx={spaltenBreitePx}
                 />
               ))}
             </div>
