@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiGet, apiPost, apiDelete } from '../api.js';
 import Dialog from '../komponenten/Dialog.jsx';
+import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 
 const rollenNamen = { admin: 'Verwaltung', kasse: 'Kasse', ausgabe: 'Ausgabe' };
 
@@ -95,13 +96,14 @@ export default function BenutzerSeite() {
             onChange={(e) => setAnlage({ ...anlage, passwort: e.target.value })}
             className={eingabeKlasse} />
           <label className="mb-1 block text-sm text-schrift-gedimmt">Rolle</label>
-          <select value={anlage.rolle}
-            onChange={(e) => setAnlage({ ...anlage, rolle: e.target.value })}
-            className={eingabeKlasse}>
-            <option value="kasse">Kasse</option>
-            <option value="ausgabe">Ausgabe</option>
-            <option value="admin">Verwaltung</option>
-          </select>
+          <Auswahlmenue wert={anlage.rolle}
+            onWahl={(neueRolle) => setAnlage({ ...anlage, rolle: neueRolle })}
+            optionen={[
+              { wert: 'kasse', text: 'Kasse' },
+              { wert: 'ausgabe', text: 'Ausgabe' },
+              { wert: 'admin', text: 'Verwaltung' },
+            ]}
+            klasse="mb-4 w-full" />
           <div className="flex gap-3">
             <button onClick={() => setAnlage(null)}
               className="flex-1 cursor-pointer rounded-lg border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">

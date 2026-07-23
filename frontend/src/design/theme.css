@@ -65,6 +65,16 @@ body {
   animation: einblenden 1s ease-in-out;
 }
 
+@keyframes dropdown-oeffnen {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes haekchen-einblenden {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 @keyframes werbeband-scroll {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
@@ -87,8 +97,12 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .warn-puls, .endlos-scroll, .einblenden, .werbeband-scroll, .sprachwechsel {
+  .warn-puls, .endlos-scroll, .einblenden, .werbeband-scroll, .sprachwechsel,
+  .auswahlmenue-panel, .haekchen-indicator {
     animation: none;
+  }
+  .auswahlmenue-chevron {
+    transition: none;
   }
   .sprachwechsel-tr {
     opacity: 0;
