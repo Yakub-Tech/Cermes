@@ -29,18 +29,25 @@ export default function StatusSpalte({ titel, titelTuerkisch, kaertchen }) {
         <h2 className="sprachwechsel sprachwechsel-tr">{titelTuerkisch}</h2>
       </div>
       <div ref={rahmen} className="flex min-h-0 flex-1 flex-col overflow-hidden p-3">
-        {zeilen.map((zeile, zeilenIndex) => (
-          <div
-            key={zeilenIndex}
-            className={`flex min-h-0 flex-1 gap-3${
-              zeilenIndex > 0 ? ' mt-3 border-t border-navy pt-3' : ''
-            }`}
-          >
-            {zeile.map((gruppe) => (
-              <ArtikelSpalte key={gruppe.artikelName} kaertchen={gruppe.kaertchen} />
-            ))}
-          </div>
-        ))}
+        {zeilen.map((zeile, zeilenIndex) => {
+          const zielAnzahl = Math.max(...zeile.map((gruppe) => gruppe.kaertchen.length));
+          return (
+            <div
+              key={zeilenIndex}
+              className={`flex min-h-0 flex-1 gap-3${
+                zeilenIndex > 0 ? ' mt-3 border-t border-navy pt-3' : ''
+              }`}
+            >
+              {zeile.map((gruppe) => (
+                <ArtikelSpalte
+                  key={gruppe.artikelName}
+                  kaertchen={gruppe.kaertchen}
+                  zielAnzahl={zielAnzahl}
+                />
+              ))}
+            </div>
+          );
+        })}
       </div>
     </section>
   );
