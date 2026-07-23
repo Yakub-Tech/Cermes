@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
+import DateiAuswahl from '../komponenten/DateiAuswahl.jsx';
 import { apiGet, apiPut, apiDelete, apiUpload } from '../api.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import Dialog from '../komponenten/Dialog.jsx';
@@ -7,14 +8,12 @@ export default function WerbungSeite() {
   const [bilder, setBilder] = useState([]);
   const [loeschung, setLoeschung] = useState(null);
   const [fehler, setFehler] = useState('');
-  const dateiFeld = useRef(null);
 
   useLiveUpdate(['werbung'], () => {
     apiGet('/api/werbung').then(setBilder).catch(() => {});
   });
 
-  async function hochladen(ereignis) {
-    const datei = ereignis.target.files[0];
+  async function hochladen(datei) {
     if (!datei) return;
     setFehler('');
     try {
@@ -24,7 +23,6 @@ export default function WerbungSeite() {
     } catch (f) {
       setFehler(f.message);
     }
-    ereignis.target.value = '';
   }
 
   return (
@@ -35,12 +33,9 @@ export default function WerbungSeite() {
         JPEG und WebP bis 10 MB. Änderungen wirken sofort.
       </p>
 
-      <input ref={dateiFeld} type="file" accept="image/png,image/jpeg,image/webp"
-        onChange={hochladen} className="hidden" />
-      <button onClick={() => dateiFeld.current.click()}
-        className="mb-6 cursor-pointer rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell">
-        Bild hochladen
-      </button>
+      <DateiAuswahl akzeptiert="image/png,image/jpeg,image/webp" beschriftung="Bild hochladen"
+        buttonKlasse="mb-6 cursor-pointer rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell"
+        onWahl={hochladen} />
 
       {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
 

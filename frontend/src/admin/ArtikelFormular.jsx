@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { euroZuCent, formatEuro } from '../api.js';
 import Dialog from '../komponenten/Dialog.jsx';
+import Zahlenfeld from '../komponenten/Zahlenfeld.jsx';
 
 const NAME_MAX_LAENGE = 24;
 
@@ -83,9 +84,7 @@ export default function ArtikelFormular({ artikel, beilagen, onSpeichern, onAbbr
         </div>
         <div>
           <label className="mb-1 block text-sm text-schrift-gedimmt">Sortierung in der Kasse</label>
-          <input type="number" value={sortierung}
-            onChange={(e) => setSortierung(e.target.value)}
-            className="w-24 rounded border border-linie bg-grund px-3 py-2 text-lg outline-none focus:border-blau-hell" />
+          <Zahlenfeld wert={sortierung} onWahl={setSortierung} klasse="w-24" />
         </div>
       </div>
 

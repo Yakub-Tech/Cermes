@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { apiPost } from '../api.js';
 import Dialog from '../komponenten/Dialog.jsx';
+import Kontrollkaestchen from '../komponenten/Kontrollkaestchen.jsx';
+import Zahlenfeld from '../komponenten/Zahlenfeld.jsx';
 
 export default function StartnummerDialog({ artikel, onFertig, onAbbrechen }) {
   const [nummerText, setNummerText] = useState(String(artikel.naechste_nummer));
@@ -29,9 +31,8 @@ export default function StartnummerDialog({ artikel, onFertig, onAbbrechen }) {
   return (
     <Dialog titel={`Startnummer für ${artikel.name}`} onSchliessen={onAbbrechen}>
       <label className="mb-1 block text-sm text-schrift-gedimmt">Weiter bei Nummer</label>
-      <input type="number" min="1" value={nummerText} autoFocus
-        onChange={(e) => { setNummerText(e.target.value); setWarnung(null); }}
-        className="mb-4 w-40 rounded border border-linie bg-grund px-3 py-2 text-lg outline-none focus:border-blau-hell" />
+      <Zahlenfeld min="1" wert={nummerText} autoFokus klasse="mb-4 w-40"
+        onWahl={(neuerWert) => { setNummerText(neuerWert); setWarnung(null); }} />
 
       {warnung && (
         <div className="mb-4 rounded-lg border border-akzent bg-akzent/10 px-4 py-3">
@@ -44,8 +45,7 @@ export default function StartnummerDialog({ artikel, onFertig, onAbbrechen }) {
             richtig, wenn ihr wirklich eine neue Kärtchenrolle einsetzt.
           </p>
           <label className="flex cursor-pointer items-center gap-2">
-            <input type="checkbox" checked={gelesen}
-              onChange={(e) => setGelesen(e.target.checked)} />
+            <Kontrollkaestchen markiert={gelesen} onWahl={setGelesen} />
             <span>Ich habe die Warnung gelesen und will das so.</span>
           </label>
         </div>

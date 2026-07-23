@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { apiUpload } from '../api.js';
+import Kontrollkaestchen from '../komponenten/Kontrollkaestchen.jsx';
+import DateiAuswahl from '../komponenten/DateiAuswahl.jsx';
 
 export default function BackupSeite() {
   const [datei, setDatei] = useState(null);
@@ -47,12 +49,11 @@ export default function BackupSeite() {
             Achtung: Das Einspielen <strong>ersetzt alle aktuellen Daten</strong>,
             also Verkäufe, Artikel, Benutzer und Werbebilder, durch den Stand aus der Backup-Datei.
           </p>
-          <input type="file" accept=".zip"
-            onChange={(e) => setDatei(e.target.files[0] || null)}
-            className="mb-4 block w-full text-schrift-gedimmt" />
+          <div className="mb-4">
+            <DateiAuswahl akzeptiert=".zip" wert={datei} onWahl={setDatei} />
+          </div>
           <label className="mb-4 flex cursor-pointer items-center gap-2">
-            <input type="checkbox" checked={bestaetigt}
-              onChange={(e) => setBestaetigt(e.target.checked)} />
+            <Kontrollkaestchen markiert={bestaetigt} onWahl={setBestaetigt} />
             <span>Ich habe verstanden, dass alle aktuellen Daten ersetzt werden.</span>
           </label>
           {hinweis && <p className="mb-3 rounded bg-akzent/10 px-3 py-2 text-akzent-text">{hinweis}</p>}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiGet, apiPut } from '../api.js';
+import Zahlenfeld from '../komponenten/Zahlenfeld.jsx';
 
 export default function EinstellungenSeite() {
   const [warnminuten, setWarnminuten] = useState('');
@@ -35,9 +36,8 @@ export default function EinstellungenSeite() {
           Wartet ein abholbereites Kärtchen länger als diese Zeit, wird es in der
           Ausgabe deutlich hervorgehoben.
         </p>
-        <input id="warnminuten" type="number" min="0" value={warnminuten}
-          onChange={(e) => setWarnminuten(e.target.value)}
-          className="mb-4 w-32 rounded border border-linie bg-grund px-3 py-2 text-lg outline-none focus:border-blau-hell" />
+        <Zahlenfeld id="warnminuten" min="0" wert={warnminuten} onWahl={setWarnminuten}
+          klasse="mb-4 w-32" />
         {meldung && <p className="mb-3 text-navy">{meldung}</p>}
         {fehler && <p className="mb-3 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
         <button type="submit"
