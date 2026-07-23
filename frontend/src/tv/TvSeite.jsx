@@ -16,11 +16,11 @@ export default function TvSeite() {
   return (
     <main className="flex h-screen cursor-none select-none flex-col gap-3 overflow-hidden bg-grund p-3">
       <div className="flex min-h-0 flex-1 gap-3">
-        <div className="min-w-0 flex-1 overflow-hidden rounded-lg bg-flaeche shadow-sm">
+        <div className="min-w-0 flex-1">
           <StatusSpalte titel="In Bearbeitung" titelTuerkisch="Hazırlanıyor"
             kaertchen={kaertchen.in_bearbeitung} />
         </div>
-        <div className="min-w-0 flex-1 overflow-hidden rounded-lg bg-flaeche shadow-sm">
+        <div className="min-w-0 flex-1">
           <StatusSpalte titel="Abholbereit" titelTuerkisch="Hazır"
             kaertchen={kaertchen.abholbereit} />
         </div>
