@@ -28,7 +28,7 @@ export default function WerbungSeite() {
   }
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <h2 className="mb-6 font-display text-2xl text-navy">Werbung</h2>
       <p className="mb-4 text-schrift-gedimmt">
         Aktive Bilder laufen als Karussell auf dem Fernseher. Erlaubt sind PNG,
@@ -48,7 +48,7 @@ export default function WerbungSeite() {
         <p className="text-schrift-gedimmt">Noch keine Werbebilder hochgeladen.</p>
       )}
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {bilder.map((bild) => (
           <div key={bild.id} className="rounded-xl border border-linie bg-flaeche p-3">
             <img src={bild.url} alt="Werbebild"
