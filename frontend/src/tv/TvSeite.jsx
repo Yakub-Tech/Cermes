@@ -25,9 +25,11 @@ export default function TvSeite() {
             kaertchen={kaertchen.abholbereit} />
         </div>
       </div>
-      <footer className="flex h-[22vh] border-t-4 border-navy">
-        <WerbeLeiste bilder={werbung} />
-      </footer>
+      {werbung.length > 0 && (
+        <footer className="flex h-[22vh] border-t-4 border-navy">
+          <WerbeLeiste bilder={werbung} />
+        </footer>
+      )}
     </main>
   );
 }
