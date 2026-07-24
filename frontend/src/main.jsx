@@ -9,6 +9,7 @@ import KasseSeite from './kasse/KasseSeite.jsx';
 import AusgabeSeite from './ausgabe/AusgabeSeite.jsx';
 import TvSeite from './tv/TvSeite.jsx';
 import AdminLayout from './admin/AdminLayout.jsx';
+import Urheberrechtshinweis from './komponenten/Urheberrechtshinweis.jsx';
 
 function App() {
   const [laedt, setLaedt] = useState(true);
@@ -27,15 +28,18 @@ function App() {
   if (laedt) return null;
 
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/login/kasse" replace />} />
-      <Route path="/einrichtung" element={<Ersteinrichtung />} />
-      <Route path="/login/:ansicht" element={<LoginSeite />} />
-      <Route path="/kasse" element={<KasseSeite />} />
-      <Route path="/ausgabe" element={<AusgabeSeite />} />
-      <Route path="/tv" element={<TvSeite />} />
-      <Route path="/admin/*" element={<AdminLayout />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login/kasse" replace />} />
+        <Route path="/einrichtung" element={<Ersteinrichtung />} />
+        <Route path="/login/:ansicht" element={<LoginSeite />} />
+        <Route path="/kasse" element={<KasseSeite />} />
+        <Route path="/ausgabe" element={<AusgabeSeite />} />
+        <Route path="/tv" element={<TvSeite />} />
+        <Route path="/admin/*" element={<AdminLayout />} />
+      </Routes>
+      <Urheberrechtshinweis />
+    </>
   );
 }
 
