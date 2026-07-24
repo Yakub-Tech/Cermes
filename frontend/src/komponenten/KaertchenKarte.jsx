@@ -1,14 +1,18 @@
-import { lesbareSchriftfarbe } from './farbe.js';
+import { lesbareSchriftfarbe, dunklereFarbe } from './farbe.js';
 
 export default function KaertchenKarte({ kaertchen, zeitText, warnung, onTippen }) {
   const schrift = lesbareSchriftfarbe(kaertchen.artikel_farbe);
 
   return (
     <button onClick={onTippen}
-      className={`relative w-full rounded-2xl p-3 text-center shadow-lg ${
+      className={`putz-textur w-full rounded-[24px] border p-3 text-center shadow-[0_2px_5px_rgba(0,0,0,0.18)] ${
         onTippen ? 'cursor-pointer active:scale-[0.98]' : ''
       } ${warnung ? 'warn-puls' : ''}`}
-      style={{ backgroundColor: kaertchen.artikel_farbe, color: schrift }}>
+      style={{
+        backgroundColor: kaertchen.artikel_farbe,
+        borderColor: dunklereFarbe(kaertchen.artikel_farbe),
+        color: schrift,
+      }}>
       <span className="nummer block text-5xl">{kaertchen.nummer}</span>
       <span className="mt-1 block text-lg font-semibold">{kaertchen.artikel_name}</span>
       {kaertchen.beilagen.length > 0 && (
