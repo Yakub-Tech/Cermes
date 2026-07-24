@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import Kopfzeile from '../komponenten/Kopfzeile.jsx';
 import Snackbar from '../komponenten/Snackbar.jsx';
 import KaertchenKarte from '../komponenten/KaertchenKarte.jsx';
-import BeilagenUebersicht from './BeilagenUebersicht.jsx';
 import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { apiGet, apiPost } from '../api.js';
@@ -114,8 +113,6 @@ export default function AusgabeSeite() {
           </section>
         ))}
       </div>
-
-      <BeilagenUebersicht />
 
       {snackbar && (
         <Snackbar meldung={snackbar.meldung} onRueckgaengig={snackbar.rueckgaengig}
