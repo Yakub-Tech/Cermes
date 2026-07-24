@@ -51,6 +51,7 @@ export default function AusgabeSeite() {
   const spalten = [
     {
       titel: 'In Bearbeitung',
+      kopfstil: 'stark',
       kaertchen: listen.in_bearbeitung,
       karte: (k) => (
         <KaertchenKarte key={k.id} kaertchen={k} zeitText={alterText(k.erstellt_am, jetzt)}
@@ -59,6 +60,7 @@ export default function AusgabeSeite() {
     },
     {
       titel: 'Abholbereit',
+      kopfstil: 'stark',
       kaertchen: listen.abholbereit,
       karte: (k) => {
         const wartet = minutenSeit(k.abholbereit_am, jetzt);
@@ -81,6 +83,7 @@ export default function AusgabeSeite() {
     },
     {
       titel: 'Zuletzt abgeholt',
+      kopfstil: 'blass',
       kaertchen: listen.zuletzt_abgeholt,
       karte: (k) => (
         <div key={k.id} className="flex items-center gap-2">
@@ -105,7 +108,9 @@ export default function AusgabeSeite() {
         {spalten.map((spalte) => (
           <section key={spalte.titel}
             className="flex min-h-0 flex-col overflow-hidden rounded-lg bg-flaeche shadow-sm">
-            <h2 className="px-4 py-3 text-center font-display text-xl text-navy">
+            <h2 className={`px-4 py-3 text-center font-display text-xl ${
+              spalte.kopfstil === 'stark' ? 'bg-blau text-flaeche' : 'bg-blau-blass text-navy'
+            }`}>
               {spalte.titel} ({spalte.kaertchen.length})
             </h2>
             <div className="flex-1 space-y-3 overflow-y-auto px-4 pt-2 pb-4">
