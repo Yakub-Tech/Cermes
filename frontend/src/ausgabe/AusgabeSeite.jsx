@@ -101,9 +101,10 @@ export default function AusgabeSeite() {
     <div className="flex h-screen flex-col">
       <Kopfzeile titel="Ausgabe" benutzername={session.benutzername} />
 
-      <div className="grid min-h-0 flex-1 grid-cols-3 gap-px bg-linie">
+      <div className="grid min-h-0 flex-1 grid-cols-3 gap-3 bg-grund p-3">
         {spalten.map((spalte) => (
-          <section key={spalte.titel} className="flex min-h-0 flex-col bg-grund">
+          <section key={spalte.titel}
+            className="flex min-h-0 flex-col overflow-hidden rounded-lg bg-flaeche shadow-sm">
             <h2 className="px-4 py-3 text-center font-display text-xl text-navy">
               {spalte.titel} ({spalte.kaertchen.length})
             </h2>
