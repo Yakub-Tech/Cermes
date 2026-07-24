@@ -50,7 +50,8 @@ export default function BackupSeite() {
             also Verkäufe, Artikel, Benutzer und Werbebilder, durch den Stand aus der Backup-Datei.
           </p>
           <div className="mb-4">
-            <DateiAuswahl akzeptiert=".zip" wert={datei} onWahl={setDatei} />
+            <DateiAuswahl akzeptiert=".zip" wert={datei} onWahl={setDatei}
+              typFehlerText="Bitte nur eine ZIP-Datei ablegen." />
           </div>
           <label className="mb-4 flex cursor-pointer items-center gap-2">
             <Kontrollkaestchen markiert={bestaetigt} onWahl={setBestaetigt} />
