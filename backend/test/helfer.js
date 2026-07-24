@@ -13,7 +13,7 @@ export function frischeApp() {
   const db = oeffneDatenbank();
   db.exec(`DELETE FROM kaertchen; DELETE FROM kassiervorgang;
     DELETE FROM artikel_beilage; DELETE FROM beilage; DELETE FROM artikel;
-    DELETE FROM werbebild; DELETE FROM benutzer;`);
+    DELETE FROM werbebild; DELETE FROM logo; DELETE FROM benutzer;`);
   return { app: erstelleApp(), db };
 }
 

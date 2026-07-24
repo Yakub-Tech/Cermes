@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiPost } from '../api.js';
-import logo from '../design/logo.png';
 
 export default function Ersteinrichtung() {
   const navigiere = useNavigate();
@@ -32,7 +31,7 @@ export default function Ersteinrichtung() {
     <main className="flex min-h-screen items-center justify-center p-4">
       <form onSubmit={einrichten}
         className="w-full max-w-md rounded-xl border border-linie bg-flaeche p-8 shadow-2xl">
-        <img src={logo} alt="Vereinslogo" className="mx-auto mb-4 h-28 w-28" />
+        <img src="/logo/aktuell" alt="Vereinslogo" className="mx-auto mb-4 h-28 w-28" />
         <h1 className="mb-1 text-center font-display text-3xl text-navy">Willkommen bei Cermes</h1>
         <p className="mb-6 text-center text-schrift-gedimmt">
           Zum Start wird das erste Verwaltungs-Konto angelegt. Damit verwaltest du

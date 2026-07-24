@@ -1,7 +1,11 @@
+import { useState } from 'react';
 import { apiPost } from '../api.js';
-import logo from '../design/logo.png';
+import { useLiveUpdate } from '../useLiveUpdate.js';
 
 export default function Kopfzeile({ titel, benutzername, rechts }) {
+  const [logoVersion, setLogoVersion] = useState(0);
+  useLiveUpdate(['logo'], () => setLogoVersion((v) => v + 1));
+
   async function abmelden() {
     await apiPost('/api/logout');
     location.reload();
@@ -10,7 +14,7 @@ export default function Kopfzeile({ titel, benutzername, rechts }) {
   return (
     <header>
       <div className="flex items-center gap-4 bg-flaeche px-4 py-2">
-        <img src={logo} alt="Vereinslogo" className="h-12 w-12" />
+        <img src={`/logo/aktuell?v=${logoVersion}`} alt="Vereinslogo" className="h-12 w-12" />
         <h1 className="font-display text-2xl text-navy">{titel}</h1>
         <div className="ml-auto flex items-center gap-4">
           {rechts}

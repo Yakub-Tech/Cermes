@@ -7,6 +7,7 @@ import { authEinbinden } from './auth.js';
 import { websocketEinbinden } from './broadcast.js';
 import tvRouter from './routen/tv.js';
 import werbungRouter, { werbeOrdner } from './routen/werbung.js';
+import logoRouter, { logoOrdner } from './routen/logo.js';
 import einstellungenRouter from './routen/einstellungen.js';
 import statistikRouter from './routen/statistik.js';
 import benutzerRouter from './routen/benutzer.js';
@@ -28,11 +29,13 @@ export function erstelleApp() {
   app.use(ausgabeRouter);
   app.use(tvRouter);
   app.use(werbungRouter);
+  app.use(logoRouter);
   app.use(einstellungenRouter);
   app.use(statistikRouter);
   app.use(benutzerRouter);
   app.use(backupRouter);
   app.use('/werbung', express.static(werbeOrdner()));
+  app.use('/logo', express.static(logoOrdner()));
   frontendAusliefern(app);
   return app;
 }
@@ -44,7 +47,7 @@ function frontendAusliefern(app) {
   if (!fs.existsSync(distOrdner)) return;
   app.use(express.static(distOrdner));
   app.get('*', (anfrage, antwort, weiter) => {
-    if (anfrage.path.startsWith('/api/') || anfrage.path.startsWith('/werbung/')) {
+    if (anfrage.path.startsWith('/api/') || anfrage.path.startsWith('/werbung/') || anfrage.path.startsWith('/logo/')) {
       return weiter();
     }
     antwort.sendFile(path.join(distOrdner, 'index.html'));

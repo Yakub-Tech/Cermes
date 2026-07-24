@@ -1,0 +1,6 @@
+CREATE TABLE logo (
+  id INTEGER PRIMARY KEY,
+  dateiname TEXT NOT NULL,
+  aktiv INTEGER NOT NULL DEFAULT 0,
+  hochgeladen_am TEXT NOT NULL
+);

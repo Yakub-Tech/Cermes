@@ -10,6 +10,7 @@ WORKDIR /app
 COPY backend/package*.json ./backend/
 RUN cd backend && npm ci --omit=dev
 COPY backend/ ./backend/
+COPY assets/ ./assets/
 COPY --from=frontend-bau /bau/dist ./frontend/dist
 ENV DATEN_VERZEICHNIS=/app/data
 EXPOSE 8080

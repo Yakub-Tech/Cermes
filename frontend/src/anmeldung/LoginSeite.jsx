@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { apiPost } from '../api.js';
-import logo from '../design/logo.png';
 
 const ansichtsTitel = {
   kasse: 'Kasse',
@@ -36,7 +35,7 @@ export default function LoginSeite() {
     <main className="flex min-h-screen items-center justify-center p-4">
       <form onSubmit={anmelden}
         className="w-full max-w-sm rounded-xl border border-linie bg-flaeche p-8 shadow-2xl">
-        <img src={logo} alt="Vereinslogo" className="mx-auto mb-4 h-28 w-28" />
+        <img src="/logo/aktuell" alt="Vereinslogo" className="mx-auto mb-4 h-28 w-28" />
         <h1 className="mb-1 text-center font-display text-3xl text-navy">Cermes</h1>
         <p className="mb-6 text-center text-schrift-gedimmt">Anmeldung: {titel}</p>
 
