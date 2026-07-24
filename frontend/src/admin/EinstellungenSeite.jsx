@@ -10,13 +10,20 @@ export default function EinstellungenSeite() {
   const [meldung, setMeldung] = useState('');
   const [fehler, setFehler] = useState('');
 
+  const [abmeldeMinuten, setAbmeldeMinuten] = useState('');
+  const [abmeldeMeldung, setAbmeldeMeldung] = useState('');
+  const [abmeldeFehler, setAbmeldeFehler] = useState('');
+
   const [logos, setLogos] = useState([]);
   const [logoLoeschung, setLogoLoeschung] = useState(null);
   const [logoFehler, setLogoFehler] = useState('');
 
   useEffect(() => {
     apiGet('/api/einstellungen')
-      .then((e) => setWarnminuten(String(e.abholbereit_warnminuten)))
+      .then((e) => {
+        setWarnminuten(String(e.abholbereit_warnminuten));
+        setAbmeldeMinuten(String(e.inaktivitaets_abmeldung_minuten));
+      })
       .catch((f) => setFehler(f.message));
   }, []);
 
@@ -33,6 +40,18 @@ export default function EinstellungenSeite() {
       setMeldung('Gespeichert.');
     } catch (f) {
       setFehler(f.message);
+    }
+  }
+
+  async function abmeldezeitSpeichern(ereignis) {
+    ereignis.preventDefault();
+    setAbmeldeMeldung('');
+    setAbmeldeFehler('');
+    try {
+      await apiPut('/api/einstellungen', { inaktivitaets_abmeldung_minuten: Number(abmeldeMinuten) });
+      setAbmeldeMeldung('Gespeichert.');
+    } catch (f) {
+      setAbmeldeFehler(f.message);
     }
   }
 
@@ -66,6 +85,25 @@ export default function EinstellungenSeite() {
             klasse="mb-4 w-32" />
           {meldung && <p className="mb-3 text-navy">{meldung}</p>}
           {fehler && <p className="mb-3 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
+          <button type="submit"
+            className="block cursor-pointer rounded-full bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell">
+            Speichern
+          </button>
+        </form>
+
+        <form onSubmit={abmeldezeitSpeichern} className="rounded-xl border border-linie bg-flaeche p-6">
+          <h3 className="mb-2 font-display text-xl text-navy">Automatische Abmeldung</h3>
+          <label className="mb-1 block text-schrift-gedimmt" htmlFor="abmeldeminuten">
+            Zeit bis zur automatischen Abmeldung bei Inaktivität (Minuten)
+          </label>
+          <p className="mb-3 text-sm text-schrift-gedimmt">
+            Wird in Kasse, Ausgabe oder Admin so lange nicht geklickt, getippt oder eine
+            Taste gedrückt, meldet sich die Ansicht automatisch ab.
+          </p>
+          <Zahlenfeld id="abmeldeminuten" min="1" wert={abmeldeMinuten} onWahl={setAbmeldeMinuten}
+            klasse="mb-4 w-32" />
+          {abmeldeMeldung && <p className="mb-3 text-navy">{abmeldeMeldung}</p>}
+          {abmeldeFehler && <p className="mb-3 rounded bg-blau/30 px-3 py-2 text-blau">{abmeldeFehler}</p>}
           <button type="submit"
             className="block cursor-pointer rounded-full bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell">
             Speichern

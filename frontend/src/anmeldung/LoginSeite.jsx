@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { apiPost } from '../api.js';
 
@@ -15,6 +15,16 @@ export default function LoginSeite() {
   const [passwort, setPasswort] = useState('');
   const [fehler, setFehler] = useState('');
   const [laeuft, setLaeuft] = useState(false);
+  const [inaktivitaetsHinweis, setInaktivitaetsHinweis] = useState('');
+
+  useEffect(() => {
+    const eintrag = sessionStorage.getItem('cermes-inaktiv-abgemeldet');
+    if (!eintrag) return;
+    sessionStorage.removeItem('cermes-inaktiv-abgemeldet');
+    const { minuten } = JSON.parse(eintrag);
+    const minutenWort = minuten === 1 ? 'Minute' : 'Minuten';
+    setInaktivitaetsHinweis(`Sie wurden nach ${minuten} ${minutenWort} Inaktivität automatisch abgemeldet.`);
+  }, []);
 
   const titel = ansichtsTitel[ansicht] || 'Anmeldung';
 
@@ -52,6 +62,12 @@ export default function LoginSeite() {
         <input id="passwort" type="password" value={passwort} autoComplete="current-password"
           onChange={(e) => setPasswort(e.target.value)}
           className="mb-4 w-full rounded border border-linie bg-grund px-3 py-3 text-lg outline-none focus:border-blau-hell" />
+
+        {inaktivitaetsHinweis && (
+          <p className="mb-4 rounded border border-linie bg-flaeche-hell px-3 py-2 text-schrift-gedimmt">
+            {inaktivitaetsHinweis}
+          </p>
+        )}
 
         {fehler && (
           <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>

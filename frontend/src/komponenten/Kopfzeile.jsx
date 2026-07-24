@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { apiPost } from '../api.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
+import { useInaktivitaetsAbmeldung } from '../anmeldung/useInaktivitaetsAbmeldung.js';
+import { formatiereCountdown } from '../anmeldung/inaktivitaet.js';
 
 export default function Kopfzeile({ titel, benutzername, rechts }) {
   const [logoVersion, setLogoVersion] = useState(0);
   useLiveUpdate(['logo'], () => setLogoVersion((v) => v + 1));
+  const { verbleibendeSekunden } = useInaktivitaetsAbmeldung(!!benutzername);
 
   async function abmelden() {
     await apiPost('/api/logout');
@@ -21,6 +24,9 @@ export default function Kopfzeile({ titel, benutzername, rechts }) {
           {benutzername && (
             <div className="flex items-center gap-3">
               <span className="text-schrift-gedimmt">{benutzername}</span>
+              <span className="text-sm text-schrift-gedimmt">
+                Abmeldung in {formatiereCountdown(verbleibendeSekunden)}
+              </span>
               <button
                 onClick={abmelden}
                 className="cursor-pointer rounded-full border border-linie px-3 py-1 text-schrift-gedimmt hover:bg-flaeche-hell"

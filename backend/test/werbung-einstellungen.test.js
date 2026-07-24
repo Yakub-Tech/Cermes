@@ -8,17 +8,37 @@ import { frischeApp, angemeldeterAgent } from './helfer.js';
 test('Einstellungen: lesen für Angemeldete, ändern nur als Admin', async () => {
   const { app, db } = frischeApp();
   const ausgabe = await angemeldeterAgent(app, db, 'ausgabe');
-  assert.equal((await ausgabe.get('/api/einstellungen')).body.abholbereit_warnminuten, 15);
+  let gelesen = (await ausgabe.get('/api/einstellungen')).body;
+  assert.equal(gelesen.abholbereit_warnminuten, 15);
+  assert.equal(gelesen.inaktivitaets_abmeldung_minuten, 30);
 
   const admin = await angemeldeterAgent(app, db, 'admin');
   await admin.put('/api/einstellungen').send({ abholbereit_warnminuten: 20 });
-  assert.equal((await ausgabe.get('/api/einstellungen')).body.abholbereit_warnminuten, 20);
+  await admin.put('/api/einstellungen').send({ inaktivitaets_abmeldung_minuten: 45 });
+  gelesen = (await ausgabe.get('/api/einstellungen')).body;
+  assert.equal(gelesen.abholbereit_warnminuten, 20);
+  assert.equal(gelesen.inaktivitaets_abmeldung_minuten, 45);
 
   const kasse = await angemeldeterAgent(app, db, 'kasse');
   assert.equal((await kasse.put('/api/einstellungen').send({ abholbereit_warnminuten: 5 })).status, 403);
   assert.equal((await request(app).get('/api/einstellungen')).status, 401);
 
-  await admin.put('/api/einstellungen').send({ abholbereit_warnminuten: 15 });
+  await admin.put('/api/einstellungen').send({ abholbereit_warnminuten: 15, inaktivitaets_abmeldung_minuten: 30 });
+});
+
+test('Einstellungen: ungültige Zeit bis zur automatischen Abmeldung wird abgelehnt', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+
+  let antwort = await admin.put('/api/einstellungen').send({ inaktivitaets_abmeldung_minuten: 0 });
+  assert.equal(antwort.status, 400);
+  assert.match(antwort.body.fehler, /ganze Zahl ab 1 Minute/);
+
+  antwort = await admin.put('/api/einstellungen').send({ inaktivitaets_abmeldung_minuten: 2.5 });
+  assert.equal(antwort.status, 400);
+
+  const gelesen = (await admin.get('/api/einstellungen')).body;
+  assert.equal(gelesen.inaktivitaets_abmeldung_minuten, 30);
 });
 
 test('Werbung: Upload, Liste, TV-Sicht, Deaktivieren, Löschen', async () => {
