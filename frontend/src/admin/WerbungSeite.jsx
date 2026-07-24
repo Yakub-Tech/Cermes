@@ -33,17 +33,17 @@ export default function WerbungSeite() {
         JPEG und WebP bis 10 MB. Änderungen wirken sofort.
       </p>
 
-      <DateiAuswahl akzeptiert="image/png,image/jpeg,image/webp" beschriftung="Bild hochladen"
-        buttonKlasse="mb-6 cursor-pointer rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell"
-        onWahl={hochladen} />
-
       {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
 
       {bilder.length === 0 && (
-        <p className="text-schrift-gedimmt">Noch keine Werbebilder hochgeladen.</p>
+        <p className="mb-4 text-schrift-gedimmt">Noch keine Werbebilder hochgeladen.</p>
       )}
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <DateiAuswahl grossflaechig akzeptiert="image/png,image/jpeg,image/webp"
+          beschriftung="Bild hochladen"
+          typFehlerText="Bitte nur PNG-, JPEG- oder WebP-Bilder ablegen."
+          onWahl={hochladen} />
         {bilder.map((bild) => (
           <div key={bild.id} className="rounded-xl border border-linie bg-flaeche p-3">
             <img src={bild.url} alt="Werbebild"
