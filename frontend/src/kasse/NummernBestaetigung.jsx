@@ -13,13 +13,12 @@ export default function NummernBestaetigung({ ergebnis, onFertig }) {
           const schrift = lesbareSchriftfarbe(kaertchen.artikel_farbe);
           return (
             <div key={kaertchen.id}
-              className="putz-textur w-52 rounded-[24px] border p-4 pt-7 text-center shadow-[0_2px_5px_rgba(0,0,0,0.18)]"
+              className="putz-textur w-52 rounded-[24px] border p-4 text-center shadow-[0_2px_5px_rgba(0,0,0,0.18)]"
               style={{
                 backgroundColor: kaertchen.artikel_farbe,
                 borderColor: dunklereFarbe(kaertchen.artikel_farbe),
                 color: schrift,
               }}>
-              <span className="stanzung absolute left-1/2 top-2.5 -translate-x-1/2" />
               <p className="nummer text-7xl">{kaertchen.nummer}</p>
               <p className="mt-1 text-xl font-semibold">{kaertchen.artikel_name}</p>
               {kaertchen.beilagen.length > 0 && (
