@@ -108,7 +108,7 @@ export default function AusgabeSeite() {
             <h2 className="px-4 py-3 text-center font-display text-xl text-navy">
               {spalte.titel} ({spalte.kaertchen.length})
             </h2>
-            <div className="flex-1 space-y-3 overflow-y-auto px-4 pb-4">
+            <div className="flex-1 space-y-3 overflow-y-auto px-4 pt-2 pb-4">
               {spalte.kaertchen.map(spalte.karte)}
             </div>
           </section>
