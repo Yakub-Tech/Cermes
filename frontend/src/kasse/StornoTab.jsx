@@ -87,11 +87,11 @@ export default function StornoTab() {
           </p>
           <div className="flex gap-3">
             <button onClick={() => setAuswahl(null)}
-              className="flex-1 cursor-pointer rounded-lg border border-linie py-3 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="flex-1 cursor-pointer rounded-full border border-linie py-3 text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button onClick={stornieren}
-              className="flex-1 cursor-pointer rounded-lg bg-blau py-3 text-lg font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-full bg-blau py-3 text-lg font-bold text-flaeche hover:bg-blau-hell">
               Ja, stornieren
             </button>
           </div>

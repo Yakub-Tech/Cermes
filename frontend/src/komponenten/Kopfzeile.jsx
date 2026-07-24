@@ -23,7 +23,7 @@ export default function Kopfzeile({ titel, benutzername, rechts }) {
               <span className="text-schrift-gedimmt">{benutzername}</span>
               <button
                 onClick={abmelden}
-                className="cursor-pointer rounded border border-linie px-3 py-1 text-schrift-gedimmt hover:bg-flaeche-hell"
+                className="cursor-pointer rounded-full border border-linie px-3 py-1 text-schrift-gedimmt hover:bg-flaeche-hell"
               >
                 Abmelden
               </button>

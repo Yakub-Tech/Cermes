@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 
 const STANDARD_BUTTON_KLASSE =
-  'cursor-pointer rounded-lg border border-linie px-4 py-2 text-schrift-gedimmt hover:bg-flaeche-hell';
+  'cursor-pointer rounded-full border border-linie px-4 py-2 text-schrift-gedimmt hover:bg-flaeche-hell';
 
 function passtZuAkzeptiert(datei, akzeptiert) {
   if (!akzeptiert) return true;

@@ -22,7 +22,7 @@ export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen }) 
           if (!beilage.aktiv) {
             return (
               <div key={beilage.id}
-                className="cursor-not-allowed rounded-lg border border-linie px-4 py-4 text-center text-schrift-gedimmt opacity-40">
+                className="cursor-not-allowed rounded-full border border-linie px-4 py-4 text-center text-schrift-gedimmt opacity-40">
                 {beilage.name}
                 <span className="block text-xs">gerade nicht verfügbar</span>
               </div>
@@ -30,7 +30,7 @@ export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen }) 
           }
           return (
             <button key={beilage.id} onClick={() => umschalten(beilage)}
-              className={`cursor-pointer rounded-lg border px-4 py-4 text-center text-lg ${
+              className={`cursor-pointer rounded-full border px-4 py-4 text-center text-lg ${
                 aktivGewaehlt
                   ? 'border-navy bg-navy text-grund font-bold'
                   : 'border-linie bg-grund hover:bg-flaeche-hell'
@@ -42,11 +42,11 @@ export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen }) 
       </div>
       <div className="flex gap-3">
         <button onClick={onAbbrechen}
-          className="flex-1 cursor-pointer rounded-lg border border-linie py-3 text-schrift-gedimmt hover:bg-flaeche-hell">
+          className="flex-1 cursor-pointer rounded-full border border-linie py-3 text-schrift-gedimmt hover:bg-flaeche-hell">
           Abbrechen
         </button>
         <button onClick={() => onBestaetigen(gewaehlt)}
-          className="flex-1 cursor-pointer rounded-lg bg-blau py-3 text-lg font-bold text-flaeche hover:bg-blau-hell">
+          className="flex-1 cursor-pointer rounded-full bg-blau py-3 text-lg font-bold text-flaeche hover:bg-blau-hell">
           In den Warenkorb
         </button>
       </div>

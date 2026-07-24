@@ -50,7 +50,7 @@ export default function StatistikEinzeltag() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
         <button onClick={() => tagWaehlen(heutigesDatum())}
-          className={`cursor-pointer rounded-lg px-4 py-2 ${
+          className={`cursor-pointer rounded-full px-4 py-2 ${
             datum === heutigesDatum() ? 'bg-blau font-bold text-flaeche' : 'border border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
           }`}>
           Heute

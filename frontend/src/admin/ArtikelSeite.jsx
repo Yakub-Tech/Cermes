@@ -36,7 +36,7 @@ export default function ArtikelSeite() {
       <h2 className="mb-6 font-display text-2xl text-navy">Artikel</h2>
 
       <button onClick={() => setFormular({ artikel: null })}
-        className="mb-6 cursor-pointer rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell">
+        className="mb-6 cursor-pointer rounded-full bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell">
         Artikel anlegen
       </button>
 
@@ -79,7 +79,7 @@ export default function ArtikelSeite() {
                 </td>
                 <td className="px-4 py-3">
                   <button onClick={() => setStartnummer(artikel)}
-                    className="nummer cursor-pointer rounded border border-linie px-3 py-1 hover:bg-flaeche-hell">
+                    className="nummer cursor-pointer rounded-full border border-linie px-3 py-1 hover:bg-flaeche-hell">
                     {artikel.naechste_nummer}
                   </button>
                 </td>
@@ -96,11 +96,11 @@ export default function ArtikelSeite() {
                 </td>
                 <td className="px-4 py-3 text-right whitespace-nowrap">
                   <button onClick={() => setFormular({ artikel })}
-                    className="mr-2 cursor-pointer rounded border border-linie px-3 py-1 text-schrift-gedimmt hover:bg-flaeche-hell">
+                    className="mr-2 cursor-pointer rounded-full border border-linie px-3 py-1 text-schrift-gedimmt hover:bg-flaeche-hell">
                     Bearbeiten
                   </button>
                   <button onClick={() => setLoeschung(artikel)}
-                    className="cursor-pointer rounded border border-linie px-3 py-1 text-blau-hell hover:bg-flaeche-hell">
+                    className="cursor-pointer rounded-full border border-linie px-3 py-1 text-blau-hell hover:bg-flaeche-hell">
                     Löschen
                   </button>
                 </td>
@@ -129,14 +129,14 @@ export default function ArtikelSeite() {
           </p>
           <div className="flex gap-3">
             <button onClick={() => setLoeschung(null)}
-              className="flex-1 cursor-pointer rounded-lg border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="flex-1 cursor-pointer rounded-full border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button
               onClick={() => apiDelete(`/api/artikel/${loeschung.id}`)
                 .then(() => setLoeschung(null))
                 .catch((f) => { setFehler(f.message); setLoeschung(null); })}
-              className="flex-1 cursor-pointer rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-full bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
               Ja, löschen
             </button>
           </div>

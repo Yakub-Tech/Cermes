@@ -58,10 +58,10 @@ export default function KasseSeite() {
     <div className="flex h-screen flex-col">
       <Kopfzeile titel="Kasse" benutzername={session.benutzername}
         rechts={
-          <nav className="flex gap-1 rounded-lg border border-linie p-1">
+          <nav className="flex gap-1 rounded-full border border-linie p-1">
             {[['verkauf', 'Verkauf'], ['storno', 'Storno']].map(([wert, beschriftung]) => (
               <button key={wert} onClick={() => setTab(wert)}
-                className={`cursor-pointer rounded-md px-5 py-2 text-lg ${
+                className={`cursor-pointer rounded-full px-5 py-2 text-lg ${
                   tab === wert ? 'bg-blau font-bold text-flaeche' : 'text-schrift-gedimmt hover:bg-flaeche-hell'
                 }`}>
                 {beschriftung}

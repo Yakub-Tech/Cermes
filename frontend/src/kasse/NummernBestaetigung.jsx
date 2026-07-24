@@ -34,7 +34,7 @@ export default function NummernBestaetigung({ ergebnis, onFertig }) {
           Zu zahlen: <span className="nummer text-3xl text-navy">{formatEuro(ergebnis.summe_cent)}</span>
         </span>
         <button onClick={onFertig} autoFocus
-          className="cursor-pointer rounded-xl bg-blau px-12 py-4 text-2xl font-bold text-flaeche hover:bg-blau-hell">
+          className="cursor-pointer rounded-full bg-blau px-12 py-4 text-2xl font-bold text-flaeche hover:bg-blau-hell">
           Fertig
         </button>
       </div>

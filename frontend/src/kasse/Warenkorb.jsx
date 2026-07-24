@@ -29,7 +29,7 @@ export default function Warenkorb({ positionen, onEntfernen, onKassieren, laeuft
             <span className="nummer self-center text-lg">{formatEuro(position.artikel.preis_cent)}</span>
             <button onClick={() => onEntfernen(position.schluessel)}
               aria-label={`${position.artikel.name} entfernen`}
-              className="cursor-pointer self-center rounded-lg border border-linie px-3 py-2 text-blau-hell hover:bg-flaeche-hell">
+              className="cursor-pointer self-center rounded-full border border-linie px-3 py-2 text-blau-hell hover:bg-flaeche-hell">
               ✕
             </button>
           </li>
@@ -46,7 +46,7 @@ export default function Warenkorb({ positionen, onEntfernen, onKassieren, laeuft
           <span className="nummer text-4xl text-navy">{formatEuro(summe)}</span>
         </div>
         <button onClick={onKassieren} disabled={laeuft || positionen.length === 0}
-          className="w-full cursor-pointer rounded-xl bg-blau py-5 text-2xl font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
+          className="w-full cursor-pointer rounded-full bg-blau py-5 text-2xl font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
           {laeuft ? 'Wird gebucht …' : 'Kassieren'}
         </button>
       </div>

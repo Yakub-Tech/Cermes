@@ -58,7 +58,7 @@ export default function WerbungSeite() {
                 {bild.aktiv ? 'aktiv' : 'inaktiv'}
               </button>
               <button onClick={() => setLoeschung(bild)}
-                className="cursor-pointer rounded border border-linie px-3 py-1 text-blau-hell hover:bg-flaeche-hell">
+                className="cursor-pointer rounded-full border border-linie px-3 py-1 text-blau-hell hover:bg-flaeche-hell">
                 Entfernen
               </button>
             </div>
@@ -72,14 +72,14 @@ export default function WerbungSeite() {
           <p className="mb-6">Das Bild wird dauerhaft gelöscht.</p>
           <div className="flex gap-3">
             <button onClick={() => setLoeschung(null)}
-              className="flex-1 cursor-pointer rounded-lg border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="flex-1 cursor-pointer rounded-full border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button
               onClick={() => apiDelete(`/api/werbung/${loeschung.id}`)
                 .then(() => setLoeschung(null))
                 .catch((f) => { setFehler(f.message); setLoeschung(null); })}
-              className="flex-1 cursor-pointer rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-full bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
               Ja, entfernen
             </button>
           </div>

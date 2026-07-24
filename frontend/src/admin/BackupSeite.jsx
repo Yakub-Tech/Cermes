@@ -37,7 +37,7 @@ export default function BackupSeite() {
           Am besten nach jedem Verkaufstag einmal machen und die Datei sicher ablegen.
         </p>
         <button onClick={() => { location.href = '/api/backup'; }}
-          className="cursor-pointer rounded-xl bg-blau px-8 py-4 text-xl font-bold text-flaeche hover:bg-blau-hell">
+          className="cursor-pointer rounded-full bg-blau px-8 py-4 text-xl font-bold text-flaeche hover:bg-blau-hell">
           Backup herunterladen
         </button>
       </section>
@@ -60,7 +60,7 @@ export default function BackupSeite() {
           {hinweis && <p className="mb-3 rounded bg-akzent/10 px-3 py-2 text-akzent-text">{hinweis}</p>}
           {fehler && <p className="mb-3 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
           <button type="submit" disabled={!datei || !bestaetigt || laeuft}
-            className="cursor-pointer rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
+            className="cursor-pointer rounded-full bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
             {laeuft ? 'Wird eingespielt …' : 'Backup einspielen'}
           </button>
         </form>

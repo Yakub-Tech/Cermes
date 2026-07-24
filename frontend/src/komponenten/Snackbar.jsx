@@ -11,7 +11,7 @@ export default function Snackbar({ meldung, onRueckgaengig, onZu }) {
       <span className="text-lg">{meldung}</span>
       {onRueckgaengig && (
         <button onClick={() => { onRueckgaengig(); onZu(); }}
-          className="cursor-pointer rounded-lg bg-navy px-4 py-2 font-bold text-grund hover:bg-blau-hell">
+          className="cursor-pointer rounded-full bg-navy px-4 py-2 font-bold text-grund hover:bg-blau-hell">
           Rückgängig
         </button>
       )}

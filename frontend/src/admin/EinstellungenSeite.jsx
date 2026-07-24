@@ -67,7 +67,7 @@ export default function EinstellungenSeite() {
           {meldung && <p className="mb-3 text-navy">{meldung}</p>}
           {fehler && <p className="mb-3 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
           <button type="submit"
-            className="block cursor-pointer rounded-lg bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell">
+            className="block cursor-pointer rounded-full bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell">
             Speichern
           </button>
         </form>
@@ -108,7 +108,7 @@ export default function EinstellungenSeite() {
                     {logo.aktiv ? 'aktiv' : 'inaktiv'}
                   </button>
                   <button onClick={() => setLogoLoeschung(logo)}
-                    className="cursor-pointer rounded border border-linie px-2 py-1 text-xs text-blau-hell hover:bg-flaeche-hell">
+                    className="cursor-pointer rounded-full border border-linie px-2 py-1 text-xs text-blau-hell hover:bg-flaeche-hell">
                     Entfernen
                   </button>
                 </div>
@@ -124,14 +124,14 @@ export default function EinstellungenSeite() {
           <p className="mb-6">Das Logo wird dauerhaft gelöscht.</p>
           <div className="flex gap-3">
             <button onClick={() => setLogoLoeschung(null)}
-              className="flex-1 cursor-pointer rounded-lg border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="flex-1 cursor-pointer rounded-full border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button
               onClick={() => apiDelete(`/api/logo/${logoLoeschung.id}`)
                 .then(() => setLogoLoeschung(null))
                 .catch((f) => { setLogoFehler(f.message); setLogoLoeschung(null); })}
-              className="flex-1 cursor-pointer rounded-lg bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-full bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
               Ja, entfernen
             </button>
           </div>
