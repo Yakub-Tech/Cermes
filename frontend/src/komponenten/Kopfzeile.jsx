@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { apiPost } from '../api.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { useInaktivitaetsAbmeldung } from '../anmeldung/useInaktivitaetsAbmeldung.js';
@@ -17,7 +18,9 @@ export default function Kopfzeile({ titel, benutzername, rechts }) {
   return (
     <header>
       <div className="flex items-center gap-4 bg-flaeche px-4 py-2">
-        <img src={`/logo/aktuell?v=${logoVersion}`} alt="Vereinslogo" className="h-12 w-12" />
+        <Link to="/" className="transition-opacity hover:opacity-80">
+          <img src={`/logo/aktuell?v=${logoVersion}`} alt="Vereinslogo" className="h-12 w-12" />
+        </Link>
         <h1 className="font-display text-2xl text-navy">{titel}</h1>
         <div className="ml-auto flex items-center gap-4">
           {rechts}
