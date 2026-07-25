@@ -33,7 +33,7 @@ export default function NetzwerkAdresse() {
 
   return (
     <>
-      <div className="fixed bottom-6 right-6 z-30 flex items-center gap-3 rounded-2xl border border-linie bg-flaeche p-4 shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
+      <div className="flex items-center gap-3 rounded-2xl border border-linie bg-flaeche p-4 shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
         {qrCodeBild && (
           <img src={qrCodeBild} alt="QR-Code zur Netzwerk-Adresse" className="h-20 w-20" />
         )}

@@ -19,7 +19,9 @@ export default function StartSeite() {
           ))}
         </div>
       </main>
-      <NetzwerkAdresse />
+      <footer className="flex justify-end p-6 pt-0">
+        <NetzwerkAdresse />
+      </footer>
     </div>
   );
 }
