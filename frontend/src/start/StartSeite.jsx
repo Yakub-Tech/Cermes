@@ -2,6 +2,7 @@ import Kopfzeile from '../komponenten/Kopfzeile.jsx';
 import ZielKaertchen from './ZielKaertchen.jsx';
 import { ZIELE } from './ziele.js';
 import { useOptionaleSession } from '../anmeldung/useOptionaleSession.js';
+import NetzwerkAdresse from './NetzwerkAdresse.jsx';
 
 export default function StartSeite() {
   const { laedt, benutzername } = useOptionaleSession();
@@ -18,6 +19,7 @@ export default function StartSeite() {
           ))}
         </div>
       </main>
+      <NetzwerkAdresse />
     </div>
   );
 }
