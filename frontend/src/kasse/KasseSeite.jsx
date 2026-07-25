@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Kopfzeile from '../komponenten/Kopfzeile.jsx';
 import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
@@ -7,9 +8,11 @@ import BeilagenDialog from './BeilagenDialog.jsx';
 import Warenkorb from './Warenkorb.jsx';
 import NummernBestaetigung from './NummernBestaetigung.jsx';
 import StornoTab from './StornoTab.jsx';
+import WarenkorbVerlassenDialog from './WarenkorbVerlassenDialog.jsx';
 
 export default function KasseSeite() {
   const session = useSession('kasse');
+  const navigiere = useNavigate();
   const [tab, setTab] = useState('verkauf');
   const [artikelListe, setArtikelListe] = useState([]);
   const [positionen, setPositionen] = useState([]);
@@ -17,6 +20,14 @@ export default function KasseSeite() {
   const [ergebnis, setErgebnis] = useState(null);
   const [laeuft, setLaeuft] = useState(false);
   const [fehler, setFehler] = useState('');
+  const [warenkorbVerlassenAktiv, setWarenkorbVerlassenAktiv] = useState(false);
+
+  function logoGeklickt(ereignis) {
+    if (positionen.length > 0) {
+      ereignis.preventDefault();
+      setWarenkorbVerlassenAktiv(true);
+    }
+  }
 
   useLiveUpdate(['artikel', 'beilagen'], () => {
     apiGet('/api/kasse/artikel').then(setArtikelListe).catch(() => {});
@@ -56,7 +67,7 @@ export default function KasseSeite() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Kopfzeile titel="Kasse" benutzername={session.benutzername}
+      <Kopfzeile titel="Kasse" benutzername={session.benutzername} aufLogoKlick={logoGeklickt}
         rechts={
           <nav className="flex gap-1 rounded-full border border-linie p-1">
             {[['verkauf', 'Verkauf'], ['storno', 'Storno']].map(([wert, beschriftung]) => (
@@ -109,6 +120,12 @@ export default function KasseSeite() {
       {ergebnis && (
         <NummernBestaetigung ergebnis={ergebnis}
           onFertig={() => { setErgebnis(null); setPositionen([]); setFehler(''); }} />
+      )}
+
+      {warenkorbVerlassenAktiv && (
+        <WarenkorbVerlassenDialog
+          onZurueck={() => setWarenkorbVerlassenAktiv(false)}
+          onVerlassen={() => navigiere('/')} />
       )}
     </div>
   );
