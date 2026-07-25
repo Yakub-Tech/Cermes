@@ -23,7 +23,12 @@ export default function StatistikSeite() {
         </button>
       </div>
 
-      {reiter === 'einzeltag' ? <StatistikEinzeltag /> : <StatistikZeitraum />}
+      <div className={reiter === 'einzeltag' ? 'block' : 'hidden'}>
+        <StatistikEinzeltag />
+      </div>
+      <div className={reiter === 'zeitraum' ? 'block' : 'hidden'}>
+        <StatistikZeitraum />
+      </div>
     </div>
   );
 }
