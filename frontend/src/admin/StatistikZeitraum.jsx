@@ -77,7 +77,7 @@ export default function StatistikZeitraum() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
-        <span className="text-schrift-gedimmt">Von</span>
+        <span className="w-[79px] text-right text-schrift-gedimmt">Von</span>
         <Auswahlmenue wert={von} onWahl={vonWaehlen}
           optionen={vonOptionen.map((tag) => ({ wert: tag, text: datumAnzeigen(tag) }))} />
         <span className="text-schrift-gedimmt">Bis</span>
