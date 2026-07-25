@@ -32,6 +32,10 @@ function beilagenZuordnen(db, artikelId, beilagenIds) {
   }
 }
 
+function ohneKosten({ einkaufskosten_cent, ...rest }) {
+  return rest;
+}
+
 function artikelMitDetails(db, zeile) {
   const beilagenIds = db.prepare(
     'SELECT beilage_id FROM artikel_beilage WHERE artikel_id = ? ORDER BY beilage_id'
@@ -43,31 +47,35 @@ function artikelMitDetails(db, zeile) {
   return { ...zeile, beilagen_ids: beilagenIds, hoechste_nummer_heute: hoechsteHeute };
 }
 
-router.get('/api/artikel', brauchtRolle('admin'), (_anfrage, antwort) => {
+router.get('/api/artikel', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   const zeilen = db.prepare(
     'SELECT * FROM artikel WHERE geloescht = 0 ORDER BY sortierung, name'
   ).all();
-  antwort.json(zeilen.map((zeile) => artikelMitDetails(db, zeile)));
+  const artikelListe = zeilen.map((zeile) => artikelMitDetails(db, zeile));
+  antwort.json(anfrage.benutzer.rolle === 'verwaltung' ? artikelListe.map(ohneKosten) : artikelListe);
 });
 
-router.post('/api/artikel', brauchtRolle('admin'), (anfrage, antwort) => {
+router.post('/api/artikel', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   const daten = anfrage.body;
   const fehler = pruefeArtikelDaten(daten);
   if (fehler) return antwort.status(400).json({ fehler });
+  const istVerwaltung = anfrage.benutzer.rolle === 'verwaltung';
+  const einkaufskostenCent = istVerwaltung ? null : (daten.einkaufskosten_cent ?? null);
   const ergebnis = db.prepare(
     `INSERT INTO artikel (name, farbe, preis_cent, einkaufskosten_cent, aktiv, sortierung)
      VALUES (?, ?, ?, ?, ?, ?)`
   ).run(daten.name.trim(), daten.farbe, daten.preis_cent,
-    daten.einkaufskosten_cent ?? null, daten.aktiv ?? 1, daten.sortierung ?? 0);
+    einkaufskostenCent, daten.aktiv ?? 1, daten.sortierung ?? 0);
   beilagenZuordnen(db, ergebnis.lastInsertRowid, daten.beilagen_ids);
   const neu = db.prepare('SELECT * FROM artikel WHERE id = ?').get(ergebnis.lastInsertRowid);
   sendeEreignis('artikel');
-  antwort.json(artikelMitDetails(db, neu));
+  const antwortDaten = artikelMitDetails(db, neu);
+  antwort.json(istVerwaltung ? ohneKosten(antwortDaten) : antwortDaten);
 });
 
-router.put('/api/artikel/:id', brauchtRolle('admin'), (anfrage, antwort) => {
+router.put('/api/artikel/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   const vorhanden = db.prepare('SELECT * FROM artikel WHERE id = ? AND geloescht = 0')
     .get(anfrage.params.id);
@@ -77,18 +85,23 @@ router.put('/api/artikel/:id', brauchtRolle('admin'), (anfrage, antwort) => {
   const daten = anfrage.body;
   const fehler = pruefeArtikelDaten(daten);
   if (fehler) return antwort.status(400).json({ fehler });
+  const istVerwaltung = anfrage.benutzer.rolle === 'verwaltung';
+  const einkaufskostenCent = istVerwaltung
+    ? vorhanden.einkaufskosten_cent
+    : (daten.einkaufskosten_cent ?? null);
   db.prepare(
     `UPDATE artikel SET name = ?, farbe = ?, preis_cent = ?, einkaufskosten_cent = ?,
        aktiv = ?, sortierung = ? WHERE id = ?`
-  ).run(daten.name.trim(), daten.farbe, daten.preis_cent, daten.einkaufskosten_cent ?? null,
+  ).run(daten.name.trim(), daten.farbe, daten.preis_cent, einkaufskostenCent,
     daten.aktiv ?? 1, daten.sortierung ?? 0, vorhanden.id);
   beilagenZuordnen(db, vorhanden.id, daten.beilagen_ids);
   const neu = db.prepare('SELECT * FROM artikel WHERE id = ?').get(vorhanden.id);
   sendeEreignis('artikel');
-  antwort.json(artikelMitDetails(db, neu));
+  const antwortDaten = artikelMitDetails(db, neu);
+  antwort.json(istVerwaltung ? ohneKosten(antwortDaten) : antwortDaten);
 });
 
-router.post('/api/artikel/:id/startnummer', brauchtRolle('admin'), (anfrage, antwort) => {
+router.post('/api/artikel/:id/startnummer', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   const artikelId = Number(anfrage.params.id);
   const neueNummer = Number(anfrage.body.naechste_nummer);
@@ -114,7 +127,7 @@ router.post('/api/artikel/:id/startnummer', brauchtRolle('admin'), (anfrage, ant
   antwort.json({ ok: true });
 });
 
-router.delete('/api/artikel/:id', brauchtRolle('admin'), (anfrage, antwort) => {
+router.delete('/api/artikel/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   db.prepare('UPDATE artikel SET geloescht = 1, aktiv = 0 WHERE id = ?').run(anfrage.params.id);
   sendeEreignis('artikel');

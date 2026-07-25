@@ -27,13 +27,13 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 },
 });
 
-router.get('/api/werbung', brauchtRolle('admin'), (_anfrage, antwort) => {
+router.get('/api/werbung', brauchtRolle(['admin', 'verwaltung']), (_anfrage, antwort) => {
   const db = oeffneDatenbank();
   const bilder = db.prepare('SELECT * FROM werbebild ORDER BY id').all();
   antwort.json(bilder.map((bild) => ({ ...bild, url: `/werbung/${bild.dateiname}` })));
 });
 
-router.post('/api/werbung', brauchtRolle('admin'), upload.single('bild'), (anfrage, antwort) => {
+router.post('/api/werbung', brauchtRolle(['admin', 'verwaltung']), upload.single('bild'), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   if (!anfrage.file) {
     return antwort.status(400).json({ fehler: 'Bitte eine Bilddatei auswählen.' });
@@ -52,7 +52,7 @@ router.post('/api/werbung', brauchtRolle('admin'), upload.single('bild'), (anfra
   antwort.json({ ...bild, url: `/werbung/${bild.dateiname}` });
 });
 
-router.put('/api/werbung/:id', brauchtRolle('admin'), (anfrage, antwort) => {
+router.put('/api/werbung/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   const aktiv = anfrage.body.aktiv ? 1 : 0;
   const ergebnis = db.prepare('UPDATE werbebild SET aktiv = ? WHERE id = ?')
@@ -64,7 +64,7 @@ router.put('/api/werbung/:id', brauchtRolle('admin'), (anfrage, antwort) => {
   antwort.json({ ok: true });
 });
 
-router.delete('/api/werbung/:id', brauchtRolle('admin'), (anfrage, antwort) => {
+router.delete('/api/werbung/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   const bild = db.prepare('SELECT * FROM werbebild WHERE id = ?').get(anfrage.params.id);
   if (!bild) {

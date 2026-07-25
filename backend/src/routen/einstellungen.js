@@ -18,7 +18,7 @@ router.get('/api/einstellungen', brauchtAnmeldung(), (_anfrage, antwort) => {
   antwort.json(alleEinstellungen(oeffneDatenbank()));
 });
 
-router.put('/api/einstellungen', brauchtRolle('admin'), (anfrage, antwort) => {
+router.put('/api/einstellungen', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   const koerper = anfrage.body;
 

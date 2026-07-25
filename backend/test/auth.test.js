@@ -26,11 +26,44 @@ test('Login liefert Rolle, falsches Passwort 401', async () => {
   assert.equal(schlecht.status, 401);
 });
 
+test('Neue Rolle Verwaltung ist als Konto anmeldbar', async () => {
+  const { app, db } = frischeApp();
+  const verwaltung = await angemeldeterAgent(app, db, 'verwaltung');
+  const session = (await verwaltung.get('/api/session')).body;
+  assert.equal(session.angemeldet, true);
+  assert.equal(session.rolle, 'verwaltung');
+});
+
 test('Rollentrennung: Kassen-Konto kommt nicht an Admin-Routen', async () => {
   const { app, db } = frischeApp();
   const kasse = await angemeldeterAgent(app, db, 'kasse');
   assert.equal((await kasse.get('/api/artikel')).status, 403);
   assert.equal((await request(app).get('/api/artikel')).status, 401);
+});
+
+test('Rollentrennung: Verwaltung kommt an gemeinsame Bereiche, aber nicht an Backup/Benutzer', async () => {
+  const { app, db } = frischeApp();
+  const verwaltung = await angemeldeterAgent(app, db, 'verwaltung');
+
+  assert.equal((await verwaltung.get('/api/artikel')).status, 200);
+  assert.equal((await verwaltung.get('/api/beilagen')).status, 200);
+  assert.equal((await verwaltung.get('/api/werbung')).status, 200);
+  assert.equal((await verwaltung.get('/api/logo')).status, 200);
+  assert.equal((await verwaltung.put('/api/einstellungen').send({ abholbereit_warnminuten: 20 })).status, 200);
+
+  assert.equal((await verwaltung.get('/api/backup')).status, 403);
+  assert.equal((await verwaltung.get('/api/benutzer')).status, 403);
+});
+
+test('Admin kann ein Verwaltungs-Konto anlegen', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const konto = (await admin.post('/api/benutzer').send({
+    benutzername: 'verwalter1', passwort: 'sehr-geheim', rolle: 'verwaltung',
+  })).body;
+  assert.equal(konto.rolle, 'verwaltung');
+  const liste = (await admin.get('/api/benutzer')).body;
+  assert.ok(liste.some((b) => b.benutzername === 'verwalter1' && b.rolle === 'verwaltung'));
 });
 
 test('Benutzerverwaltung: anlegen, letzter Admin geschützt, Passwort-Reset', async () => {

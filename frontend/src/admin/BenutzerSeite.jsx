@@ -3,7 +3,7 @@ import { apiGet, apiPost, apiDelete } from '../api.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 
-const rollenNamen = { admin: 'Verwaltung', kasse: 'Kasse', ausgabe: 'Ausgabe' };
+const rollenNamen = { admin: 'Admin', verwaltung: 'Verwaltung', kasse: 'Kasse', ausgabe: 'Ausgabe' };
 
 export default function BenutzerSeite() {
   const [benutzer, setBenutzer] = useState([]);
@@ -101,7 +101,8 @@ export default function BenutzerSeite() {
             optionen={[
               { wert: 'kasse', text: 'Kasse' },
               { wert: 'ausgabe', text: 'Ausgabe' },
-              { wert: 'admin', text: 'Verwaltung' },
+              { wert: 'verwaltung', text: 'Verwaltung' },
+              { wert: 'admin', text: 'Admin' },
             ]}
             klasse="mb-4 w-full" />
           <div className="flex gap-3">

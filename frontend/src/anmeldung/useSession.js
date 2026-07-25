@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { apiGet } from '../api.js';
 
 export function useSession(erwarteteRolle) {
+  const erlaubteRollen = Array.isArray(erwarteteRolle) ? erwarteteRolle : [erwarteteRolle];
+  const loginPfad = erlaubteRollen[0];
   const [zustand, setZustand] = useState({ laedt: true, angemeldet: false, rolle: null, benutzername: null });
   const navigiere = useNavigate();
 
@@ -10,16 +12,16 @@ export function useSession(erwarteteRolle) {
     let aktiv = true;
     apiGet('/api/session').then((session) => {
       if (!aktiv) return;
-      if (!session.angemeldet || session.rolle !== erwarteteRolle) {
-        navigiere(`/login/${erwarteteRolle}`, { replace: true });
+      if (!session.angemeldet || !erlaubteRollen.includes(session.rolle)) {
+        navigiere(`/login/${loginPfad}`, { replace: true });
         return;
       }
       setZustand({ laedt: false, angemeldet: true, rolle: session.rolle, benutzername: session.benutzername });
     }).catch(() => {
-      if (aktiv) navigiere(`/login/${erwarteteRolle}`, { replace: true });
+      if (aktiv) navigiere(`/login/${loginPfad}`, { replace: true });
     });
     return () => { aktiv = false; };
-  }, [erwarteteRolle]);
+  }, [JSON.stringify(erlaubteRollen)]);
 
   return zustand;
 }

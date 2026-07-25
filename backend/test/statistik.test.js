@@ -60,6 +60,39 @@ test('Tagesstatistik: Stückzahlen, Umsatz, Gewinn, Stunden, Stornos', async () 
   assert.equal(statistik.stornos[0].datum, undefined);
 });
 
+test('Verwaltung sieht in der Statistik keine Geldsummen, Admin weiterhin schon', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const kasse = await angemeldeterAgent(app, db, 'kasse');
+  const verwaltung = await angemeldeterAgent(app, db, 'verwaltung');
+
+  const pommes = (await admin.post('/api/artikel').send({
+    name: 'Pommes', farbe: '#f5c211', preis_cent: 350,
+    einkaufskosten_cent: 120, beilagen_ids: [], sortierung: 1,
+  })).body;
+  await kasse.post('/api/kasse/kassieren').send({
+    positionen: [{ artikel_id: pommes.id, beilagen_ids: [] }],
+  });
+
+  const tagVerwaltung = (await verwaltung.get(`/api/statistik/tag/${heutigesDatum()}`)).body;
+  assert.equal(tagVerwaltung.gesamt.stueck, 1);
+  assert.equal(tagVerwaltung.gesamt.umsatz_cent, undefined);
+  assert.equal(tagVerwaltung.gesamt.gewinn_cent, undefined);
+  assert.equal(tagVerwaltung.gesamt.stueck_ohne_kosten, undefined);
+  assert.equal(tagVerwaltung.artikel[0].stueck, 1);
+  assert.equal(tagVerwaltung.artikel[0].umsatz_cent, undefined);
+
+  const tagAdmin = (await admin.get(`/api/statistik/tag/${heutigesDatum()}`)).body;
+  assert.equal(tagAdmin.gesamt.umsatz_cent, 350);
+  assert.equal(tagAdmin.artikel[0].umsatz_cent, 350);
+
+  const zeitraumVerwaltung = (await verwaltung.get(
+    `/api/statistik/zeitraum?von=${heutigesDatum()}&bis=${heutigesDatum()}`
+  )).body;
+  assert.equal(zeitraumVerwaltung.gesamt.umsatz_cent, undefined);
+  assert.equal(zeitraumVerwaltung.gesamt.stueck, 1);
+});
+
 test('Verkaufstage-Liste und leerer Tag', async () => {
   const { app, db } = frischeApp();
   const admin = await angemeldeterAgent(app, db, 'admin');

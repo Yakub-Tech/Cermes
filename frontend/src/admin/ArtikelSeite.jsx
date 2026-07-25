@@ -5,7 +5,7 @@ import Dialog from '../komponenten/Dialog.jsx';
 import ArtikelFormular from './ArtikelFormular.jsx';
 import StartnummerDialog from './StartnummerDialog.jsx';
 
-export default function ArtikelSeite() {
+export default function ArtikelSeite({ rolle }) {
   const [artikelListe, setArtikelListe] = useState([]);
   const [beilagen, setBeilagen] = useState([]);
   const [formular, setFormular] = useState(null);
@@ -48,7 +48,7 @@ export default function ArtikelSeite() {
             <tr className="border-b border-linie text-sm text-schrift-gedimmt">
               <th className="px-4 py-3">Artikel</th>
               <th className="px-4 py-3">Preis</th>
-              <th className="px-4 py-3">Kosten</th>
+              {rolle === 'admin' && <th className="px-4 py-3">Kosten</th>}
               <th className="px-4 py-3">Beilagen</th>
               <th className="px-4 py-3">Weiter bei Nr.</th>
               <th className="px-4 py-3">Aktiv</th>
@@ -57,7 +57,7 @@ export default function ArtikelSeite() {
           </thead>
           <tbody className="divide-y divide-linie">
             {artikelListe.length === 0 && (
-              <tr><td colSpan="7" className="px-4 py-6 text-schrift-gedimmt">
+              <tr><td colSpan={rolle === 'admin' ? 7 : 6} className="px-4 py-6 text-schrift-gedimmt">
                 Noch keine Artikel angelegt.
               </td></tr>
             )}
@@ -69,11 +69,13 @@ export default function ArtikelSeite() {
                   <span className="text-lg">{artikel.name}</span>
                 </td>
                 <td className="nummer px-4 py-3">{formatEuro(artikel.preis_cent)}</td>
-                <td className="nummer px-4 py-3">
-                  {artikel.einkaufskosten_cent != null
-                    ? formatEuro(artikel.einkaufskosten_cent)
-                    : <span className="text-schrift-gedimmt">—</span>}
-                </td>
+                {rolle === 'admin' && (
+                  <td className="nummer px-4 py-3">
+                    {artikel.einkaufskosten_cent != null
+                      ? formatEuro(artikel.einkaufskosten_cent)
+                      : <span className="text-schrift-gedimmt">—</span>}
+                  </td>
+                )}
                 <td className="max-w-40 truncate px-4 py-3 text-schrift-gedimmt">
                   {beilagenNamen(artikel.beilagen_ids) || '—'}
                 </td>
@@ -111,7 +113,7 @@ export default function ArtikelSeite() {
       </div>
 
       {formular && (
-        <ArtikelFormular artikel={formular.artikel} beilagen={beilagen}
+        <ArtikelFormular artikel={formular.artikel} beilagen={beilagen} rolle={rolle}
           onSpeichern={speichern} onAbbrechen={() => setFormular(null)} />
       )}
 

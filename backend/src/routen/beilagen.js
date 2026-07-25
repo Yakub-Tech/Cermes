@@ -5,12 +5,12 @@ import { sendeEreignis } from '../broadcast.js';
 
 const router = express.Router();
 
-router.get('/api/beilagen', brauchtRolle('admin'), (_anfrage, antwort) => {
+router.get('/api/beilagen', brauchtRolle(['admin', 'verwaltung']), (_anfrage, antwort) => {
   const db = oeffneDatenbank();
   antwort.json(db.prepare('SELECT * FROM beilage WHERE geloescht = 0 ORDER BY name').all());
 });
 
-router.post('/api/beilagen', brauchtRolle('admin'), (anfrage, antwort) => {
+router.post('/api/beilagen', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   const name = String(anfrage.body.name || '').trim();
   if (name === '') {
@@ -21,7 +21,7 @@ router.post('/api/beilagen', brauchtRolle('admin'), (anfrage, antwort) => {
   antwort.json(db.prepare('SELECT * FROM beilage WHERE id = ?').get(ergebnis.lastInsertRowid));
 });
 
-router.put('/api/beilagen/:id', brauchtRolle('admin'), (anfrage, antwort) => {
+router.put('/api/beilagen/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   const vorhanden = db.prepare('SELECT * FROM beilage WHERE id = ? AND geloescht = 0')
     .get(anfrage.params.id);
@@ -38,7 +38,7 @@ router.put('/api/beilagen/:id', brauchtRolle('admin'), (anfrage, antwort) => {
   antwort.json(db.prepare('SELECT * FROM beilage WHERE id = ?').get(vorhanden.id));
 });
 
-router.delete('/api/beilagen/:id', brauchtRolle('admin'), (anfrage, antwort) => {
+router.delete('/api/beilagen/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   db.prepare('UPDATE beilage SET geloescht = 1, aktiv = 0 WHERE id = ?').run(anfrage.params.id);
   sendeEreignis('beilagen');

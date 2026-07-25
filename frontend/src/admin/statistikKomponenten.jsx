@@ -73,27 +73,37 @@ export function FarbLegende() {
 }
 
 export function ArtikelUebersicht({ gesamt, artikel }) {
+  const zeigtGeld = gesamt.umsatz_cent !== undefined;
+
   return (
     <>
       <div className="grid grid-cols-3 gap-4">
         <KennzahlKachel beschriftung="Verkaufte Portionen" wert={gesamt.stueck} />
-        <KennzahlKachel beschriftung="Umsatz" wert={formatEuro(gesamt.umsatz_cent)} />
-        <KennzahlKachel beschriftung="Gewinn" wert={formatEuro(gesamt.gewinn_cent)}
-          fussnote={gesamt.stueck_ohne_kosten > 0
-            ? `${gesamt.stueck_ohne_kosten} Stück ohne Kostenangabe, Gewinn dort ohne Kostenabzug berechnet`
-            : null} />
+        {zeigtGeld && (
+          <>
+            <KennzahlKachel beschriftung="Umsatz" wert={formatEuro(gesamt.umsatz_cent)} />
+            <KennzahlKachel beschriftung="Gewinn" wert={formatEuro(gesamt.gewinn_cent)}
+              fussnote={gesamt.stueck_ohne_kosten > 0
+                ? `${gesamt.stueck_ohne_kosten} Stück ohne Kostenangabe, Gewinn dort ohne Kostenabzug berechnet`
+                : null} />
+          </>
+        )}
       </div>
 
       <BalkenDiagramm titel="Verkaufte Stückzahl pro Artikel" daten={artikel}
         xSchluessel="artikel_name" ySchluessel="stueck" />
 
-      <BalkenDiagramm titel="Umsatz pro Artikel" daten={artikel}
-        xSchluessel="artikel_name" ySchluessel="umsatz_cent" werteFormat={formatEuro} />
+      {zeigtGeld && (
+        <>
+          <BalkenDiagramm titel="Umsatz pro Artikel" daten={artikel}
+            xSchluessel="artikel_name" ySchluessel="umsatz_cent" werteFormat={formatEuro} />
 
-      <BalkenDiagramm titel="Gewinn pro Artikel" daten={artikel}
-        xSchluessel="artikel_name" ySchluessel="gewinn_cent" werteFormat={formatEuro}
-        balkenFarbFunktion={(zeile) => (zeile.stueck_ohne_kosten > 0 ? farbeOhneKosten : balkenFarbe)}
-        kinder={<FarbLegende />} />
+          <BalkenDiagramm titel="Gewinn pro Artikel" daten={artikel}
+            xSchluessel="artikel_name" ySchluessel="gewinn_cent" werteFormat={formatEuro}
+            balkenFarbFunktion={(zeile) => (zeile.stueck_ohne_kosten > 0 ? farbeOhneKosten : balkenFarbe)}
+            kinder={<FarbLegende />} />
+        </>
+      )}
     </>
   );
 }

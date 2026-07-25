@@ -34,7 +34,8 @@ export default function LoginSeite() {
     setFehler('');
     try {
       const { rolle } = await apiPost('/api/login', { benutzername, passwort });
-      navigiere(rolle === 'admin' ? '/admin' : `/${rolle}`, { replace: true });
+      const rolleZuPfad = { admin: '/admin', verwaltung: '/admin' };
+      navigiere(rolleZuPfad[rolle] || `/${rolle}`, { replace: true });
     } catch (f) {
       setFehler(f.message);
       setLaeuft(false);

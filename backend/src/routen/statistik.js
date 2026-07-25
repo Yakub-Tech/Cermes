@@ -39,7 +39,13 @@ function stornosLaden(db, whereKlausel, werte, mitDatum) {
   ).all(...werte);
 }
 
-router.get('/api/statistik/verkaufstage', brauchtRolle('admin'), (_anfrage, antwort) => {
+function fuerRolleFiltern(ergebnis, rolle) {
+  if (rolle !== 'verwaltung') return ergebnis;
+  const ohneGeld = ({ umsatz_cent, gewinn_cent, stueck_ohne_kosten, ...rest }) => rest;
+  return { ...ergebnis, artikel: ergebnis.artikel.map(ohneGeld), gesamt: ohneGeld(ergebnis.gesamt) };
+}
+
+router.get('/api/statistik/verkaufstage', brauchtRolle(['admin', 'verwaltung']), (_anfrage, antwort) => {
   const db = oeffneDatenbank();
   const tage = db.prepare(
     `SELECT DISTINCT substr(erstellt_am, 1, 10) AS tag FROM kaertchen
@@ -48,7 +54,7 @@ router.get('/api/statistik/verkaufstage', brauchtRolle('admin'), (_anfrage, antw
   antwort.json(tage);
 });
 
-router.get('/api/statistik/tag/:datum', brauchtRolle('admin'), (anfrage, antwort) => {
+router.get('/api/statistik/tag/:datum', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   const datum = anfrage.params.datum;
 
@@ -67,10 +73,10 @@ router.get('/api/statistik/tag/:datum', brauchtRolle('admin'), (anfrage, antwort
 
   const stornos = stornosLaden(db, 'substr(k.storniert_am, 1, 10) = ?', [datum], false);
 
-  antwort.json({ artikel, gesamt, stunden, stornos });
+  antwort.json(fuerRolleFiltern({ artikel, gesamt, stunden, stornos }, anfrage.benutzer.rolle));
 });
 
-router.get('/api/statistik/zeitraum', brauchtRolle('admin'), (anfrage, antwort) => {
+router.get('/api/statistik/zeitraum', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const { von, bis } = anfrage.query;
   if (!von || !bis) {
     return antwort.status(400).json({ fehler: 'Bitte einen Start- und einen Endtag angeben.' });
@@ -93,7 +99,7 @@ router.get('/api/statistik/zeitraum', brauchtRolle('admin'), (anfrage, antwort) 
 
   const stornos = stornosLaden(db, 'substr(k.storniert_am, 1, 10) BETWEEN ? AND ?', [von, bis], true);
 
-  antwort.json({ artikel, gesamt, tage, stornos });
+  antwort.json(fuerRolleFiltern({ artikel, gesamt, tage, stornos }, anfrage.benutzer.rolle));
 });
 
 export default router;

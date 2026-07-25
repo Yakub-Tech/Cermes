@@ -82,10 +82,11 @@ export function brauchtAnmeldung() {
 }
 
 export function brauchtRolle(rolle) {
+  const erlaubteRollen = Array.isArray(rolle) ? rolle : [rolle];
   return (anfrage, antwort, weiter) => {
     const benutzer = aktuellerBenutzer(anfrage);
     if (!benutzer) return antwort.status(401).json({ fehler: 'Bitte zuerst anmelden.' });
-    if (benutzer.rolle !== rolle) {
+    if (!erlaubteRollen.includes(benutzer.rolle)) {
       return antwort.status(403).json({ fehler: 'Dieses Konto hat hierfür keine Berechtigung.' });
     }
     anfrage.benutzer = benutzer;

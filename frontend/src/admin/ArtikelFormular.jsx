@@ -5,7 +5,7 @@ import Zahlenfeld from '../komponenten/Zahlenfeld.jsx';
 
 const NAME_MAX_LAENGE = 24;
 
-export default function ArtikelFormular({ artikel, beilagen, onSpeichern, onAbbrechen }) {
+export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern, onAbbrechen }) {
   const [name, setName] = useState(artikel?.name ?? '');
   const [farbe, setFarbe] = useState(artikel?.farbe ?? '#b53030');
   const [preisText, setPreisText] = useState(
@@ -69,11 +69,13 @@ export default function ArtikelFormular({ artikel, beilagen, onSpeichern, onAbbr
           <input value={preisText} inputMode="decimal" placeholder="3,50"
             onChange={(e) => setPreisText(e.target.value)} className={eingabeKlasse} />
         </div>
-        <div className="flex-1">
-          <label className="mb-1 block text-sm text-schrift-gedimmt">Einkaufskosten (€, optional)</label>
-          <input value={kostenText} inputMode="decimal" placeholder="leer = ohne Angabe"
-            onChange={(e) => setKostenText(e.target.value)} className={eingabeKlasse} />
-        </div>
+        {rolle === 'admin' && (
+          <div className="flex-1">
+            <label className="mb-1 block text-sm text-schrift-gedimmt">Einkaufskosten (€, optional)</label>
+            <input value={kostenText} inputMode="decimal" placeholder="leer = ohne Angabe"
+              onChange={(e) => setKostenText(e.target.value)} className={eingabeKlasse} />
+          </div>
+        )}
       </div>
 
       <div className="mb-4 flex items-center gap-4">

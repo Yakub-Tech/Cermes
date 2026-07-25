@@ -39,13 +39,13 @@ function nurDiesesAktivieren(db, id) {
   })();
 }
 
-router.get('/api/logo', brauchtRolle('admin'), (_anfrage, antwort) => {
+router.get('/api/logo', brauchtRolle(['admin', 'verwaltung']), (_anfrage, antwort) => {
   const db = oeffneDatenbank();
   const logos = db.prepare('SELECT * FROM logo ORDER BY id').all();
   antwort.json(logos.map((logo) => ({ ...logo, url: `/logo/${logo.dateiname}` })));
 });
 
-router.post('/api/logo', brauchtRolle('admin'), upload.single('logo'), (anfrage, antwort) => {
+router.post('/api/logo', brauchtRolle(['admin', 'verwaltung']), upload.single('logo'), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   if (!anfrage.file) {
     return antwort.status(400).json({ fehler: 'Bitte eine Bilddatei auswählen.' });
@@ -65,7 +65,7 @@ router.post('/api/logo', brauchtRolle('admin'), upload.single('logo'), (anfrage,
   antwort.json({ ...logo, url: `/logo/${logo.dateiname}` });
 });
 
-router.put('/api/logo/:id', brauchtRolle('admin'), (anfrage, antwort) => {
+router.put('/api/logo/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   const logo = db.prepare('SELECT * FROM logo WHERE id = ?').get(anfrage.params.id);
   if (!logo) {
@@ -80,7 +80,7 @@ router.put('/api/logo/:id', brauchtRolle('admin'), (anfrage, antwort) => {
   antwort.json({ ok: true });
 });
 
-router.delete('/api/logo/:id', brauchtRolle('admin'), (anfrage, antwort) => {
+router.delete('/api/logo/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   const logo = db.prepare('SELECT * FROM logo WHERE id = ?').get(anfrage.params.id);
   if (!logo) {

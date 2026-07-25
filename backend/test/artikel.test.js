@@ -38,6 +38,41 @@ test('Artikel-Validierung lehnt Unsinn verständlich ab', async () => {
   assert.equal(falscherPreis.status, 400);
 });
 
+test('Verwaltung sieht keine Einkaufskosten und kann sie nicht setzen oder ändern', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const verwaltung = await angemeldeterAgent(app, db, 'verwaltung');
+
+  const vonVerwaltungAngelegt = (await verwaltung.post('/api/artikel').send({
+    name: 'Cola', farbe: '#333333', preis_cent: 250,
+    einkaufskosten_cent: 999, beilagen_ids: [], sortierung: 1,
+  })).body;
+  assert.equal(vonVerwaltungAngelegt.einkaufskosten_cent, undefined);
+  assert.equal(
+    db.prepare('SELECT einkaufskosten_cent FROM artikel WHERE id = ?').get(vonVerwaltungAngelegt.id).einkaufskosten_cent,
+    null
+  );
+
+  const pommes = (await admin.post('/api/artikel').send({
+    name: 'Pommes', farbe: '#f5c211', preis_cent: 350,
+    einkaufskosten_cent: 120, beilagen_ids: [], sortierung: 2,
+  })).body;
+  assert.equal(pommes.einkaufskosten_cent, 120);
+
+  const listeVerwaltung = (await verwaltung.get('/api/artikel')).body;
+  const pommesFuerVerwaltung = listeVerwaltung.find((a) => a.name === 'Pommes');
+  assert.equal(pommesFuerVerwaltung.einkaufskosten_cent, undefined);
+
+  const geaendert = (await verwaltung.put(`/api/artikel/${pommes.id}`).send({
+    ...pommesFuerVerwaltung, einkaufskosten_cent: 1,
+  })).body;
+  assert.equal(geaendert.einkaufskosten_cent, undefined);
+  assert.equal(
+    db.prepare('SELECT einkaufskosten_cent FROM artikel WHERE id = ?').get(pommes.id).einkaufskosten_cent,
+    120
+  );
+});
+
 test('Beilage bearbeiten und Soft-Delete', async () => {
   const { app, db } = frischeApp();
   const admin = await angemeldeterAgent(app, db, 'admin');
