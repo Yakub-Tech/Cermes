@@ -23,6 +23,10 @@ export function erstelleApp() {
   app.use(express.json());
   authEinbinden(app);
   app.get('/api/gesundheit', (_anfrage, antwort) => antwort.json({ ok: true }));
+  app.get('/api/netzwerkadresse', (_anfrage, antwort) => {
+    const ip = process.env.CERMES_HOST_IP;
+    antwort.json({ adresse: ip ? `${ip}:8080` : null });
+  });
   app.use(artikelRouter);
   app.use(beilagenRouter);
   app.use(kasseRouter);

@@ -7,4 +7,5 @@ services:
       - ./data:/app/data
     environment:
       - TZ=Europe/Berlin
+      - CERMES_HOST_IP=${CERMES_HOST_IP:-}
     restart: unless-stopped
