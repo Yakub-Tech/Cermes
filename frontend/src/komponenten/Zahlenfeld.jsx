@@ -1,4 +1,4 @@
-export default function Zahlenfeld({ wert, onWahl, min, id, autoFokus = false, klasse = 'w-32' }) {
+export default function Zahlenfeld({ wert, onWahl, min, id, autoFokus = false, klasse = 'w-20' }) {
   function schritt(richtung) {
     const naechsteZahl = (Number(wert) || 0) + richtung;
     if (min !== undefined && naechsteZahl < Number(min)) return;
@@ -9,14 +9,14 @@ export default function Zahlenfeld({ wert, onWahl, min, id, autoFokus = false, k
     <div className={`flex items-stretch overflow-hidden rounded-xl border border-linie bg-grund focus-within:ring-2 focus-within:ring-blau-hell/40 ${klasse}`}>
       <input id={id} type="number" min={min} value={wert} autoFocus={autoFokus}
         onChange={(e) => onWahl(e.target.value)}
-        className="w-full min-w-0 border-none bg-transparent px-3 py-2 text-lg outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
+        className="w-full min-w-0 border-none bg-transparent px-2 py-1.5 text-sm outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
       <div className="flex flex-col border-l border-linie">
         <button type="button" onClick={() => schritt(1)}
-          className="flex flex-1 cursor-pointer items-center justify-center px-2 text-xs text-schrift-gedimmt hover:bg-flaeche-hell">
+          className="flex flex-1 cursor-pointer items-center justify-center px-1.5 text-xs text-schrift-gedimmt hover:bg-flaeche-hell">
           ▲
         </button>
         <button type="button" onClick={() => schritt(-1)}
-          className="flex flex-1 cursor-pointer items-center justify-center border-t border-linie px-2 text-xs text-schrift-gedimmt hover:bg-flaeche-hell">
+          className="flex flex-1 cursor-pointer items-center justify-center border-t border-linie px-1.5 text-xs text-schrift-gedimmt hover:bg-flaeche-hell">
           ▼
         </button>
       </div>
