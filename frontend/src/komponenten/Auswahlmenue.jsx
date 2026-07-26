@@ -12,7 +12,7 @@ export default function Auswahlmenue({ wert, onWahl, optionen, klasse = '' }) {
   return (
     <Select.Root value={radixWert} onValueChange={wahlGeaendert}>
       <Select.Trigger
-        className={`group inline-flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-linie bg-flaeche px-3 py-2 text-left outline-none focus:ring-2 focus:ring-blau-hell/40 data-[state=open]:ring-2 data-[state=open]:ring-blau-hell/40 ${klasse}`}>
+        className={`group inline-flex cursor-pointer items-center justify-between gap-1.5 rounded-lg border border-linie bg-flaeche px-2 py-1.5 text-left outline-none focus:ring-2 focus:ring-blau-hell/40 data-[state=open]:ring-2 data-[state=open]:ring-blau-hell/40 ${klasse}`}>
         <Select.Value />
         <Select.Icon className="auswahlmenue-chevron text-schrift-gedimmt transition-transform duration-150 group-data-[state=open]:rotate-180">
           ▾
@@ -20,13 +20,13 @@ export default function Auswahlmenue({ wert, onWahl, optionen, klasse = '' }) {
       </Select.Trigger>
       <Select.Portal>
         <Select.Content position="popper" sideOffset={4}
-          className="auswahlmenue-panel z-50 overflow-hidden rounded-xl border border-linie bg-flaeche shadow-2xl data-[state=open]:animate-[dropdown-oeffnen_120ms_ease-out]">
+          className="auswahlmenue-panel z-50 overflow-hidden rounded-lg border border-linie bg-flaeche shadow-2xl data-[state=open]:animate-[dropdown-oeffnen_120ms_ease-out]">
           <Select.Viewport className="max-h-72 p-1">
             {optionen.map((option) => {
               const optionWert = option.wert === '' ? LEER_TOKEN : String(option.wert);
               return (
                 <Select.Item key={optionWert} value={optionWert}
-                  className="flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 outline-none data-[highlighted]:bg-flaeche-hell data-[state=checked]:bg-flaeche-hell">
+                  className="flex cursor-pointer items-center justify-between gap-1.5 rounded-lg px-2 py-1.5 outline-none data-[highlighted]:bg-flaeche-hell data-[state=checked]:bg-flaeche-hell">
                   <Select.ItemText>{option.text}</Select.ItemText>
                   <Select.ItemIndicator className="text-blau">✓</Select.ItemIndicator>
                 </Select.Item>
