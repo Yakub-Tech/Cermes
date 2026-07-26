@@ -30,11 +30,11 @@ export default function AdminLayout() {
       <Kopfzeile titel="Verwaltung" benutzername={session.benutzername} />
 
       <div className="flex min-h-0 flex-1">
-        <nav className="w-52 shrink-0 border-r border-linie bg-flaeche py-4">
+        <nav className="w-36 shrink-0 border-r border-linie bg-flaeche py-2.5">
           {sichtbareBereiche.map(([pfad, beschriftung]) => (
             <NavLink key={pfad} to={pfad}
               className={({ isActive }) =>
-                `block px-6 py-3 text-lg ${
+                `block px-4 py-2 text-sm ${
                   isActive
                     ? 'border-r-2 border-navy bg-flaeche-hell font-semibold text-navy'
                     : 'text-schrift-gedimmt hover:bg-flaeche-hell'
@@ -44,7 +44,7 @@ export default function AdminLayout() {
           ))}
         </nav>
 
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-4">
           <Routes>
             <Route index element={<Navigate to="statistik" replace />} />
             <Route path="statistik" element={<StatistikSeite />} />
