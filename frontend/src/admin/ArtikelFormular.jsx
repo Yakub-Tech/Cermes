@@ -51,55 +51,55 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
   }
 
   const eingabeKlasse =
-    'mb-4 w-full rounded border border-linie bg-grund px-3 py-2 text-lg outline-none focus:border-blau-hell';
+    'mb-2.5 w-full rounded border border-linie bg-grund px-2 py-1.5 text-sm outline-none focus:border-blau-hell';
 
   return (
     <Dialog titel={artikel ? `${artikel.name} bearbeiten` : 'Artikel anlegen'}
       onSchliessen={onAbbrechen}>
-      <label className="mb-1 block text-sm text-schrift-gedimmt">Name</label>
+      <label className="mb-1 block text-xs text-schrift-gedimmt">Name</label>
       <input value={name} autoFocus maxLength={NAME_MAX_LAENGE} onChange={(e) => setName(e.target.value)}
-        className={eingabeKlasse.replace('mb-4', 'mb-1')} />
-      <p className="mb-4 text-right text-xs text-schrift-gedimmt">
+        className={eingabeKlasse.replace('mb-2.5', 'mb-1')} />
+      <p className="mb-2.5 text-right text-xs text-schrift-gedimmt">
         {name.length}/{NAME_MAX_LAENGE} Zeichen
       </p>
 
-      <div className="flex gap-4">
+      <div className="flex gap-2.5">
         <div className="flex-1">
-          <label className="mb-1 block text-sm text-schrift-gedimmt">Verkaufspreis (€)</label>
+          <label className="mb-1 block text-xs text-schrift-gedimmt">Verkaufspreis (€)</label>
           <input value={preisText} inputMode="decimal" placeholder="3,50"
             onChange={(e) => setPreisText(e.target.value)} className={eingabeKlasse} />
         </div>
         {rolle === 'admin' && (
           <div className="flex-1">
-            <label className="mb-1 block text-sm text-schrift-gedimmt">Einkaufskosten (€, optional)</label>
+            <label className="mb-1 block text-xs text-schrift-gedimmt">Einkaufskosten (€, optional)</label>
             <input value={kostenText} inputMode="decimal" placeholder="leer = ohne Angabe"
               onChange={(e) => setKostenText(e.target.value)} className={eingabeKlasse} />
           </div>
         )}
       </div>
 
-      <div className="mb-4 flex items-center gap-4">
+      <div className="mb-2.5 flex items-center gap-2.5">
         <div>
-          <label className="mb-1 block text-sm text-schrift-gedimmt">Kärtchenfarbe</label>
+          <label className="mb-1 block text-xs text-schrift-gedimmt">Kärtchenfarbe</label>
           <input type="color" value={farbe} onChange={(e) => setFarbe(e.target.value)}
-            className="h-12 w-20 cursor-pointer rounded border border-linie bg-grund" />
+            className="h-8 w-14 cursor-pointer rounded border border-linie bg-grund" />
         </div>
         <div>
-          <label className="mb-1 block text-sm text-schrift-gedimmt">Sortierung in der Kasse</label>
-          <Zahlenfeld wert={sortierung} onWahl={setSortierung} klasse="w-24" />
+          <label className="mb-1 block text-xs text-schrift-gedimmt">Sortierung in der Kasse</label>
+          <Zahlenfeld wert={sortierung} onWahl={setSortierung} klasse="w-16" />
         </div>
       </div>
 
-      <label className="mb-1 block text-sm text-schrift-gedimmt">Beilagen</label>
-      <div className="mb-4 flex flex-wrap gap-2">
+      <label className="mb-1 block text-xs text-schrift-gedimmt">Beilagen</label>
+      <div className="mb-2.5 flex flex-wrap gap-1.5">
         {beilagen.length === 0 && (
-          <p className="text-sm text-schrift-gedimmt">
+          <p className="text-xs text-schrift-gedimmt">
             Noch keine Beilagen angelegt (Bereich „Beilagen“).
           </p>
         )}
         {beilagen.map((beilage) => (
           <button key={beilage.id} type="button" onClick={() => beilageUmschalten(beilage.id)}
-            className={`cursor-pointer rounded-full px-4 py-1 ${
+            className={`cursor-pointer rounded-full px-2.5 py-1 ${
               beilagenIds.includes(beilage.id)
                 ? 'bg-navy font-semibold text-grund'
                 : 'border border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
@@ -109,15 +109,15 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
         ))}
       </div>
 
-      {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
+      {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-blau">{fehler}</p>}
 
-      <div className="flex gap-3">
+      <div className="flex gap-2">
         <button onClick={onAbbrechen}
-          className="flex-1 cursor-pointer rounded-full border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
+          className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-schrift-gedimmt hover:bg-flaeche-hell">
           Abbrechen
         </button>
         <button onClick={speichern}
-          className="flex-1 cursor-pointer rounded-full bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
+          className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 font-bold text-flaeche hover:bg-blau-hell">
           Speichern
         </button>
       </div>
