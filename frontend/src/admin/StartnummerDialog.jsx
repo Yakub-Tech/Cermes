@@ -30,13 +30,13 @@ export default function StartnummerDialog({ artikel, onFertig, onAbbrechen }) {
 
   return (
     <Dialog titel={`Startnummer für ${artikel.name}`} onSchliessen={onAbbrechen}>
-      <label className="mb-1 block text-sm text-schrift-gedimmt">Weiter bei Nummer</label>
-      <Zahlenfeld min="1" wert={nummerText} autoFokus klasse="mb-4 w-40"
+      <label className="mb-1 block text-xs text-schrift-gedimmt">Weiter bei Nummer</label>
+      <Zahlenfeld min="1" wert={nummerText} autoFokus klasse="mb-2.5 w-28"
         onWahl={(neuerWert) => { setNummerText(neuerWert); setWarnung(null); }} />
 
       {warnung && (
-        <div className="mb-4 rounded-lg border border-akzent bg-akzent/10 px-4 py-3">
-          <p className="mb-3">
+        <div className="mb-2.5 rounded-lg border border-akzent bg-akzent/10 px-2.5 py-2">
+          <p className="mb-2">
             {warnung.hoechste_nummer_heute !== null
               ? `Heute wurde für diesen Artikel bereits bis Nummer ${warnung.hoechste_nummer_heute} verkauft. `
               : ''}
@@ -44,22 +44,22 @@ export default function StartnummerDialog({ artikel, onFertig, onAbbrechen }) {
             Nummer haben und bei der Ausgabe verwechselt werden. Das ist nur dann
             richtig, wenn ihr wirklich eine neue Kärtchenrolle einsetzt.
           </p>
-          <label className="flex cursor-pointer items-center gap-2">
+          <label className="flex cursor-pointer items-center gap-1.5">
             <Kontrollkaestchen markiert={gelesen} onWahl={setGelesen} />
             <span>Ich habe die Warnung gelesen und will das so.</span>
           </label>
         </div>
       )}
 
-      {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
+      {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-blau">{fehler}</p>}
 
-      <div className="flex gap-3">
+      <div className="flex gap-2">
         <button onClick={onAbbrechen}
-          className="flex-1 cursor-pointer rounded-full border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
+          className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-schrift-gedimmt hover:bg-flaeche-hell">
           Abbrechen
         </button>
         <button onClick={speichern} disabled={warnung !== null && !gelesen}
-          className="flex-1 cursor-pointer rounded-full bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
+          className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
           Speichern
         </button>
       </div>
