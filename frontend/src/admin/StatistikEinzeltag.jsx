@@ -47,10 +47,10 @@ export default function StatistikEinzeltag() {
   const stundenDaten = stunden.map((s) => ({ ...s, stunde: `${s.stunde} Uhr` }));
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-3">
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
         <button onClick={() => tagWaehlen(heutigesDatum())}
-          className={`cursor-pointer rounded-full px-4 py-2 ${
+          className={`cursor-pointer rounded-full px-2.5 py-1.5 ${
             datum === heutigesDatum() ? 'bg-blau font-bold text-flaeche' : 'border border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
           }`}>
           Heute
@@ -72,7 +72,7 @@ export default function StatistikEinzeltag() {
               { wert: '', text: 'Alle Artikel' },
               ...artikelListe.map((a) => ({ wert: String(a.id), text: a.name })),
             ]}
-            klasse="text-sm" />
+            klasse="text-xs" />
         } />
 
       <StornoTabelle stornos={statistik.stornos} />

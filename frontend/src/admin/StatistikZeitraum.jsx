@@ -75,9 +75,9 @@ export default function StatistikZeitraum() {
   const bisOptionen = verkaufstage.filter((tag) => tag >= von);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="w-[79px] text-right text-schrift-gedimmt">Von</span>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="w-[67px] text-right text-schrift-gedimmt">Von</span>
         <Auswahlmenue wert={von} onWahl={vonWaehlen}
           optionen={vonOptionen.map((tag) => ({ wert: tag, text: datumAnzeigen(tag) }))} />
         <span className="text-schrift-gedimmt">Bis</span>
@@ -96,7 +96,7 @@ export default function StatistikZeitraum() {
               { wert: '', text: 'Alle Artikel' },
               ...artikelListe.map((a) => ({ wert: String(a.id), text: a.name })),
             ]}
-            klasse="text-sm" />
+            klasse="text-xs" />
         } />
 
       <StornoTabelle stornos={statistik.stornos} mitDatum />
