@@ -32,7 +32,7 @@ export default function BackupSeite() {
     <div className="space-y-5">
       <section>
         <h2 className="mb-2.5 font-display text-base text-navy">Backup herunterladen</h2>
-        <p className="mb-2.5 max-w-sm text-schrift-gedimmt">
+        <p className="mb-2.5 max-w-sm text-sm text-schrift-gedimmt">
           Lädt eine ZIP-Datei mit der kompletten Datenbank und allen Werbebildern herunter.
           Am besten nach jedem Verkaufstag einmal machen und die Datei sicher ablegen.
         </p>
@@ -45,7 +45,7 @@ export default function BackupSeite() {
       <section>
         <h2 className="mb-2.5 font-display text-base text-navy">Backup einspielen</h2>
         <form onSubmit={einspielen} className="max-w-sm rounded-lg border border-linie bg-flaeche p-4">
-          <p className="mb-2.5 rounded-lg border border-blau bg-blau/20 px-2.5 py-2 text-blau">
+          <p className="mb-2.5 rounded-lg border border-blau bg-blau/20 px-2.5 py-2 text-sm text-blau">
             Achtung: Das Einspielen <strong>ersetzt alle aktuellen Daten</strong>,
             also Verkäufe, Artikel, Benutzer und Werbebilder, durch den Stand aus der Backup-Datei.
           </p>
@@ -53,14 +53,14 @@ export default function BackupSeite() {
             <DateiAuswahl akzeptiert=".zip" wert={datei} onWahl={setDatei}
               typFehlerText="Bitte nur eine ZIP-Datei ablegen." />
           </div>
-          <label className="mb-2.5 flex cursor-pointer items-center gap-1.5">
+          <label className="mb-2.5 flex cursor-pointer items-center gap-1.5 text-sm">
             <Kontrollkaestchen markiert={bestaetigt} onWahl={setBestaetigt} />
             <span>Ich habe verstanden, dass alle aktuellen Daten ersetzt werden.</span>
           </label>
-          {hinweis && <p className="mb-2 rounded bg-akzent/10 px-2 py-1.5 text-akzent-text">{hinweis}</p>}
-          {fehler && <p className="mb-2 rounded bg-blau/30 px-2 py-1.5 text-blau">{fehler}</p>}
+          {hinweis && <p className="mb-2 rounded bg-akzent/10 px-2 py-1.5 text-sm text-akzent-text">{hinweis}</p>}
+          {fehler && <p className="mb-2 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
           <button type="submit" disabled={!datei || !bestaetigt || laeuft}
-            className="cursor-pointer rounded-full bg-blau px-4 py-1.5 font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
+            className="cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
             {laeuft ? 'Wird eingespielt …' : 'Backup einspielen'}
           </button>
         </form>

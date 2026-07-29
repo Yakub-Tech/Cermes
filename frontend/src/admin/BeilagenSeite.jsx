@@ -46,14 +46,14 @@ export default function BeilagenSeite() {
           placeholder="Neue Beilage, z. B. Ketchup"
           className="flex-1 rounded border border-linie bg-flaeche px-2 py-1.5 outline-none focus:border-blau-hell" />
         <button type="submit" disabled={neuerName.trim() === ''}
-          className="cursor-pointer rounded-full bg-blau px-4 py-1.5 font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
+          className="cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
           Anlegen
         </button>
       </form>
 
-      {fehler && <p className="mb-2.5 max-w-md rounded bg-blau/30 px-2 py-1.5 text-blau">{fehler}</p>}
+      {fehler && <p className="mb-2.5 max-w-md rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
 
-      <ul className="max-w-md divide-y divide-linie rounded-lg border border-linie bg-flaeche">
+      <ul className="max-w-md divide-y divide-linie rounded-lg border border-linie bg-flaeche text-sm">
         {beilagen.length === 0 && (
           <li className="px-2.5 py-4 text-schrift-gedimmt">Noch keine Beilagen angelegt.</li>
         )}
@@ -72,11 +72,11 @@ export default function BeilagenSeite() {
               {beilage.aktiv ? 'aktiv' : 'inaktiv'}
             </button>
             <button onClick={() => setBearbeitung({ ...beilage })}
-              className="cursor-pointer rounded-full border border-linie px-2 py-1 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
               Umbenennen
             </button>
             <button onClick={() => setLoeschung(beilage)}
-              className="cursor-pointer rounded-full border border-linie px-2 py-1 text-blau-hell hover:bg-flaeche-hell">
+              className="cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-blau-hell hover:bg-flaeche-hell">
               Löschen
             </button>
           </li>
@@ -90,11 +90,11 @@ export default function BeilagenSeite() {
             className="mb-2.5 w-full rounded border border-linie bg-grund px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
           <div className="flex gap-2">
             <button onClick={() => setBearbeitung(null)}
-              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button onClick={speichern}
-              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
               Speichern
             </button>
           </div>
@@ -103,20 +103,20 @@ export default function BeilagenSeite() {
 
       {loeschung && (
         <Dialog titel="Beilage löschen?" onSchliessen={() => setLoeschung(null)}>
-          <p className="mb-4">
+          <p className="mb-4 text-sm">
             „{loeschung.name}“ wird dauerhaft aus jeder Auswahl entfernt.
             Bereits verkaufte Kärtchen bleiben unverändert.
           </p>
           <div className="flex gap-2">
             <button onClick={() => setLoeschung(null)}
-              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button
               onClick={() => apiDelete(`/api/beilagen/${loeschung.id}`)
                 .then(() => setLoeschung(null))
                 .catch((f) => { setFehler(f.message); setLoeschung(null); })}
-              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
               Ja, löschen
             </button>
           </div>

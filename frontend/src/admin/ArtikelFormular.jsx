@@ -99,7 +99,7 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
         )}
         {beilagen.map((beilage) => (
           <button key={beilage.id} type="button" onClick={() => beilageUmschalten(beilage.id)}
-            className={`cursor-pointer rounded-full px-2.5 py-1 ${
+            className={`cursor-pointer rounded-full px-2.5 py-1 text-sm ${
               beilagenIds.includes(beilage.id)
                 ? 'bg-navy font-semibold text-grund'
                 : 'border border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
@@ -109,15 +109,15 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
         ))}
       </div>
 
-      {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-blau">{fehler}</p>}
+      {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
 
       <div className="flex gap-2">
         <button onClick={onAbbrechen}
-          className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-schrift-gedimmt hover:bg-flaeche-hell">
+          className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
           Abbrechen
         </button>
         <button onClick={speichern}
-          className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 font-bold text-flaeche hover:bg-blau-hell">
+          className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
           Speichern
         </button>
       </div>

@@ -35,7 +35,7 @@ export default function StartnummerDialog({ artikel, onFertig, onAbbrechen }) {
         onWahl={(neuerWert) => { setNummerText(neuerWert); setWarnung(null); }} />
 
       {warnung && (
-        <div className="mb-2.5 rounded-lg border border-akzent bg-akzent/10 px-2.5 py-2">
+        <div className="mb-2.5 rounded-lg border border-akzent bg-akzent/10 px-2.5 py-2 text-sm">
           <p className="mb-2">
             {warnung.hoechste_nummer_heute !== null
               ? `Heute wurde für diesen Artikel bereits bis Nummer ${warnung.hoechste_nummer_heute} verkauft. `
@@ -51,15 +51,15 @@ export default function StartnummerDialog({ artikel, onFertig, onAbbrechen }) {
         </div>
       )}
 
-      {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-blau">{fehler}</p>}
+      {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
 
       <div className="flex gap-2">
         <button onClick={onAbbrechen}
-          className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-schrift-gedimmt hover:bg-flaeche-hell">
+          className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
           Abbrechen
         </button>
         <button onClick={speichern} disabled={warnung !== null && !gelesen}
-          className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
+          className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
           Speichern
         </button>
       </div>

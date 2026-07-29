@@ -26,13 +26,13 @@ export default function Kopfzeile({ titel, benutzername, rechts, aufLogoKlick })
           {rechts}
           {benutzername && (
             <div className="flex items-center gap-2">
-              <span className="text-schrift-gedimmt">{benutzername}</span>
+              <span className="text-xs text-schrift-gedimmt">{benutzername}</span>
               <span className="text-xs text-schrift-gedimmt">
                 Abmeldung in {formatiereCountdown(verbleibendeSekunden)}
               </span>
               <button
                 onClick={abmelden}
-                className="cursor-pointer rounded-full border border-linie px-2 py-1 text-schrift-gedimmt hover:bg-flaeche-hell"
+                className="cursor-pointer rounded-full border border-linie px-2 py-1 text-xs text-schrift-gedimmt hover:bg-flaeche-hell"
               >
                 Abmelden
               </button>

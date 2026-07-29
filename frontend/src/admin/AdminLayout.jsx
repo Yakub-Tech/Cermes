@@ -29,7 +29,7 @@ export default function AdminLayout() {
     <div className="flex h-screen flex-col">
       <Kopfzeile titel="Verwaltung" benutzername={session.benutzername} />
 
-      <div className="flex min-h-0 flex-1">
+      <div className="verwaltung flex min-h-0 flex-1">
         <nav className="w-36 shrink-0 border-r border-linie bg-flaeche py-2.5">
           {sichtbareBereiche.map(([pfad, beschriftung]) => (
             <NavLink key={pfad} to={pfad}

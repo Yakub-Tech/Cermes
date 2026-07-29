@@ -74,7 +74,7 @@ export default function EinstellungenSeite() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <form onSubmit={speichern} className="rounded-lg border border-linie bg-flaeche p-4">
           <h3 className="mb-1.5 font-display text-sm text-navy">Warnzeit</h3>
-          <label className="mb-1 block text-schrift-gedimmt" htmlFor="warnminuten">
+          <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="warnminuten">
             Warnzeit für liegengebliebene abholbereite Kärtchen (Minuten)
           </label>
           <p className="mb-2 text-xs text-schrift-gedimmt">
@@ -83,17 +83,17 @@ export default function EinstellungenSeite() {
           </p>
           <Zahlenfeld id="warnminuten" min="0" wert={warnminuten} onWahl={setWarnminuten}
             klasse="mb-2.5 w-20" />
-          {meldung && <p className="mb-2 text-navy">{meldung}</p>}
-          {fehler && <p className="mb-2 rounded bg-blau/30 px-2 py-1.5 text-blau">{fehler}</p>}
+          {meldung && <p className="mb-2 text-sm text-navy">{meldung}</p>}
+          {fehler && <p className="mb-2 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
           <button type="submit"
-            className="block cursor-pointer rounded-full bg-blau px-4 py-1.5 font-bold text-flaeche hover:bg-blau-hell">
+            className="block cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
             Speichern
           </button>
         </form>
 
         <form onSubmit={abmeldezeitSpeichern} className="rounded-lg border border-linie bg-flaeche p-4">
           <h3 className="mb-1.5 font-display text-sm text-navy">Automatische Abmeldung</h3>
-          <label className="mb-1 block text-schrift-gedimmt" htmlFor="abmeldeminuten">
+          <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="abmeldeminuten">
             Zeit bis zur automatischen Abmeldung bei Inaktivität (Minuten)
           </label>
           <p className="mb-2 text-xs text-schrift-gedimmt">
@@ -102,10 +102,10 @@ export default function EinstellungenSeite() {
           </p>
           <Zahlenfeld id="abmeldeminuten" min="1" wert={abmeldeMinuten} onWahl={setAbmeldeMinuten}
             klasse="mb-2.5 w-20" />
-          {abmeldeMeldung && <p className="mb-2 text-navy">{abmeldeMeldung}</p>}
-          {abmeldeFehler && <p className="mb-2 rounded bg-blau/30 px-2 py-1.5 text-blau">{abmeldeFehler}</p>}
+          {abmeldeMeldung && <p className="mb-2 text-sm text-navy">{abmeldeMeldung}</p>}
+          {abmeldeFehler && <p className="mb-2 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{abmeldeFehler}</p>}
           <button type="submit"
-            className="block cursor-pointer rounded-full bg-blau px-4 py-1.5 font-bold text-flaeche hover:bg-blau-hell">
+            className="block cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
             Speichern
           </button>
         </form>
@@ -118,10 +118,10 @@ export default function EinstellungenSeite() {
             WebP bis 10 MB. Änderungen wirken sofort.
           </p>
 
-          {logoFehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-blau">{logoFehler}</p>}
+          {logoFehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{logoFehler}</p>}
 
           {logos.length === 0 && (
-            <p className="mb-2.5 text-schrift-gedimmt">
+            <p className="mb-2.5 text-sm text-schrift-gedimmt">
               Noch keine eigenen Logos hochgeladen, es wird der Platzhalter
               angezeigt.
             </p>
@@ -159,17 +159,17 @@ export default function EinstellungenSeite() {
       {logoLoeschung && (
         <Dialog titel="Logo entfernen?" onSchliessen={() => setLogoLoeschung(null)}>
           <img src={logoLoeschung.url} alt="Vereinslogo" className="mb-2.5 max-h-32 w-full rounded-lg object-contain" />
-          <p className="mb-4">Das Logo wird dauerhaft gelöscht.</p>
+          <p className="mb-4 text-sm">Das Logo wird dauerhaft gelöscht.</p>
           <div className="flex gap-2">
             <button onClick={() => setLogoLoeschung(null)}
-              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button
               onClick={() => apiDelete(`/api/logo/${logoLoeschung.id}`)
                 .then(() => setLogoLoeschung(null))
                 .catch((f) => { setLogoFehler(f.message); setLogoLoeschung(null); })}
-              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
               Ja, entfernen
             </button>
           </div>

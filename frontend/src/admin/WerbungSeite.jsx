@@ -28,15 +28,15 @@ export default function WerbungSeite() {
   return (
     <div>
       <h2 className="mb-4 font-display text-base text-navy">Werbung</h2>
-      <p className="mb-2.5 text-schrift-gedimmt">
+      <p className="mb-2.5 text-sm text-schrift-gedimmt">
         Aktive Bilder laufen als Karussell auf dem Fernseher. Erlaubt sind PNG,
         JPEG und WebP bis 10 MB. Änderungen wirken sofort.
       </p>
 
-      {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-blau">{fehler}</p>}
+      {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
 
       {bilder.length === 0 && (
-        <p className="mb-2.5 text-schrift-gedimmt">Noch keine Werbebilder hochgeladen.</p>
+        <p className="mb-2.5 text-sm text-schrift-gedimmt">Noch keine Werbebilder hochgeladen.</p>
       )}
 
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
@@ -58,7 +58,7 @@ export default function WerbungSeite() {
                 {bild.aktiv ? 'aktiv' : 'inaktiv'}
               </button>
               <button onClick={() => setLoeschung(bild)}
-                className="cursor-pointer rounded-full border border-linie px-2 py-1 text-blau-hell hover:bg-flaeche-hell">
+                className="cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-blau-hell hover:bg-flaeche-hell">
                 Entfernen
               </button>
             </div>
@@ -69,17 +69,17 @@ export default function WerbungSeite() {
       {loeschung && (
         <Dialog titel="Werbebild entfernen?" onSchliessen={() => setLoeschung(null)}>
           <img src={loeschung.url} alt="Werbebild" className="mb-2.5 max-h-32 w-full rounded-lg object-contain" />
-          <p className="mb-4">Das Bild wird dauerhaft gelöscht.</p>
+          <p className="mb-4 text-sm">Das Bild wird dauerhaft gelöscht.</p>
           <div className="flex gap-2">
             <button onClick={() => setLoeschung(null)}
-              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button
               onClick={() => apiDelete(`/api/werbung/${loeschung.id}`)
                 .then(() => setLoeschung(null))
                 .catch((f) => { setFehler(f.message); setLoeschung(null); })}
-              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
               Ja, entfernen
             </button>
           </div>

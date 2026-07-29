@@ -60,13 +60,13 @@ export default function BenutzerSeite() {
       <h2 className="mb-4 font-display text-base text-navy">Benutzer</h2>
 
       <button onClick={() => setAnlage({ benutzername: '', passwort: '', rolle: 'kasse' })}
-        className="mb-4 cursor-pointer rounded-full bg-blau px-4 py-1.5 font-bold text-flaeche hover:bg-blau-hell">
+        className="mb-4 cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
         Benutzer anlegen
       </button>
 
-      {fehler && <p className="mb-2.5 max-w-md rounded bg-blau/30 px-2 py-1.5 text-blau">{fehler}</p>}
+      {fehler && <p className="mb-2.5 max-w-md rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
 
-      <ul className="max-w-md divide-y divide-linie rounded-lg border border-linie bg-flaeche">
+      <ul className="max-w-md divide-y divide-linie rounded-lg border border-linie bg-flaeche text-sm">
         {benutzer.map((konto) => (
           <li key={konto.id} className="flex items-center gap-2.5 px-2.5 py-2">
             <span className="flex-1 text-sm">{konto.benutzername}</span>
@@ -74,11 +74,11 @@ export default function BenutzerSeite() {
               {rollenNamen[konto.rolle]}
             </span>
             <button onClick={() => setPasswortReset({ id: konto.id, benutzername: konto.benutzername, passwort: '' })}
-              className="cursor-pointer rounded-full border border-linie px-2 py-1 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
               Passwort zurücksetzen
             </button>
             <button onClick={() => setLoeschung(konto)}
-              className="cursor-pointer rounded-full border border-linie px-2 py-1 text-blau-hell hover:bg-flaeche-hell">
+              className="cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-blau-hell hover:bg-flaeche-hell">
               Löschen
             </button>
           </li>
@@ -104,14 +104,14 @@ export default function BenutzerSeite() {
               { wert: 'verwaltung', text: 'Verwaltung' },
               { wert: 'admin', text: 'Admin' },
             ]}
-            klasse="mb-2.5 w-full" />
+            klasse="mb-2.5 w-full text-sm" />
           <div className="flex gap-2">
             <button onClick={() => setAnlage(null)}
-              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button onClick={anlegen}
-              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
               Anlegen
             </button>
           </div>
@@ -127,11 +127,11 @@ export default function BenutzerSeite() {
             className={eingabeKlasse} />
           <div className="flex gap-2">
             <button onClick={() => setPasswortReset(null)}
-              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button onClick={passwortSetzen}
-              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
               Speichern
             </button>
           </div>
@@ -140,17 +140,17 @@ export default function BenutzerSeite() {
 
       {loeschung && (
         <Dialog titel="Benutzer löschen?" onSchliessen={() => setLoeschung(null)}>
-          <p className="mb-4">
+          <p className="mb-4 text-sm">
             Das Konto „{loeschung.benutzername}“ wird dauerhaft gelöscht und kann
             sich nicht mehr anmelden.
           </p>
           <div className="flex gap-2">
             <button onClick={() => setLoeschung(null)}
-              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button onClick={loeschen}
-              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
               Ja, löschen
             </button>
           </div>

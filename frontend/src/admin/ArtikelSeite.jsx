@@ -36,11 +36,11 @@ export default function ArtikelSeite({ rolle }) {
       <h2 className="mb-4 font-display text-base text-navy">Artikel</h2>
 
       <button onClick={() => setFormular({ artikel: null })}
-        className="mb-4 cursor-pointer rounded-full bg-blau px-4 py-1.5 font-bold text-flaeche hover:bg-blau-hell">
+        className="mb-4 cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
         Artikel anlegen
       </button>
 
-      {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-blau">{fehler}</p>}
+      {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
 
       <div className="overflow-x-auto rounded-lg border border-linie bg-flaeche">
         <table className="w-full text-left">
@@ -55,7 +55,7 @@ export default function ArtikelSeite({ rolle }) {
               <th className="px-2.5 py-2"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-linie">
+          <tbody className="divide-y divide-linie text-sm">
             {artikelListe.length === 0 && (
               <tr><td colSpan={rolle === 'admin' ? 7 : 6} className="px-2.5 py-4 text-schrift-gedimmt">
                 Noch keine Artikel angelegt.
@@ -81,7 +81,7 @@ export default function ArtikelSeite({ rolle }) {
                 </td>
                 <td className="px-2.5 py-2">
                   <button onClick={() => setStartnummer(artikel)}
-                    className="nummer cursor-pointer rounded-full border border-linie px-2 py-1 hover:bg-flaeche-hell">
+                    className="nummer cursor-pointer rounded-full border border-linie px-2 py-1 text-sm hover:bg-flaeche-hell">
                     {artikel.naechste_nummer}
                   </button>
                 </td>
@@ -98,11 +98,11 @@ export default function ArtikelSeite({ rolle }) {
                 </td>
                 <td className="px-2.5 py-2 text-right whitespace-nowrap">
                   <button onClick={() => setFormular({ artikel })}
-                    className="mr-1.5 cursor-pointer rounded-full border border-linie px-2 py-1 text-schrift-gedimmt hover:bg-flaeche-hell">
+                    className="mr-1.5 cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
                     Bearbeiten
                   </button>
                   <button onClick={() => setLoeschung(artikel)}
-                    className="cursor-pointer rounded-full border border-linie px-2 py-1 text-blau-hell hover:bg-flaeche-hell">
+                    className="cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-blau-hell hover:bg-flaeche-hell">
                     Löschen
                   </button>
                 </td>
@@ -125,20 +125,20 @@ export default function ArtikelSeite({ rolle }) {
 
       {loeschung && (
         <Dialog titel="Artikel löschen?" onSchliessen={() => setLoeschung(null)}>
-          <p className="mb-4">
+          <p className="mb-4 text-sm">
             „{loeschung.name}“ verschwindet aus Kasse und Verwaltung. Die Statistik
             vergangener Tage bleibt unverändert.
           </p>
           <div className="flex gap-2">
             <button onClick={() => setLoeschung(null)}
-              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button
               onClick={() => apiDelete(`/api/artikel/${loeschung.id}`)
                 .then(() => setLoeschung(null))
                 .catch((f) => { setFehler(f.message); setLoeschung(null); })}
-              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
               Ja, löschen
             </button>
           </div>

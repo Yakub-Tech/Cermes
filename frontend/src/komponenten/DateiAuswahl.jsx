@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 
 const STANDARD_BUTTON_KLASSE =
-  'cursor-pointer rounded-full border border-linie px-4 py-2 text-schrift-gedimmt hover:bg-flaeche-hell';
+  'cursor-pointer rounded-full border border-linie px-2.5 py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell';
 
 function passtZuAkzeptiert(datei, akzeptiert) {
   if (!akzeptiert) return true;
@@ -67,12 +67,12 @@ export default function DateiAuswahl({
           onDragOver={ueberFlaecheGezogen}
           onDragLeave={flaecheVerlassen}
           onDrop={dateiAbgelegt}
-          className={`flex min-h-36 flex-1 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-3 text-center text-sm text-schrift-gedimmt hover:bg-flaeche-hell ${rahmenKlasse}`}>
+          className={`flex min-h-24 flex-1 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed p-2 text-center text-sm text-schrift-gedimmt hover:bg-flaeche-hell ${rahmenKlasse}`}>
           {eingabe}
           <span className="font-semibold text-navy">{beschriftung}</span>
           <span>oder Datei hierher ziehen</span>
         </div>
-        {typFehler && <p className="rounded bg-blau/30 px-3 py-2 text-blau">{typFehler}</p>}
+        {typFehler && <p className="rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{typFehler}</p>}
       </div>
     );
   }
@@ -83,7 +83,7 @@ export default function DateiAuswahl({
         onDragOver={ueberFlaecheGezogen}
         onDragLeave={flaecheVerlassen}
         onDrop={dateiAbgelegt}
-        className={`flex items-center gap-3 rounded-lg border-2 border-dashed px-4 py-3 ${rahmenKlasse}`}>
+        className={`flex items-center gap-2 rounded-lg border-2 border-dashed px-2.5 py-2 text-sm ${rahmenKlasse}`}>
         {eingabe}
         <button type="button" onClick={() => eingabeRef.current.click()}
           className={buttonKlasse ?? STANDARD_BUTTON_KLASSE}>
@@ -93,7 +93,7 @@ export default function DateiAuswahl({
           <span className="text-schrift-gedimmt">{wert ? wert.name : 'Keine Datei gewählt'}</span>
         )}
       </div>
-      {typFehler && <p className="rounded bg-blau/30 px-3 py-2 text-blau">{typFehler}</p>}
+      {typFehler && <p className="rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{typFehler}</p>}
     </div>
   );
 }

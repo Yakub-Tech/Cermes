@@ -10,13 +10,13 @@ export default function StatistikSeite() {
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="mr-2.5 font-display text-base text-navy">Statistik</h2>
         <button onClick={() => setReiter('einzeltag')}
-          className={`cursor-pointer rounded-full px-2.5 py-1.5 ${
+          className={`cursor-pointer rounded-full px-2.5 py-1.5 text-sm ${
             reiter === 'einzeltag' ? 'bg-blau font-bold text-flaeche' : 'border border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
           }`}>
           Einzeltag
         </button>
         <button onClick={() => setReiter('zeitraum')}
-          className={`cursor-pointer rounded-full px-2.5 py-1.5 ${
+          className={`cursor-pointer rounded-full px-2.5 py-1.5 text-sm ${
             reiter === 'zeitraum' ? 'bg-blau font-bold text-flaeche' : 'border border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
           }`}>
           Zeitraum

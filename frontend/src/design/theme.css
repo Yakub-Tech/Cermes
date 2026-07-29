@@ -20,6 +20,19 @@
   --font-display: "Palatino", "Palatino Linotype", "Book Antiqua", Georgia, serif;
 }
 
+.verwaltung {
+  --spacing: 0.1875rem;
+  --text-xs: 0.5625rem;
+  --text-sm: 0.65625rem;
+  --text-base: 0.75rem;
+  --text-lg: 0.84375rem;
+  --text-xl: 0.9375rem;
+  --text-2xl: 1.125rem;
+  --text-3xl: 1.40625rem;
+  --container-sm: 18rem;
+  --container-md: 21rem;
+}
+
 body {
   background-color: var(--color-grund);
   color: var(--color-schrift);

@@ -30,22 +30,23 @@ export function BalkenDiagramm({
         {kinder}
       </div>
       {daten.length === 0 ? (
-        <p className="py-6 text-center text-schrift-gedimmt">{leerText}</p>
+        <p className="py-6 text-center text-sm text-schrift-gedimmt">{leerText}</p>
       ) : (
-        <ResponsiveContainer width="100%" height={260}>
-          <BarChart data={daten} margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
+        <ResponsiveContainer width="100%" height={160}>
+          <BarChart data={daten} margin={{ top: 5, right: 5, left: 5, bottom: 0 }}>
             <CartesianGrid stroke={gitterFarbe} vertical={false} />
-            <XAxis dataKey={xSchluessel} stroke={achsenFarbe} tickLine={false} />
+            <XAxis dataKey={xSchluessel} stroke={achsenFarbe} tickLine={false}
+              tick={{ fontSize: 10 }} />
             <YAxis stroke={achsenFarbe} tickLine={false} allowDecimals={false}
-              tickFormatter={werteFormat} width={70} />
+              tickFormatter={werteFormat} width={60} tick={{ fontSize: 10 }} />
             <Tooltip cursor={{ fill: 'rgba(16, 83, 143, 0.08)' }}
               contentStyle={{
                 backgroundColor: '#ffffff', border: '1px solid #ccd8e4',
-                borderRadius: 8, color: '#16202b',
+                borderRadius: 6, color: '#16202b', fontSize: 12, padding: '4px 8px',
               }}
               formatter={(wert) => [werteFormat ? werteFormat(wert) : wert, null]}
               labelStyle={{ color: '#5a6b7d' }} />
-            <Bar dataKey={ySchluessel} fill={balkenFarbe} radius={[4, 4, 0, 0]} maxBarSize={48}>
+            <Bar dataKey={ySchluessel} fill={balkenFarbe} radius={[3, 3, 0, 0]} maxBarSize={32}>
               {balkenFarbFunktion && daten.map((zeile) => (
                 <Cell key={zeile[xSchluessel]} fill={balkenFarbFunktion(zeile)} />
               ))}
@@ -113,7 +114,7 @@ export function StornoTabelle({ stornos, mitDatum = false }) {
     <section className="rounded-lg border border-linie bg-flaeche p-2.5">
       <h3 className="mb-2 text-sm">{mitDatum ? 'Stornos in diesem Zeitraum' : 'Stornos an diesem Tag'}</h3>
       {stornos.length === 0 ? (
-        <p className="text-schrift-gedimmt">Keine Stornos.</p>
+        <p className="text-sm text-schrift-gedimmt">Keine Stornos.</p>
       ) : (
         <table className="w-full text-left">
           <thead>
@@ -126,7 +127,7 @@ export function StornoTabelle({ stornos, mitDatum = false }) {
               <th className="px-1.5 py-1.5">Storniert von</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-linie">
+          <tbody className="divide-y divide-linie text-sm">
             {stornos.map((storno, index) => (
               <tr key={index}>
                 {mitDatum && <td className="px-1.5 py-1.5">{datumAnzeigen(storno.datum)}</td>}
