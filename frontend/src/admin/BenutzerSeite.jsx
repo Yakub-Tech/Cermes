@@ -66,19 +66,19 @@ export default function BenutzerSeite() {
 
       {fehler && <p className="mb-2.5 max-w-md rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
 
-      <ul className="max-w-md divide-y divide-linie rounded-lg border border-linie bg-flaeche text-sm">
+      <ul className="w-fit divide-y divide-linie rounded-lg border border-linie bg-flaeche text-sm">
         {benutzer.map((konto) => (
           <li key={konto.id} className="flex items-center gap-2.5 px-2.5 py-2">
-            <span className="flex-1 text-sm">{konto.benutzername}</span>
-            <span className="rounded-full border border-linie px-2 py-1 text-xs text-schrift-gedimmt">
+            <span className="w-32 shrink-0 text-sm">{konto.benutzername}</span>
+            <span className="w-24 shrink-0 rounded-full border border-linie px-2 py-1 text-center text-xs text-schrift-gedimmt">
               {rollenNamen[konto.rolle]}
             </span>
             <button onClick={() => setPasswortReset({ id: konto.id, benutzername: konto.benutzername, passwort: '' })}
-              className="cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="shrink-0 cursor-pointer whitespace-nowrap rounded-full border border-linie px-2 py-1 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
               Passwort zurücksetzen
             </button>
             <button onClick={() => setLoeschung(konto)}
-              className="cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-blau-hell hover:bg-flaeche-hell">
+              className="shrink-0 cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-blau-hell hover:bg-flaeche-hell">
               Löschen
             </button>
           </li>
