@@ -44,7 +44,7 @@ export default function BeilagenSeite() {
       <form onSubmit={anlegen} className="mb-4 flex max-w-md gap-2">
         <input value={neuerName} onChange={(e) => setNeuerName(e.target.value)}
           placeholder="Neue Beilage, z. B. Ketchup"
-          className="flex-1 rounded border border-linie bg-flaeche px-2 py-1.5 outline-none focus:border-blau-hell" />
+          className="flex-1 rounded border border-linie bg-flaeche px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
         <button type="submit" disabled={neuerName.trim() === ''}
           className="cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
           Anlegen
