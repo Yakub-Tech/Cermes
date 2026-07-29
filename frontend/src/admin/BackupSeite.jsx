@@ -29,38 +29,38 @@ export default function BackupSeite() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       <section>
-        <h2 className="mb-4 font-display text-2xl text-navy">Backup herunterladen</h2>
-        <p className="mb-4 max-w-lg text-schrift-gedimmt">
+        <h2 className="mb-2.5 font-display text-base text-navy">Backup herunterladen</h2>
+        <p className="mb-2.5 max-w-sm text-schrift-gedimmt">
           Lädt eine ZIP-Datei mit der kompletten Datenbank und allen Werbebildern herunter.
           Am besten nach jedem Verkaufstag einmal machen und die Datei sicher ablegen.
         </p>
         <button onClick={() => { location.href = '/api/backup'; }}
-          className="cursor-pointer rounded-full bg-blau px-8 py-4 text-xl font-bold text-flaeche hover:bg-blau-hell">
+          className="cursor-pointer rounded-full bg-blau px-5 py-2.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
           Backup herunterladen
         </button>
       </section>
 
       <section>
-        <h2 className="mb-4 font-display text-2xl text-navy">Backup einspielen</h2>
-        <form onSubmit={einspielen} className="max-w-lg rounded-xl border border-linie bg-flaeche p-6">
-          <p className="mb-4 rounded-lg border border-blau bg-blau/20 px-4 py-3 text-blau">
+        <h2 className="mb-2.5 font-display text-base text-navy">Backup einspielen</h2>
+        <form onSubmit={einspielen} className="max-w-sm rounded-lg border border-linie bg-flaeche p-4">
+          <p className="mb-2.5 rounded-lg border border-blau bg-blau/20 px-2.5 py-2 text-blau">
             Achtung: Das Einspielen <strong>ersetzt alle aktuellen Daten</strong>,
             also Verkäufe, Artikel, Benutzer und Werbebilder, durch den Stand aus der Backup-Datei.
           </p>
-          <div className="mb-4">
+          <div className="mb-2.5">
             <DateiAuswahl akzeptiert=".zip" wert={datei} onWahl={setDatei}
               typFehlerText="Bitte nur eine ZIP-Datei ablegen." />
           </div>
-          <label className="mb-4 flex cursor-pointer items-center gap-2">
+          <label className="mb-2.5 flex cursor-pointer items-center gap-1.5">
             <Kontrollkaestchen markiert={bestaetigt} onWahl={setBestaetigt} />
             <span>Ich habe verstanden, dass alle aktuellen Daten ersetzt werden.</span>
           </label>
-          {hinweis && <p className="mb-3 rounded bg-akzent/10 px-3 py-2 text-akzent-text">{hinweis}</p>}
-          {fehler && <p className="mb-3 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
+          {hinweis && <p className="mb-2 rounded bg-akzent/10 px-2 py-1.5 text-akzent-text">{hinweis}</p>}
+          {fehler && <p className="mb-2 rounded bg-blau/30 px-2 py-1.5 text-blau">{fehler}</p>}
           <button type="submit" disabled={!datei || !bestaetigt || laeuft}
-            className="cursor-pointer rounded-full bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
+            className="cursor-pointer rounded-full bg-blau px-4 py-1.5 font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
             {laeuft ? 'Wird eingespielt …' : 'Backup einspielen'}
           </button>
         </form>
