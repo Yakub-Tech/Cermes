@@ -33,76 +33,76 @@ export default function ArtikelSeite({ rolle }) {
 
   return (
     <div>
-      <h2 className="mb-6 font-display text-2xl text-navy">Artikel</h2>
+      <h2 className="mb-4 font-display text-base text-navy">Artikel</h2>
 
       <button onClick={() => setFormular({ artikel: null })}
-        className="mb-6 cursor-pointer rounded-full bg-blau px-6 py-2 font-bold text-flaeche hover:bg-blau-hell">
+        className="mb-4 cursor-pointer rounded-full bg-blau px-4 py-1.5 font-bold text-flaeche hover:bg-blau-hell">
         Artikel anlegen
       </button>
 
-      {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
+      {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-blau">{fehler}</p>}
 
-      <div className="overflow-x-auto rounded-xl border border-linie bg-flaeche">
+      <div className="overflow-x-auto rounded-lg border border-linie bg-flaeche">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-linie text-sm text-schrift-gedimmt">
-              <th className="px-4 py-3">Artikel</th>
-              <th className="px-4 py-3">Preis</th>
-              {rolle === 'admin' && <th className="px-4 py-3">Kosten</th>}
-              <th className="px-4 py-3">Beilagen</th>
-              <th className="px-4 py-3">Weiter bei Nr.</th>
-              <th className="px-4 py-3">Aktiv</th>
-              <th className="px-4 py-3"></th>
+            <tr className="border-b border-linie text-xs text-schrift-gedimmt">
+              <th className="px-2.5 py-2">Artikel</th>
+              <th className="px-2.5 py-2">Preis</th>
+              {rolle === 'admin' && <th className="px-2.5 py-2">Kosten</th>}
+              <th className="px-2.5 py-2">Beilagen</th>
+              <th className="px-2.5 py-2">Weiter bei Nr.</th>
+              <th className="px-2.5 py-2">Aktiv</th>
+              <th className="px-2.5 py-2"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-linie">
             {artikelListe.length === 0 && (
-              <tr><td colSpan={rolle === 'admin' ? 7 : 6} className="px-4 py-6 text-schrift-gedimmt">
+              <tr><td colSpan={rolle === 'admin' ? 7 : 6} className="px-2.5 py-4 text-schrift-gedimmt">
                 Noch keine Artikel angelegt.
               </td></tr>
             )}
             {artikelListe.map((artikel) => (
               <tr key={artikel.id} className={artikel.aktiv ? '' : 'opacity-50'}>
-                <td className="px-4 py-3">
-                  <span className="mr-2 inline-block h-4 w-4 rounded-full align-middle"
+                <td className="px-2.5 py-2">
+                  <span className="mr-1.5 inline-block h-4 w-4 rounded-full align-middle"
                     style={{ backgroundColor: artikel.farbe }} />
-                  <span className="text-lg">{artikel.name}</span>
+                  <span className="text-sm">{artikel.name}</span>
                 </td>
-                <td className="nummer px-4 py-3">{formatEuro(artikel.preis_cent)}</td>
+                <td className="nummer px-2.5 py-2">{formatEuro(artikel.preis_cent)}</td>
                 {rolle === 'admin' && (
-                  <td className="nummer px-4 py-3">
+                  <td className="nummer px-2.5 py-2">
                     {artikel.einkaufskosten_cent != null
                       ? formatEuro(artikel.einkaufskosten_cent)
                       : <span className="text-schrift-gedimmt">—</span>}
                   </td>
                 )}
-                <td className="max-w-40 truncate px-4 py-3 text-schrift-gedimmt">
+                <td className="max-w-40 truncate px-2.5 py-2 text-schrift-gedimmt">
                   {beilagenNamen(artikel.beilagen_ids) || '—'}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-2.5 py-2">
                   <button onClick={() => setStartnummer(artikel)}
-                    className="nummer cursor-pointer rounded-full border border-linie px-3 py-1 hover:bg-flaeche-hell">
+                    className="nummer cursor-pointer rounded-full border border-linie px-2 py-1 hover:bg-flaeche-hell">
                     {artikel.naechste_nummer}
                   </button>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-2.5 py-2">
                   <button
                     onClick={() => apiPut(`/api/artikel/${artikel.id}`, {
                       ...artikel, aktiv: artikel.aktiv ? 0 : 1,
                     }).catch((f) => setFehler(f.message))}
-                    className={`cursor-pointer rounded-full px-4 py-1 text-sm font-semibold ${
+                    className={`cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold ${
                       artikel.aktiv ? 'bg-navy text-grund' : 'border border-linie text-schrift-gedimmt'
                     }`}>
                     {artikel.aktiv ? 'aktiv' : 'inaktiv'}
                   </button>
                 </td>
-                <td className="px-4 py-3 text-right whitespace-nowrap">
+                <td className="px-2.5 py-2 text-right whitespace-nowrap">
                   <button onClick={() => setFormular({ artikel })}
-                    className="mr-2 cursor-pointer rounded-full border border-linie px-3 py-1 text-schrift-gedimmt hover:bg-flaeche-hell">
+                    className="mr-1.5 cursor-pointer rounded-full border border-linie px-2 py-1 text-schrift-gedimmt hover:bg-flaeche-hell">
                     Bearbeiten
                   </button>
                   <button onClick={() => setLoeschung(artikel)}
-                    className="cursor-pointer rounded-full border border-linie px-3 py-1 text-blau-hell hover:bg-flaeche-hell">
+                    className="cursor-pointer rounded-full border border-linie px-2 py-1 text-blau-hell hover:bg-flaeche-hell">
                     Löschen
                   </button>
                 </td>
@@ -125,20 +125,20 @@ export default function ArtikelSeite({ rolle }) {
 
       {loeschung && (
         <Dialog titel="Artikel löschen?" onSchliessen={() => setLoeschung(null)}>
-          <p className="mb-6">
+          <p className="mb-4">
             „{loeschung.name}“ verschwindet aus Kasse und Verwaltung. Die Statistik
             vergangener Tage bleibt unverändert.
           </p>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <button onClick={() => setLoeschung(null)}
-              className="flex-1 cursor-pointer rounded-full border border-linie py-2 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-schrift-gedimmt hover:bg-flaeche-hell">
               Abbrechen
             </button>
             <button
               onClick={() => apiDelete(`/api/artikel/${loeschung.id}`)
                 .then(() => setLoeschung(null))
                 .catch((f) => { setFehler(f.message); setLoeschung(null); })}
-              className="flex-1 cursor-pointer rounded-full bg-blau py-2 font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 font-bold text-flaeche hover:bg-blau-hell">
               Ja, löschen
             </button>
           </div>
