@@ -14,7 +14,7 @@ const bereiche = [
   ['artikel', 'Artikel', ['admin', 'verwaltung']],
   ['beilagen', 'Beilagen', ['admin', 'verwaltung']],
   ['werbung', 'Werbung', ['admin', 'verwaltung']],
-  ['einstellungen', 'Einstellungen', ['admin', 'verwaltung']],
+  ['einstellungen', 'Einstellungen', ['admin']],
   ['benutzer', 'Benutzer', ['admin']],
   ['backup', 'Backup', ['admin']],
 ];
@@ -51,9 +51,9 @@ export default function AdminLayout() {
             <Route path="artikel" element={<ArtikelSeite rolle={session.rolle} />} />
             <Route path="beilagen" element={<BeilagenSeite />} />
             <Route path="werbung" element={<WerbungSeite />} />
-            <Route path="einstellungen" element={<EinstellungenSeite />} />
             {session.rolle === 'admin' && (
               <>
+                <Route path="einstellungen" element={<EinstellungenSeite />} />
                 <Route path="benutzer" element={<BenutzerSeite />} />
                 <Route path="backup" element={<BackupSeite />} />
               </>

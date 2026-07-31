@@ -49,8 +49,8 @@ test('Rollentrennung: Verwaltung kommt an gemeinsame Bereiche, aber nicht an Bac
   assert.equal((await verwaltung.get('/api/beilagen')).status, 200);
   assert.equal((await verwaltung.get('/api/werbung')).status, 200);
   assert.equal((await verwaltung.get('/api/logo')).status, 200);
-  assert.equal((await verwaltung.put('/api/einstellungen').send({ abholbereit_warnminuten: 20 })).status, 200);
 
+  assert.equal((await verwaltung.put('/api/einstellungen').send({ abholbereit_warnminuten: 20 })).status, 403);
   assert.equal((await verwaltung.get('/api/backup')).status, 403);
   assert.equal((await verwaltung.get('/api/benutzer')).status, 403);
 });
