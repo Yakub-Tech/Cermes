@@ -6,9 +6,10 @@ export default function StatistikSeite() {
   const [reiter, setReiter] = useState('einzeltag');
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 className="mr-2.5 font-display text-base text-navy">Statistik</h2>
+    <div>
+      <h2 className="mb-4 font-display text-base text-navy">Statistik</h2>
+
+      <div className="mb-4 flex flex-wrap items-center gap-2">
         <button onClick={() => setReiter('einzeltag')}
           className={`cursor-pointer rounded-full px-2.5 py-1.5 text-sm ${
             reiter === 'einzeltag' ? 'bg-blau font-bold text-flaeche' : 'border border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
