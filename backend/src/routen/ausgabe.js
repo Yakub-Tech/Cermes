@@ -74,7 +74,7 @@ router.post('/api/ausgabe/status/:id', brauchtRolle('ausgabe'), (anfrage, antwor
 router.get('/api/ausgabe/beilagen-uebersicht', brauchtRolle('ausgabe'), (_anfrage, antwort) => {
   const db = oeffneDatenbank();
   const artikelListe = db.prepare(
-    'SELECT id, name FROM artikel WHERE aktiv = 1 AND geloescht = 0 ORDER BY sortierung, name COLLATE NOCASE'
+    'SELECT id, name FROM artikel WHERE aktiv = 1 AND geloescht = 0 ORDER BY sortierung, name'
   ).all();
   const uebersicht = artikelListe.map((artikel) => ({
     artikel_name: artikel.name,
