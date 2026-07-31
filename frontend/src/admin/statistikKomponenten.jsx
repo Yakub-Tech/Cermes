@@ -7,25 +7,52 @@ import { datumAnzeigen } from './datum.js';
 import { artikelSortieren, SORTIER_OPTIONEN } from './artikelSortierung.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 
-export const balkenFarbe = '#10538f';
+export const stueckFarbe = '#2563A6';
+export const umsatzFarbe = '#0F8B8D';
+export const gewinnFarbe = '#2E8B57';
 export const farbeOhneKosten = '#8a97a6';
+const gewinnNeutralFarbe = '#5a6b7d';
 const achsenFarbe = '#5a6b7d';
 const gitterFarbe = '#ccd8e4';
+const ACHSEN_WINKEL_GRAD = -30;
+const ACHSEN_WINKEL_RAD = (ACHSEN_WINKEL_GRAD * Math.PI) / 180;
+const ACHSEN_COS = Math.cos(ACHSEN_WINKEL_RAD);
+const ACHSEN_SIN = Math.sin(ACHSEN_WINKEL_RAD);
+const ZEICHEN_BREITE = 5.3;
+const TEXT_ABSTAND = 10;
+const ZEILEN_HOEHE = 12;
+const BODEN_PUFFER = 6;
 
-export function KennzahlKachel({ beschriftung, wert, fussnote }) {
+function ArtikelAchsenTick({ x, y, payload }) {
+  return (
+    <text x={x} y={y} dy={TEXT_ABSTAND} textAnchor="end" fill={achsenFarbe} fontSize={10}
+      transform={`rotate(${ACHSEN_WINKEL_GRAD}, ${x}, ${y})`}>
+      {payload.value}
+    </text>
+  );
+}
+
+export function KennzahlKachel({ beschriftung, wert, farbe, fussnote }) {
   return (
     <div className="rounded-lg border border-linie bg-flaeche px-3 py-2.5">
       <p className="text-xs text-schrift-gedimmt">{beschriftung}</p>
-      <p className="nummer mt-1 text-xl text-navy">{wert}</p>
-      {fussnote && <p className="mt-1 text-xs text-schrift-gedimmt">{fussnote}</p>}
+      <p className="nummer mt-1 text-xl" style={{ color: farbe }}>{wert}</p>
+      {fussnote && <p className="mt-1 text-xs italic text-weinrot">{fussnote}</p>}
     </div>
   );
 }
 
 export function BalkenDiagramm({
-  titel, daten, xSchluessel, ySchluessel, werteFormat, kinder, balkenFarbFunktion,
-  leerText = 'Keine Verkäufe an diesem Tag.',
+  titel, daten, xSchluessel, ySchluessel, werteFormat, kinder, farbe = stueckFarbe, balkenFarbFunktion,
+  schraegeAchse = true, alleBeschriftungen = false, leerText = 'Keine Verkäufe an diesem Tag.',
 }) {
+  const laengsterName = daten.reduce(
+    (max, zeile) => Math.max(max, String(zeile[xSchluessel]).length), 0,
+  );
+  const tiefsterPunkt = laengsterName * ZEICHEN_BREITE * Math.abs(ACHSEN_SIN)
+    + (TEXT_ABSTAND + ZEILEN_HOEHE) * Math.abs(ACHSEN_COS);
+  const achsenHoehe = schraegeAchse ? Math.max(30, Math.round(tiefsterPunkt) + BODEN_PUFFER) : 24;
+
   return (
     <section className="rounded-lg border border-linie bg-flaeche p-2.5">
       <div className="mb-1.5 flex items-center justify-between">
@@ -35,11 +62,12 @@ export function BalkenDiagramm({
       {daten.length === 0 ? (
         <p className="py-6 text-center text-sm text-schrift-gedimmt">{leerText}</p>
       ) : (
-        <ResponsiveContainer width="100%" height={160}>
-          <BarChart data={daten} margin={{ top: 5, right: 5, left: 5, bottom: 0 }}>
+        <ResponsiveContainer width="100%" height={124 + achsenHoehe}>
+          <BarChart data={daten} margin={{ top: 5, right: 5, left: 5, bottom: 12 }}>
             <CartesianGrid stroke={gitterFarbe} vertical={false} />
             <XAxis dataKey={xSchluessel} stroke={achsenFarbe} tickLine={false}
-              tick={{ fontSize: 10 }} />
+              interval={alleBeschriftungen ? 0 : 'preserveEnd'} height={achsenHoehe}
+              tick={schraegeAchse ? <ArtikelAchsenTick /> : { fontSize: 10 }} />
             <YAxis stroke={achsenFarbe} tickLine={false} allowDecimals={false}
               tickFormatter={werteFormat} width={60} tick={{ fontSize: 10 }} />
             <Tooltip cursor={{ fill: 'rgba(16, 83, 143, 0.08)' }}
@@ -49,7 +77,7 @@ export function BalkenDiagramm({
               }}
               formatter={(wert) => [werteFormat ? werteFormat(wert) : wert, null]}
               labelStyle={{ color: '#5a6b7d' }} />
-            <Bar dataKey={ySchluessel} fill={balkenFarbe} radius={[3, 3, 0, 0]} maxBarSize={32}>
+            <Bar dataKey={ySchluessel} fill={farbe} radius={[3, 3, 0, 0]} maxBarSize={32}>
               {balkenFarbFunktion && daten.map((zeile) => (
                 <Cell key={zeile[xSchluessel]} fill={balkenFarbFunktion(zeile)} />
               ))}
@@ -65,7 +93,7 @@ export function FarbLegende() {
   return (
     <div className="flex items-center gap-3 text-xs text-schrift-gedimmt">
       <span className="flex items-center gap-1">
-        <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: balkenFarbe }} />
+        <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: gewinnFarbe }} />
         mit hinterlegten Kosten
       </span>
       <span className="flex items-center gap-1">
@@ -79,15 +107,17 @@ export function FarbLegende() {
 export function ArtikelUebersicht({ gesamt, artikel }) {
   const [sortierung, setSortierung] = useState('alphabetisch');
   const zeigtGeld = gesamt.umsatz_cent !== undefined;
+  const kostenVollstaendig = !gesamt.stueck_ohne_kosten;
 
   return (
     <>
       <div className="grid grid-cols-3 gap-2.5">
-        <KennzahlKachel beschriftung="Verkaufte Portionen" wert={gesamt.stueck} />
+        <KennzahlKachel beschriftung="Verkaufte Portionen" wert={gesamt.stueck} farbe={stueckFarbe} />
         {zeigtGeld && (
           <>
-            <KennzahlKachel beschriftung="Umsatz" wert={formatEuro(gesamt.umsatz_cent)} />
+            <KennzahlKachel beschriftung="Umsatz" wert={formatEuro(gesamt.umsatz_cent)} farbe={umsatzFarbe} />
             <KennzahlKachel beschriftung="Gewinn" wert={formatEuro(gesamt.gewinn_cent)}
+              farbe={kostenVollstaendig ? gewinnFarbe : gewinnNeutralFarbe}
               fussnote={gesamt.stueck_ohne_kosten > 0
                 ? `${gesamt.stueck_ohne_kosten} Stück ohne Kostenangabe, Gewinn dort ohne Kostenabzug berechnet`
                 : null} />
@@ -102,19 +132,22 @@ export function ArtikelUebersicht({ gesamt, artikel }) {
 
       <BalkenDiagramm titel="Verkaufte Stückzahl pro Artikel"
         daten={artikelSortieren(artikel, sortierung, 'stueck')}
-        xSchluessel="artikel_name" ySchluessel="stueck" />
+        xSchluessel="artikel_name" ySchluessel="stueck" farbe={stueckFarbe}
+        alleBeschriftungen />
 
       {zeigtGeld && (
         <>
           <BalkenDiagramm titel="Umsatz pro Artikel"
             daten={artikelSortieren(artikel, sortierung, 'umsatz_cent')}
-            xSchluessel="artikel_name" ySchluessel="umsatz_cent" werteFormat={formatEuro} />
+            xSchluessel="artikel_name" ySchluessel="umsatz_cent" werteFormat={formatEuro}
+            farbe={umsatzFarbe} alleBeschriftungen />
 
           <BalkenDiagramm titel="Gewinn pro Artikel"
             daten={artikelSortieren(artikel, sortierung, 'gewinn_cent')}
             xSchluessel="artikel_name" ySchluessel="gewinn_cent" werteFormat={formatEuro}
-            balkenFarbFunktion={(zeile) => (zeile.stueck_ohne_kosten > 0 ? farbeOhneKosten : balkenFarbe)}
-            kinder={<FarbLegende />} />
+            farbe={gewinnFarbe}
+            balkenFarbFunktion={(zeile) => (zeile.stueck_ohne_kosten > 0 ? farbeOhneKosten : gewinnFarbe)}
+            kinder={<FarbLegende />} alleBeschriftungen />
         </>
       )}
     </>

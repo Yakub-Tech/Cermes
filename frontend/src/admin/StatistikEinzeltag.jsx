@@ -65,7 +65,7 @@ export default function StatistikEinzeltag() {
       <ArtikelUebersicht gesamt={statistik.gesamt} artikel={statistik.artikel} />
 
       <BalkenDiagramm titel="Verkäufe im Tagesverlauf" daten={stundenDaten}
-        xSchluessel="stunde" ySchluessel="stueck"
+        xSchluessel="stunde" ySchluessel="stueck" schraegeAchse={false}
         kinder={
           <Auswahlmenue wert={stundenArtikel} onWahl={stundenArtikelWaehlen}
             optionen={[
