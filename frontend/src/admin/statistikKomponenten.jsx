@@ -37,7 +37,7 @@ export function KennzahlZeile({ kennzahlen }) {
     <div className="flex gap-2.5">
       {kennzahlen.map((kennzahl) => (
         <div key={kennzahl.beschriftung}
-          className="flex-1 rounded-lg border border-linie bg-flaeche px-4 py-4 text-center">
+          className="kaertchen-schatten flex-1 rounded-lg border border-linie bg-flaeche px-4 py-4 text-center">
           <p className="text-xs text-schrift-gedimmt">{kennzahl.beschriftung}</p>
           <p className="nummer mt-2 text-3xl" style={kennzahl.farbe ? { color: kennzahl.farbe } : undefined}>
             {kennzahl.wert}
@@ -60,7 +60,7 @@ export function BalkenDiagramm({
   const achsenHoehe = schraegeAchse ? Math.max(30, Math.round(tiefsterPunkt) + BODEN_PUFFER) : 24;
 
   return (
-    <section className="rounded-lg border border-linie bg-flaeche p-2.5">
+    <section className="kaertchen-schatten rounded-lg border border-linie bg-flaeche p-2.5">
       <div className="mb-1.5 flex items-center justify-between">
         <h3 className="text-sm text-schrift">{titel}</h3>
         {kinder}
@@ -130,7 +130,7 @@ export function Kennzahlen({ gesamt, stosszeit }) {
     <div className="space-y-2.5">
       <KennzahlZeile kennzahlen={kennzahlen} />
       {zeigtGeld && gesamt.stueck_ohne_kosten > 0 && (
-        <div className="rounded-lg border border-linie bg-flaeche px-4 py-2.5">
+        <div className="kaertchen-schatten rounded-lg border border-linie bg-flaeche px-4 py-2.5">
           <p className="text-xs italic text-weinrot">
             {gesamt.stueck_ohne_kosten} Stück ohne Kostenangabe, Gewinn dort ohne Kostenabzug berechnet
           </p>
@@ -148,7 +148,8 @@ export function ArtikelDiagramme({ gesamt, artikel }) {
     <div className="space-y-2.5">
       <div className="flex items-center justify-end gap-1.5">
         <span className="text-xs text-schrift-gedimmt">Sortierung</span>
-        <Auswahlmenue wert={sortierung} onWahl={setSortierung} optionen={SORTIER_OPTIONEN} klasse="text-xs" />
+        <Auswahlmenue wert={sortierung} onWahl={setSortierung} optionen={SORTIER_OPTIONEN}
+          klasse="text-xs kaertchen-schatten" />
       </div>
 
       <BalkenDiagramm titel="Verkaufte Stückzahl pro Artikel"
@@ -177,7 +178,7 @@ export function ArtikelDiagramme({ gesamt, artikel }) {
 
 export function StornoTabelle({ stornos, mitDatum = false }) {
   return (
-    <section className="rounded-lg border border-linie bg-flaeche p-2.5">
+    <section className="kaertchen-schatten rounded-lg border border-linie bg-flaeche p-2.5">
       <h3 className="mb-2 text-sm">{mitDatum ? 'Stornos in diesem Zeitraum' : 'Stornos an diesem Tag'}</h3>
       {stornos.length === 0 ? (
         <p className="text-sm text-schrift-gedimmt">Keine Stornos.</p>

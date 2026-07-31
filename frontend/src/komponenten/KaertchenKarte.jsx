@@ -5,7 +5,7 @@ export default function KaertchenKarte({ kaertchen, zeitText, warnung, onTippen 
 
   return (
     <button onClick={onTippen}
-      className={`putz-textur w-full rounded-[24px] border p-3 text-center shadow-[0_2px_5px_rgba(0,0,0,0.18)] ${
+      className={`putz-textur kaertchen-schatten w-full rounded-[24px] border p-3 text-center ${
         onTippen ? 'cursor-pointer active:scale-[0.98]' : ''
       } ${warnung ? 'warn-puls' : ''}`}
       style={{

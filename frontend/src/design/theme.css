@@ -53,6 +53,10 @@ body {
     var(--color-blau), var(--color-blau-hell), var(--color-blau));
 }
 
+.kaertchen-schatten {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+}
+
 @keyframes warn-puls {
   0%, 100% { box-shadow: 0 0 0 2px var(--color-akzent); }
   50% { box-shadow: 0 0 0 6px var(--color-akzent-hell); }

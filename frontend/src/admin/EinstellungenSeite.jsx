@@ -72,7 +72,7 @@ export default function EinstellungenSeite() {
       <h2 className="mb-4 font-display text-base text-navy">Einstellungen</h2>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <form onSubmit={speichern} className="rounded-lg border border-linie bg-flaeche p-4">
+        <form onSubmit={speichern} className="kaertchen-schatten rounded-lg border border-linie bg-flaeche p-4">
           <h3 className="mb-1.5 font-display text-sm text-navy">Warnzeit</h3>
           <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="warnminuten">
             Warnzeit für liegengebliebene abholbereite Kärtchen (Minuten)
@@ -91,7 +91,7 @@ export default function EinstellungenSeite() {
           </button>
         </form>
 
-        <form onSubmit={abmeldezeitSpeichern} className="rounded-lg border border-linie bg-flaeche p-4">
+        <form onSubmit={abmeldezeitSpeichern} className="kaertchen-schatten rounded-lg border border-linie bg-flaeche p-4">
           <h3 className="mb-1.5 font-display text-sm text-navy">Automatische Abmeldung</h3>
           <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="abmeldeminuten">
             Zeit bis zur automatischen Abmeldung bei Inaktivität (Minuten)
@@ -110,7 +110,7 @@ export default function EinstellungenSeite() {
           </button>
         </form>
 
-        <div className="rounded-lg border border-linie bg-flaeche p-4">
+        <div className="kaertchen-schatten rounded-lg border border-linie bg-flaeche p-4">
           <h3 className="mb-1.5 font-display text-sm text-navy">Vereinslogo</h3>
           <p className="mb-2.5 text-xs text-schrift-gedimmt">
             Das aktive Logo erscheint in der Kopfzeile und auf der Anmeldeseite. Ohne
@@ -133,7 +133,7 @@ export default function EinstellungenSeite() {
               typFehlerText="Bitte nur PNG-, JPEG- oder WebP-Bilder ablegen."
               onWahl={logoHochladen} />
             {logos.map((logo) => (
-              <div key={logo.id} className="rounded-lg border border-linie p-2">
+              <div key={logo.id} className="kaertchen-schatten rounded-lg border border-linie p-2">
                 <img src={logo.url} alt="Vereinslogo"
                   className={`mb-2 h-16 w-full rounded-lg object-contain ${logo.aktiv ? '' : 'opacity-40'}`} />
                 <div className="flex items-center justify-between">

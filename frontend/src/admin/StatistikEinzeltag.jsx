@@ -54,7 +54,7 @@ export default function StatistikEinzeltag() {
     <div className="space-y-8">
       <div className="flex flex-wrap items-center gap-2">
         <button onClick={() => tagWaehlen(heutigesDatum())}
-          className={`cursor-pointer rounded-full px-2.5 py-1.5 text-sm ${
+          className={`kaertchen-schatten cursor-pointer rounded-full px-2.5 py-1.5 text-sm ${
             datum === heutigesDatum() ? 'bg-blau font-bold text-flaeche' : 'border border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
           }`}>
           Heute
@@ -63,7 +63,8 @@ export default function StatistikEinzeltag() {
           optionen={[
             ...(!tage.includes(datum) ? [{ wert: datum, text: datumAnzeigen(datum) }] : []),
             ...tage.map((tag) => ({ wert: tag, text: datumAnzeigen(tag) })),
-          ]} />
+          ]}
+          klasse="text-sm kaertchen-schatten" />
       </div>
 
       <Kennzahlen gesamt={statistik.gesamt} stosszeit={stosszeit} />

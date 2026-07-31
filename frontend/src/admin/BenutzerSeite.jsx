@@ -60,13 +60,13 @@ export default function BenutzerSeite() {
       <h2 className="mb-4 font-display text-base text-navy">Benutzer</h2>
 
       <button onClick={() => setAnlage({ benutzername: '', passwort: '', rolle: 'kasse' })}
-        className="mb-4 cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
+        className="kaertchen-schatten mb-4 cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
         Benutzer anlegen
       </button>
 
       {fehler && <p className="mb-2.5 max-w-md rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
 
-      <ul className="w-fit divide-y divide-linie rounded-lg border border-linie bg-flaeche text-sm">
+      <ul className="kaertchen-schatten w-fit divide-y divide-linie rounded-lg border border-linie bg-flaeche text-sm">
         {benutzer.map((konto) => (
           <li key={konto.id} className="flex items-center gap-2.5 px-2.5 py-2">
             <span className="w-32 shrink-0 text-sm">{konto.benutzername}</span>

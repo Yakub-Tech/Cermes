@@ -83,10 +83,12 @@ export default function StatistikZeitraum() {
       <div className="flex flex-wrap items-center gap-2">
         <span className="w-[62px] text-right text-sm text-schrift-gedimmt">Von</span>
         <Auswahlmenue wert={von} onWahl={vonWaehlen}
-          optionen={vonOptionen.map((tag) => ({ wert: tag, text: datumAnzeigen(tag) }))} />
+          optionen={vonOptionen.map((tag) => ({ wert: tag, text: datumAnzeigen(tag) }))}
+          klasse="text-sm kaertchen-schatten" />
         <span className="text-sm text-schrift-gedimmt">Bis</span>
         <Auswahlmenue wert={bis} onWahl={bisWaehlen}
-          optionen={bisOptionen.map((tag) => ({ wert: tag, text: datumAnzeigen(tag) }))} />
+          optionen={bisOptionen.map((tag) => ({ wert: tag, text: datumAnzeigen(tag) }))}
+          klasse="text-sm kaertchen-schatten" />
       </div>
 
       <Kennzahlen gesamt={statistik.gesamt} stosszeit={stosszeit} />

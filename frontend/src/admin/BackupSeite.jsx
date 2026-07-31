@@ -37,14 +37,14 @@ export default function BackupSeite() {
           Am besten nach jedem Verkaufstag einmal machen und die Datei sicher ablegen.
         </p>
         <button onClick={() => { location.href = '/api/backup'; }}
-          className="cursor-pointer rounded-full bg-blau px-5 py-2.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
+          className="kaertchen-schatten cursor-pointer rounded-full bg-blau px-5 py-2.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
           Backup herunterladen
         </button>
       </section>
 
       <section>
         <h2 className="mb-2.5 font-display text-base text-navy">Backup einspielen</h2>
-        <form onSubmit={einspielen} className="max-w-sm rounded-lg border border-linie bg-flaeche p-4">
+        <form onSubmit={einspielen} className="kaertchen-schatten max-w-sm rounded-lg border border-linie bg-flaeche p-4">
           <p className="mb-2.5 rounded-lg border border-blau bg-blau/20 px-2.5 py-2 text-sm text-blau">
             Achtung: Das Einspielen <strong>ersetzt alle aktuellen Daten</strong>,
             also Verkäufe, Artikel, Benutzer und Werbebilder, durch den Stand aus der Backup-Datei.

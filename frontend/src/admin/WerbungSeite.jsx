@@ -45,7 +45,7 @@ export default function WerbungSeite() {
           typFehlerText="Bitte nur PNG-, JPEG- oder WebP-Bilder ablegen."
           onWahl={hochladen} />
         {bilder.map((bild) => (
-          <div key={bild.id} className="rounded-lg border border-linie bg-flaeche p-2">
+          <div key={bild.id} className="kaertchen-schatten rounded-lg border border-linie bg-flaeche p-2">
             <img src={bild.url} alt="Werbebild"
               className={`mb-2 h-24 w-full rounded-lg object-cover ${bild.aktiv ? '' : 'opacity-40'}`} />
             <div className="flex items-center justify-between">

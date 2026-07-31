@@ -46,14 +46,14 @@ export default function BeilagenSeite() {
           placeholder="Neue Beilage, z. B. Ketchup"
           className="flex-1 rounded border border-linie bg-flaeche px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
         <button type="submit" disabled={neuerName.trim() === ''}
-          className="cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
+          className="kaertchen-schatten cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
           Anlegen
         </button>
       </form>
 
       {fehler && <p className="mb-2.5 max-w-md rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
 
-      <ul className="max-w-md divide-y divide-linie rounded-lg border border-linie bg-flaeche text-sm">
+      <ul className="kaertchen-schatten max-w-md divide-y divide-linie rounded-lg border border-linie bg-flaeche text-sm">
         {beilagen.length === 0 && (
           <li className="px-2.5 py-4 text-schrift-gedimmt">Noch keine Beilagen angelegt.</li>
         )}

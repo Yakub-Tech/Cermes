@@ -36,13 +36,13 @@ export default function ArtikelSeite({ rolle }) {
       <h2 className="mb-4 font-display text-base text-navy">Artikel</h2>
 
       <button onClick={() => setFormular({ artikel: null })}
-        className="mb-4 cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
+        className="kaertchen-schatten mb-4 cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
         Artikel anlegen
       </button>
 
       {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
 
-      <div className="overflow-x-auto rounded-lg border border-linie bg-flaeche">
+      <div className="kaertchen-schatten overflow-x-auto rounded-lg border border-linie bg-flaeche">
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-linie text-xs text-schrift-gedimmt">
