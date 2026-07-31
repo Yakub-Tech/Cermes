@@ -88,7 +88,7 @@ export default function KasseSeite() {
               <button key={artikel.id} onClick={() => artikelTippen(artikel)}
                 className="putz-textur-hell min-h-32 cursor-pointer rounded-[24px] border border-linie bg-flaeche p-4 text-left shadow-[0_2px_5px_rgba(0,0,0,0.18)] hover:bg-flaeche-hell active:scale-[0.98]"
                 style={{ borderTop: `6px solid ${artikel.farbe}` }}>
-                <p className="text-2xl font-semibold">{artikel.name}</p>
+                <p className="break-words text-2xl font-semibold">{artikel.name}</p>
                 <p className="nummer mt-2 text-xl text-navy">{formatEuro(artikel.preis_cent)}</p>
                 {artikel.beilagen.length > 0 && (
                   <p className="mt-1 text-sm text-schrift-gedimmt">mit Beilagen-Auswahl</p>
