@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import {
   ResponsiveContainer, BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts';
 import { formatEuro } from '../api.js';
 import { datumAnzeigen } from './datum.js';
+import { artikelSortieren, SORTIER_OPTIONEN } from './artikelSortierung.js';
+import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 
 export const balkenFarbe = '#10538f';
 export const farbeOhneKosten = '#8a97a6';
@@ -74,6 +77,7 @@ export function FarbLegende() {
 }
 
 export function ArtikelUebersicht({ gesamt, artikel }) {
+  const [sortierung, setSortierung] = useState('alphabetisch');
   const zeigtGeld = gesamt.umsatz_cent !== undefined;
 
   return (
@@ -91,15 +95,23 @@ export function ArtikelUebersicht({ gesamt, artikel }) {
         )}
       </div>
 
-      <BalkenDiagramm titel="Verkaufte Stückzahl pro Artikel" daten={artikel}
+      <div className="flex items-center justify-end gap-1.5">
+        <span className="text-xs text-schrift-gedimmt">Sortierung</span>
+        <Auswahlmenue wert={sortierung} onWahl={setSortierung} optionen={SORTIER_OPTIONEN} klasse="text-xs" />
+      </div>
+
+      <BalkenDiagramm titel="Verkaufte Stückzahl pro Artikel"
+        daten={artikelSortieren(artikel, sortierung, 'stueck')}
         xSchluessel="artikel_name" ySchluessel="stueck" />
 
       {zeigtGeld && (
         <>
-          <BalkenDiagramm titel="Umsatz pro Artikel" daten={artikel}
+          <BalkenDiagramm titel="Umsatz pro Artikel"
+            daten={artikelSortieren(artikel, sortierung, 'umsatz_cent')}
             xSchluessel="artikel_name" ySchluessel="umsatz_cent" werteFormat={formatEuro} />
 
-          <BalkenDiagramm titel="Gewinn pro Artikel" daten={artikel}
+          <BalkenDiagramm titel="Gewinn pro Artikel"
+            daten={artikelSortieren(artikel, sortierung, 'gewinn_cent')}
             xSchluessel="artikel_name" ySchluessel="gewinn_cent" werteFormat={formatEuro}
             balkenFarbFunktion={(zeile) => (zeile.stueck_ohne_kosten > 0 ? farbeOhneKosten : balkenFarbe)}
             kinder={<FarbLegende />} />
