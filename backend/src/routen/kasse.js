@@ -69,7 +69,7 @@ export function kassieren(db, benutzerId, positionen) {
 router.get('/api/kasse/artikel', brauchtRolle('kasse'), (_anfrage, antwort) => {
   const db = oeffneDatenbank();
   const artikelListe = db.prepare(
-    'SELECT * FROM artikel WHERE aktiv = 1 AND geloescht = 0 ORDER BY sortierung, name'
+    'SELECT * FROM artikel WHERE aktiv = 1 AND geloescht = 0 ORDER BY sortierung, name COLLATE NOCASE'
   ).all();
   const mitBeilagen = artikelListe.map((artikel) => {
     const beilagen = db.prepare(

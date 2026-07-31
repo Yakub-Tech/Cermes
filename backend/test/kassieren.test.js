@@ -103,3 +103,15 @@ test('Leerer Warenkorb wird abgelehnt', async () => {
   const antwort = await kasse.post('/api/kasse/kassieren').send({ positionen: [] });
   assert.equal(antwort.status, 400);
 });
+
+test('Kärtchen werden bei gleicher Sortierung groß-/kleinschreibungsunabhängig alphabetisch sortiert', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  for (const name of ['Test2', 'cola artikel', 'Burger']) {
+    await admin.post('/api/artikel').send({ name, farbe: '#2255cc', preis_cent: 100, beilagen_ids: [] });
+  }
+
+  const kasse = await angemeldeterAgent(app, db, 'kasse');
+  const liste = (await kasse.get('/api/kasse/artikel')).body;
+  assert.deepEqual(liste.map((a) => a.name), ['Burger', 'cola artikel', 'Test2']);
+});

@@ -50,7 +50,7 @@ function artikelMitDetails(db, zeile) {
 router.get('/api/artikel', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   const zeilen = db.prepare(
-    'SELECT * FROM artikel WHERE geloescht = 0 ORDER BY sortierung, name'
+    'SELECT * FROM artikel WHERE geloescht = 0 ORDER BY sortierung, name COLLATE NOCASE'
   ).all();
   const artikelListe = zeilen.map((zeile) => artikelMitDetails(db, zeile));
   antwort.json(anfrage.benutzer.rolle === 'verwaltung' ? artikelListe.map(ohneKosten) : artikelListe);
