@@ -110,8 +110,7 @@ export function FarbLegende() {
   );
 }
 
-export function ArtikelUebersicht({ gesamt, artikel, stosszeit }) {
-  const [sortierung, setSortierung] = useState('alphabetisch');
+export function Kennzahlen({ gesamt, stosszeit }) {
   const zeigtGeld = gesamt.umsatz_cent !== undefined;
   const kostenVollstaendig = !gesamt.stueck_ohne_kosten;
 
@@ -128,7 +127,7 @@ export function ArtikelUebersicht({ gesamt, artikel, stosszeit }) {
   ];
 
   return (
-    <>
+    <div className="space-y-2.5">
       <KennzahlZeile kennzahlen={kennzahlen} />
       {zeigtGeld && gesamt.stueck_ohne_kosten > 0 && (
         <div className="rounded-lg border border-linie bg-flaeche px-4 py-2.5">
@@ -137,7 +136,16 @@ export function ArtikelUebersicht({ gesamt, artikel, stosszeit }) {
           </p>
         </div>
       )}
+    </div>
+  );
+}
 
+export function ArtikelDiagramme({ gesamt, artikel }) {
+  const [sortierung, setSortierung] = useState('alphabetisch');
+  const zeigtGeld = gesamt.umsatz_cent !== undefined;
+
+  return (
+    <div className="space-y-2.5">
       <div className="flex items-center justify-end gap-1.5">
         <span className="text-xs text-schrift-gedimmt">Sortierung</span>
         <Auswahlmenue wert={sortierung} onWahl={setSortierung} optionen={SORTIER_OPTIONEN} klasse="text-xs" />
@@ -163,7 +171,7 @@ export function ArtikelUebersicht({ gesamt, artikel, stosszeit }) {
             kinder={<FarbLegende />} alleBeschriftungen />
         </>
       )}
-    </>
+    </div>
   );
 }
 

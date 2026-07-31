@@ -3,7 +3,7 @@ import { apiGet } from '../api.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { heutigesDatum, datumAnzeigen } from './datum.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
-import { ArtikelUebersicht, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
+import { Kennzahlen, ArtikelDiagramme, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
 import { staerkstesElement } from './staerkstesElement.js';
 
 function vorauswahlBerechnen(verkaufstage) {
@@ -79,7 +79,7 @@ export default function StatistikZeitraum() {
   const stosszeit = stosstag ? datumAnzeigen(stosstag.tag) : null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-8">
       <div className="flex flex-wrap items-center gap-2">
         <span className="w-[62px] text-right text-sm text-schrift-gedimmt">Von</span>
         <Auswahlmenue wert={von} onWahl={vonWaehlen}
@@ -89,21 +89,25 @@ export default function StatistikZeitraum() {
           optionen={bisOptionen.map((tag) => ({ wert: tag, text: datumAnzeigen(tag) }))} />
       </div>
 
-      <ArtikelUebersicht gesamt={statistik.gesamt} artikel={statistik.artikel} stosszeit={stosszeit} />
+      <Kennzahlen gesamt={statistik.gesamt} stosszeit={stosszeit} />
 
-      <BalkenDiagramm titel="Verkäufe pro Tag" daten={verlaufDaten}
-        xSchluessel="tag" ySchluessel="stueck"
-        leerText="Keine Verkäufe in diesem Zeitraum."
-        kinder={
-          <Auswahlmenue wert={verlaufArtikel} onWahl={verlaufArtikelWaehlen}
-            optionen={[
-              { wert: '', text: 'Alle Artikel' },
-              ...artikelListe.map((a) => ({ wert: String(a.id), text: a.name })),
-            ]}
-            klasse="text-xs" />
-        } />
+      <div className="space-y-2.5">
+        <ArtikelDiagramme gesamt={statistik.gesamt} artikel={statistik.artikel} />
 
-      <StornoTabelle stornos={statistik.stornos} mitDatum />
+        <BalkenDiagramm titel="Verkäufe pro Tag" daten={verlaufDaten}
+          xSchluessel="tag" ySchluessel="stueck"
+          leerText="Keine Verkäufe in diesem Zeitraum."
+          kinder={
+            <Auswahlmenue wert={verlaufArtikel} onWahl={verlaufArtikelWaehlen}
+              optionen={[
+                { wert: '', text: 'Alle Artikel' },
+                ...artikelListe.map((a) => ({ wert: String(a.id), text: a.name })),
+              ]}
+              klasse="text-xs" />
+          } />
+
+        <StornoTabelle stornos={statistik.stornos} mitDatum />
+      </div>
     </div>
   );
 }

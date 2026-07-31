@@ -3,7 +3,7 @@ import { apiGet } from '../api.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { heutigesDatum, datumAnzeigen } from './datum.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
-import { ArtikelUebersicht, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
+import { Kennzahlen, ArtikelDiagramme, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
 import { staerkstesElement } from './staerkstesElement.js';
 
 export default function StatistikEinzeltag() {
@@ -51,7 +51,7 @@ export default function StatistikEinzeltag() {
   const stosszeit = stossStunde ? `${stossStunde.stunde}–${stossStunde.stunde + 1} Uhr` : null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-8">
       <div className="flex flex-wrap items-center gap-2">
         <button onClick={() => tagWaehlen(heutigesDatum())}
           className={`cursor-pointer rounded-full px-2.5 py-1.5 text-sm ${
@@ -66,20 +66,24 @@ export default function StatistikEinzeltag() {
           ]} />
       </div>
 
-      <ArtikelUebersicht gesamt={statistik.gesamt} artikel={statistik.artikel} stosszeit={stosszeit} />
+      <Kennzahlen gesamt={statistik.gesamt} stosszeit={stosszeit} />
 
-      <BalkenDiagramm titel="Verkäufe im Tagesverlauf" daten={stundenDaten}
-        xSchluessel="stunde" ySchluessel="stueck" schraegeAchse={false}
-        kinder={
-          <Auswahlmenue wert={stundenArtikel} onWahl={stundenArtikelWaehlen}
-            optionen={[
-              { wert: '', text: 'Alle Artikel' },
-              ...artikelListe.map((a) => ({ wert: String(a.id), text: a.name })),
-            ]}
-            klasse="text-xs" />
-        } />
+      <div className="space-y-2.5">
+        <ArtikelDiagramme gesamt={statistik.gesamt} artikel={statistik.artikel} />
 
-      <StornoTabelle stornos={statistik.stornos} />
+        <BalkenDiagramm titel="Verkäufe im Tagesverlauf" daten={stundenDaten}
+          xSchluessel="stunde" ySchluessel="stueck" schraegeAchse={false}
+          kinder={
+            <Auswahlmenue wert={stundenArtikel} onWahl={stundenArtikelWaehlen}
+              optionen={[
+                { wert: '', text: 'Alle Artikel' },
+                ...artikelListe.map((a) => ({ wert: String(a.id), text: a.name })),
+              ]}
+              klasse="text-xs" />
+          } />
+
+        <StornoTabelle stornos={statistik.stornos} />
+      </div>
     </div>
   );
 }
