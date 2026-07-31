@@ -4,6 +4,7 @@ import { useLiveUpdate } from '../useLiveUpdate.js';
 import { heutigesDatum, datumAnzeigen } from './datum.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { ArtikelUebersicht, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
+import { staerkstesElement } from './staerkstesElement.js';
 
 function vorauswahlBerechnen(verkaufstage) {
   if (verkaufstage.length === 0) return { von: null, bis: null };
@@ -74,6 +75,9 @@ export default function StatistikZeitraum() {
   const vonOptionen = verkaufstage.filter((tag) => tag <= bis);
   const bisOptionen = verkaufstage.filter((tag) => tag >= von);
 
+  const stosstag = staerkstesElement(statistik.tage, 'stueck');
+  const stosszeit = stosstag ? datumAnzeigen(stosstag.tag) : null;
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
@@ -85,7 +89,7 @@ export default function StatistikZeitraum() {
           optionen={bisOptionen.map((tag) => ({ wert: tag, text: datumAnzeigen(tag) }))} />
       </div>
 
-      <ArtikelUebersicht gesamt={statistik.gesamt} artikel={statistik.artikel} />
+      <ArtikelUebersicht gesamt={statistik.gesamt} artikel={statistik.artikel} stosszeit={stosszeit} />
 
       <BalkenDiagramm titel="Verkäufe pro Tag" daten={verlaufDaten}
         xSchluessel="tag" ySchluessel="stueck"

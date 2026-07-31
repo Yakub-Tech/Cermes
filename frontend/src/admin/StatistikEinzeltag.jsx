@@ -4,6 +4,7 @@ import { useLiveUpdate } from '../useLiveUpdate.js';
 import { heutigesDatum, datumAnzeigen } from './datum.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { ArtikelUebersicht, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
+import { staerkstesElement } from './staerkstesElement.js';
 
 export default function StatistikEinzeltag() {
   const [tage, setTage] = useState([]);
@@ -46,6 +47,9 @@ export default function StatistikEinzeltag() {
 
   const stundenDaten = stunden.map((s) => ({ ...s, stunde: `${s.stunde} Uhr` }));
 
+  const stossStunde = staerkstesElement(statistik.stunden, 'stueck');
+  const stosszeit = stossStunde ? `${stossStunde.stunde}–${stossStunde.stunde + 1} Uhr` : null;
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
@@ -62,7 +66,7 @@ export default function StatistikEinzeltag() {
           ]} />
       </div>
 
-      <ArtikelUebersicht gesamt={statistik.gesamt} artikel={statistik.artikel} />
+      <ArtikelUebersicht gesamt={statistik.gesamt} artikel={statistik.artikel} stosszeit={stosszeit} />
 
       <BalkenDiagramm titel="Verkäufe im Tagesverlauf" daten={stundenDaten}
         xSchluessel="stunde" ySchluessel="stueck" schraegeAchse={false}

@@ -32,12 +32,18 @@ function ArtikelAchsenTick({ x, y, payload }) {
   );
 }
 
-export function KennzahlKachel({ beschriftung, wert, farbe, fussnote }) {
+export function KennzahlZeile({ kennzahlen }) {
   return (
-    <div className="rounded-lg border border-linie bg-flaeche px-3 py-2.5">
-      <p className="text-xs text-schrift-gedimmt">{beschriftung}</p>
-      <p className="nummer mt-1 text-xl" style={{ color: farbe }}>{wert}</p>
-      {fussnote && <p className="mt-1 text-xs italic text-weinrot">{fussnote}</p>}
+    <div className="flex gap-2.5">
+      {kennzahlen.map((kennzahl) => (
+        <div key={kennzahl.beschriftung}
+          className="flex-1 rounded-lg border border-linie bg-flaeche px-4 py-4 text-center">
+          <p className="text-xs text-schrift-gedimmt">{kennzahl.beschriftung}</p>
+          <p className="nummer mt-2 text-3xl" style={kennzahl.farbe ? { color: kennzahl.farbe } : undefined}>
+            {kennzahl.wert}
+          </p>
+        </div>
+      ))}
     </div>
   );
 }
@@ -104,26 +110,33 @@ export function FarbLegende() {
   );
 }
 
-export function ArtikelUebersicht({ gesamt, artikel }) {
+export function ArtikelUebersicht({ gesamt, artikel, stosszeit }) {
   const [sortierung, setSortierung] = useState('alphabetisch');
   const zeigtGeld = gesamt.umsatz_cent !== undefined;
   const kostenVollstaendig = !gesamt.stueck_ohne_kosten;
 
+  const kennzahlen = [
+    { beschriftung: 'Verkaufte Portionen', wert: gesamt.stueck, farbe: stueckFarbe },
+    ...(zeigtGeld ? [
+      { beschriftung: 'Umsatz', wert: formatEuro(gesamt.umsatz_cent), farbe: umsatzFarbe },
+      {
+        beschriftung: 'Gewinn', wert: formatEuro(gesamt.gewinn_cent),
+        farbe: kostenVollstaendig ? gewinnFarbe : gewinnNeutralFarbe,
+      },
+    ] : []),
+    { beschriftung: 'Stoßzeit', wert: stosszeit ?? '–' },
+  ];
+
   return (
     <>
-      <div className="grid grid-cols-3 gap-2.5">
-        <KennzahlKachel beschriftung="Verkaufte Portionen" wert={gesamt.stueck} farbe={stueckFarbe} />
-        {zeigtGeld && (
-          <>
-            <KennzahlKachel beschriftung="Umsatz" wert={formatEuro(gesamt.umsatz_cent)} farbe={umsatzFarbe} />
-            <KennzahlKachel beschriftung="Gewinn" wert={formatEuro(gesamt.gewinn_cent)}
-              farbe={kostenVollstaendig ? gewinnFarbe : gewinnNeutralFarbe}
-              fussnote={gesamt.stueck_ohne_kosten > 0
-                ? `${gesamt.stueck_ohne_kosten} Stück ohne Kostenangabe, Gewinn dort ohne Kostenabzug berechnet`
-                : null} />
-          </>
-        )}
-      </div>
+      <KennzahlZeile kennzahlen={kennzahlen} />
+      {zeigtGeld && gesamt.stueck_ohne_kosten > 0 && (
+        <div className="rounded-lg border border-linie bg-flaeche px-4 py-2.5">
+          <p className="text-xs italic text-weinrot">
+            {gesamt.stueck_ohne_kosten} Stück ohne Kostenangabe, Gewinn dort ohne Kostenabzug berechnet
+          </p>
+        </div>
+      )}
 
       <div className="flex items-center justify-end gap-1.5">
         <span className="text-xs text-schrift-gedimmt">Sortierung</span>
