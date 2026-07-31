@@ -102,7 +102,7 @@ export default function ArtikelSeite({ rolle }) {
                     Bearbeiten
                   </button>
                   <button onClick={() => setLoeschung(artikel)}
-                    className="cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-blau-hell hover:bg-flaeche-hell">
+                    className="cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-weinrot hover:bg-flaeche-hell">
                     Löschen
                   </button>
                 </td>
@@ -138,7 +138,7 @@ export default function ArtikelSeite({ rolle }) {
               onClick={() => apiDelete(`/api/artikel/${loeschung.id}`)
                 .then(() => setLoeschung(null))
                 .catch((f) => { setFehler(f.message); setLoeschung(null); })}
-              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-full bg-weinrot py-1.5 text-sm font-bold text-flaeche hover:bg-weinrot-hell">
               Ja, löschen
             </button>
           </div>

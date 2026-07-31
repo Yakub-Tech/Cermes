@@ -78,7 +78,7 @@ export default function BenutzerSeite() {
               Passwort zurücksetzen
             </button>
             <button onClick={() => setLoeschung(konto)}
-              className="shrink-0 cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-blau-hell hover:bg-flaeche-hell">
+              className="shrink-0 cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-weinrot hover:bg-flaeche-hell">
               Löschen
             </button>
           </li>
@@ -150,7 +150,7 @@ export default function BenutzerSeite() {
               Abbrechen
             </button>
             <button onClick={loeschen}
-              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 cursor-pointer rounded-full bg-weinrot py-1.5 text-sm font-bold text-flaeche hover:bg-weinrot-hell">
               Ja, löschen
             </button>
           </div>
