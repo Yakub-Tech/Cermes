@@ -53,7 +53,7 @@ export default function LoginSeite() {
 
   return (
     <>
-      <main className="flex min-h-screen items-center justify-center p-4">
+      <main className="anmeldung flex min-h-screen items-center justify-center p-4">
         <form onSubmit={anmelden}
           className="w-full max-w-sm rounded-xl border border-linie bg-flaeche p-8 shadow-2xl">
           <Link to="/" className="mx-auto mb-4 block w-28 transition-opacity hover:opacity-80">
