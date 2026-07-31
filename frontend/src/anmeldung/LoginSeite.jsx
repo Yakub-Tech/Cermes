@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { apiPost } from '../api.js';
+import { sollEnterAbsenden } from './enterAbsenden.js';
 import Urheberrechtshinweis from '../komponenten/Urheberrechtshinweis.jsx';
 
 const ansichtsTitel = {
@@ -29,8 +30,15 @@ export default function LoginSeite() {
 
   const titel = ansichtsTitel[ansicht] || 'Anmeldung';
 
+  function beiEnterAbsenden(ereignis) {
+    if (!sollEnterAbsenden({ taste: ereignis.key, wiederholt: ereignis.repeat, laeuft })) return;
+    ereignis.preventDefault();
+    ereignis.currentTarget.form.requestSubmit();
+  }
+
   async function anmelden(ereignis) {
     ereignis.preventDefault();
+    if (laeuft) return;
     setLaeuft(true);
     setFehler('');
     try {
@@ -58,14 +66,14 @@ export default function LoginSeite() {
             Benutzername
           </label>
           <input id="benutzername" value={benutzername} autoFocus autoComplete="username"
-            onChange={(e) => setBenutzername(e.target.value)}
+            onChange={(e) => setBenutzername(e.target.value)} onKeyDown={beiEnterAbsenden}
             className="mb-4 w-full rounded border border-linie bg-grund px-3 py-3 text-lg outline-none focus:border-blau-hell" />
 
           <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="passwort">
             Passwort
           </label>
           <input id="passwort" type="password" value={passwort} autoComplete="current-password"
-            onChange={(e) => setPasswort(e.target.value)}
+            onChange={(e) => setPasswort(e.target.value)} onKeyDown={beiEnterAbsenden}
             className="mb-4 w-full rounded border border-linie bg-grund px-3 py-3 text-lg outline-none focus:border-blau-hell" />
 
           {inaktivitaetsHinweis && (
