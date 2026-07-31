@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Kopfzeile from '../komponenten/Kopfzeile.jsx';
+import Fusszeile from '../komponenten/Fusszeile.jsx';
 import Snackbar from '../komponenten/Snackbar.jsx';
 import KaertchenKarte from '../komponenten/KaertchenKarte.jsx';
 import { useSession } from '../anmeldung/useSession.js';
@@ -119,6 +120,8 @@ export default function AusgabeSeite() {
           </section>
         ))}
       </div>
+
+      <Fusszeile />
 
       {snackbar && (
         <Snackbar meldung={snackbar.meldung} onRueckgaengig={snackbar.rueckgaengig}

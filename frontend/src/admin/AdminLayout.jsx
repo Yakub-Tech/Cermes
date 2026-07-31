@@ -1,5 +1,6 @@
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import Kopfzeile from '../komponenten/Kopfzeile.jsx';
+import Fusszeile from '../komponenten/Fusszeile.jsx';
 import { useSession } from '../anmeldung/useSession.js';
 import StatistikSeite from './StatistikSeite.jsx';
 import ArtikelSeite from './ArtikelSeite.jsx';
@@ -62,6 +63,8 @@ export default function AdminLayout() {
           </Routes>
         </main>
       </div>
+
+      <Fusszeile />
     </div>
   );
 }

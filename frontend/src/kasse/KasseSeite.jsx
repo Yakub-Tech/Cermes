@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Kopfzeile from '../komponenten/Kopfzeile.jsx';
+import Fusszeile from '../komponenten/Fusszeile.jsx';
 import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { apiGet, apiPost, formatEuro } from '../api.js';
@@ -110,6 +111,8 @@ export default function KasseSeite() {
       ) : (
         <StornoTab />
       )}
+
+      <Fusszeile />
 
       {beilagenArtikel && (
         <BeilagenDialog artikel={beilagenArtikel}

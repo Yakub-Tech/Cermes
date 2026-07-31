@@ -9,7 +9,6 @@ import KasseSeite from './kasse/KasseSeite.jsx';
 import AusgabeSeite from './ausgabe/AusgabeSeite.jsx';
 import TvSeite from './tv/TvSeite.jsx';
 import AdminLayout from './admin/AdminLayout.jsx';
-import Urheberrechtshinweis from './komponenten/Urheberrechtshinweis.jsx';
 import StartSeite from './start/StartSeite.jsx';
 
 function App() {
@@ -40,7 +39,6 @@ function App() {
         <Route path="/admin/*" element={<AdminLayout />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      <Urheberrechtshinweis />
     </>
   );
 }

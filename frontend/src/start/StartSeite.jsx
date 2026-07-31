@@ -1,4 +1,5 @@
 import Kopfzeile from '../komponenten/Kopfzeile.jsx';
+import Urheberrechtshinweis from '../komponenten/Urheberrechtshinweis.jsx';
 import ZielKaertchen from './ZielKaertchen.jsx';
 import { ZIELE } from './ziele.js';
 import { useOptionaleSession } from '../anmeldung/useOptionaleSession.js';
@@ -22,6 +23,7 @@ export default function StartSeite() {
       <footer className="flex justify-end p-6 pt-0">
         <NetzwerkAdresse />
       </footer>
+      <Urheberrechtshinweis />
     </div>
   );
 }
