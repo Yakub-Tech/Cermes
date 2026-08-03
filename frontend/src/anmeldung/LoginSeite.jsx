@@ -60,7 +60,8 @@ export default function LoginSeite() {
             <img src="/logo/aktuell" alt="Vereinslogo" className="h-28 w-28" />
           </Link>
           <h1 className="mb-1 text-center font-display text-3xl text-navy">Cermes</h1>
-          <p className="mb-6 text-center text-schrift-gedimmt">Anmeldung: {titel}</p>
+          <p className="text-center text-schrift-gedimmt">Anmeldung</p>
+          <p className="mb-6 text-center text-sm italic text-schrift-gedimmt/60">{titel}</p>
 
           <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="benutzername">
             Benutzername
