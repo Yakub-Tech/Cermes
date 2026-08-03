@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Kopfzeile from '../komponenten/Kopfzeile.jsx';
 import Fusszeile from '../komponenten/Fusszeile.jsx';
@@ -22,6 +22,7 @@ export default function KasseSeite() {
   const [laeuft, setLaeuft] = useState(false);
   const [fehler, setFehler] = useState('');
   const [warenkorbVerlassenAktiv, setWarenkorbVerlassenAktiv] = useState(false);
+  const naechsterSchluessel = useRef(1);
 
   function logoGeklickt(ereignis) {
     if (positionen.length > 0) {
@@ -43,7 +44,9 @@ export default function KasseSeite() {
   }
 
   function positionHinzufuegen(artikel, beilagen) {
-    setPositionen((alte) => [...alte, { schluessel: crypto.randomUUID(), artikel, beilagen }]);
+    const schluessel = naechsterSchluessel.current;
+    naechsterSchluessel.current += 1;
+    setPositionen((alte) => [...alte, { schluessel, artikel, beilagen }]);
     setBeilagenArtikel(null);
   }
 
