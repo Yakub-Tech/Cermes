@@ -81,14 +81,6 @@ body {
   animation: warn-puls 1.2s ease-in-out infinite;
 }
 
-@keyframes endlos-scroll {
-  from { transform: translateY(0); }
-  to { transform: translateY(-50%); }
-}
-.endlos-scroll {
-  animation: endlos-scroll var(--scroll-dauer, 30s) linear infinite;
-}
-
 @keyframes einblenden {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -129,7 +121,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .warn-puls, .endlos-scroll, .einblenden, .werbeband-scroll, .sprachwechsel,
+  .warn-puls, .einblenden, .werbeband-scroll, .sprachwechsel,
   .auswahlmenue-panel, .haekchen-indicator {
     animation: none;
   }

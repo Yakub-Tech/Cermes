@@ -14,3 +14,7 @@ export function gruppiereNachArtikel(kaertchen) {
     kaertchen: gruppenNachName.get(artikelName),
   }));
 }
+
+export function sortiereFuerFluss(kaertchen) {
+  return gruppiereNachArtikel(kaertchen).flatMap((gruppe) => gruppe.kaertchen);
+}
