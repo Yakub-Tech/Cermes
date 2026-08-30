@@ -8,6 +8,7 @@ import Ersteinrichtung from './anmeldung/Ersteinrichtung.jsx';
 import KasseSeite from './kasse/KasseSeite.jsx';
 import AusgabeSeite from './ausgabe/AusgabeSeite.jsx';
 import TvSeite from './tv/TvSeite.jsx';
+import KundeSeite from './kunde/KundeSeite.jsx';
 import AdminLayout from './admin/AdminLayout.jsx';
 import StartSeite from './start/StartSeite.jsx';
 
@@ -36,6 +37,7 @@ function App() {
         <Route path="/kasse" element={<KasseSeite />} />
         <Route path="/ausgabe" element={<AusgabeSeite />} />
         <Route path="/tv" element={<TvSeite />} />
+        <Route path="/kunde" element={<KundeSeite />} />
         <Route path="/admin/*" element={<AdminLayout />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

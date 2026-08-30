@@ -1,10 +1,11 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Kopfzeile from '../komponenten/Kopfzeile.jsx';
 import Fusszeile from '../komponenten/Fusszeile.jsx';
 import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
-import { apiGet, apiPost, formatEuro } from '../api.js';
+import { apiGet, apiPost, apiPut, formatEuro } from '../api.js';
+import { erzeugeMeldungsFolge } from './meldungsFolge.js';
 import BeilagenDialog from './BeilagenDialog.jsx';
 import Warenkorb from './Warenkorb.jsx';
 import NummernBestaetigung from './NummernBestaetigung.jsx';
@@ -18,11 +19,15 @@ export default function KasseSeite() {
   const [artikelListe, setArtikelListe] = useState([]);
   const [positionen, setPositionen] = useState([]);
   const [beilagenArtikel, setBeilagenArtikel] = useState(null);
+  const [fokusAuswahl, setFokusAuswahl] = useState([]);
   const [ergebnis, setErgebnis] = useState(null);
   const [laeuft, setLaeuft] = useState(false);
   const [fehler, setFehler] = useState('');
   const [warenkorbVerlassenAktiv, setWarenkorbVerlassenAktiv] = useState(false);
   const naechsterSchluessel = useRef(1);
+  const kundenMelden = useRef(erzeugeMeldungsFolge(
+    (stand) => apiPut('/api/kasse/kundenanzeige', stand)
+  ));
 
   function logoGeklickt(ereignis) {
     if (positionen.length > 0) {
@@ -37,6 +42,7 @@ export default function KasseSeite() {
 
   function artikelTippen(artikel) {
     if (artikel.beilagen.length > 0) {
+      setFokusAuswahl([]);
       setBeilagenArtikel(artikel);
     } else {
       positionHinzufuegen(artikel, []);
@@ -48,7 +54,32 @@ export default function KasseSeite() {
     naechsterSchluessel.current += 1;
     setPositionen((alte) => [...alte, { schluessel, artikel, beilagen }]);
     setBeilagenArtikel(null);
+    setFokusAuswahl([]);
   }
+
+  useEffect(() => {
+    const fokus = beilagenArtikel ? {
+      artikel_name: beilagenArtikel.name,
+      farbe: beilagenArtikel.farbe,
+      bild_url: beilagenArtikel.bild_url ?? null,
+      preis_cent: beilagenArtikel.preis_cent,
+      beilagenOptionen: beilagenArtikel.beilagen.map((beilage) => ({
+        name: beilage.name,
+        aktiv: !!beilage.aktiv,
+        ausgewaehlt: fokusAuswahl.some((g) => g.id === beilage.id),
+      })),
+    } : null;
+    kundenMelden.current({
+      warenkorb: positionen.map((p) => ({
+        schluessel: p.schluessel,
+        artikel_name: p.artikel.name,
+        farbe: p.artikel.farbe,
+        preis_cent: p.artikel.preis_cent,
+        beilagen: p.beilagen.map((b) => b.name),
+      })),
+      fokus,
+    });
+  }, [positionen, beilagenArtikel, fokusAuswahl]);
 
   async function kassieren() {
     setLaeuft(true);
@@ -120,7 +151,8 @@ export default function KasseSeite() {
       {beilagenArtikel && (
         <BeilagenDialog artikel={beilagenArtikel}
           onBestaetigen={(beilagen) => positionHinzufuegen(beilagenArtikel, beilagen)}
-          onAbbrechen={() => setBeilagenArtikel(null)} />
+          onAbbrechen={() => { setBeilagenArtikel(null); setFokusAuswahl([]); }}
+          onAuswahlAendern={setFokusAuswahl} />
       )}
 
       {ergebnis && (

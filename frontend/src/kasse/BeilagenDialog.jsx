@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import Dialog from '../komponenten/Dialog.jsx';
 
-export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen }) {
+export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen, onAuswahlAendern }) {
   const [gewaehlt, setGewaehlt] = useState([]);
 
   function umschalten(beilage) {
-    if (gewaehlt.some((b) => b.id === beilage.id)) {
-      setGewaehlt(gewaehlt.filter((b) => b.id !== beilage.id));
-    } else {
-      setGewaehlt([...gewaehlt, beilage]);
-    }
+    const neueAuswahl = gewaehlt.some((b) => b.id === beilage.id)
+      ? gewaehlt.filter((b) => b.id !== beilage.id)
+      : [...gewaehlt, beilage];
+    setGewaehlt(neueAuswahl);
+    onAuswahlAendern?.(neueAuswahl);
   }
 
   const beilagenSortiert = [...artikel.beilagen].sort((a, b) => a.name.localeCompare(b.name, 'de'));

@@ -66,6 +66,9 @@ export default function ArtikelSeite({ rolle }) {
                 <td className="px-2.5 py-2">
                   <span className="mr-1.5 inline-block h-4 w-4 rounded-full align-middle"
                     style={{ backgroundColor: artikel.farbe }} />
+                  {artikel.bild_url && (
+                    <img src={artikel.bild_url} alt="" className="mr-1.5 inline-block h-6 w-6 rounded object-cover align-middle" />
+                  )}
                   <span className="text-sm">{artikel.name}</span>
                 </td>
                 <td className="nummer px-2.5 py-2">{formatEuro(artikel.preis_cent)}</td>

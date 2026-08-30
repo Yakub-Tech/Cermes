@@ -6,13 +6,14 @@ import { oeffneDatenbank } from './db.js';
 import { authEinbinden } from './auth.js';
 import { websocketEinbinden } from './broadcast.js';
 import tvRouter from './routen/tv.js';
+import kundeRouter from './routen/kunde.js';
 import werbungRouter, { werbeOrdner } from './routen/werbung.js';
 import logoRouter, { logoOrdner } from './routen/logo.js';
 import einstellungenRouter from './routen/einstellungen.js';
 import statistikRouter from './routen/statistik.js';
 import benutzerRouter from './routen/benutzer.js';
 import backupRouter from './routen/backup.js';
-import artikelRouter from './routen/artikel.js';
+import artikelRouter, { artikelBilderOrdner } from './routen/artikel.js';
 import beilagenRouter from './routen/beilagen.js';
 import kasseRouter from './routen/kasse.js';
 import ausgabeRouter from './routen/ausgabe.js';
@@ -32,6 +33,7 @@ export function erstelleApp() {
   app.use(kasseRouter);
   app.use(ausgabeRouter);
   app.use(tvRouter);
+  app.use(kundeRouter);
   app.use(werbungRouter);
   app.use(logoRouter);
   app.use(einstellungenRouter);
@@ -40,6 +42,7 @@ export function erstelleApp() {
   app.use(backupRouter);
   app.use('/werbung', express.static(werbeOrdner()));
   app.use('/logo', express.static(logoOrdner()));
+  app.use('/artikelbilder', express.static(artikelBilderOrdner()));
   frontendAusliefern(app);
   return app;
 }
@@ -51,7 +54,8 @@ function frontendAusliefern(app) {
   if (!fs.existsSync(distOrdner)) return;
   app.use(express.static(distOrdner));
   app.get('*', (anfrage, antwort, weiter) => {
-    if (anfrage.path.startsWith('/api/') || anfrage.path.startsWith('/werbung/') || anfrage.path.startsWith('/logo/')) {
+    if (anfrage.path.startsWith('/api/') || anfrage.path.startsWith('/werbung/')
+      || anfrage.path.startsWith('/logo/') || anfrage.path.startsWith('/artikelbilder/')) {
       return weiter();
     }
     antwort.sendFile(path.join(distOrdner, 'index.html'));

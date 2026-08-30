@@ -9,6 +9,7 @@ export default defineConfig({
       '/api': 'http://localhost:8080',
       '/werbung': 'http://localhost:8080',
       '/logo': 'http://localhost:8080',
+      '/artikelbilder': 'http://localhost:8080',
       '/ws': { target: 'ws://localhost:8080', ws: true },
     },
   },

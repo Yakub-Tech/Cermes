@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { euroZuCent, formatEuro } from '../api.js';
+import { euroZuCent, formatEuro, apiUpload, apiDelete } from '../api.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import Zahlenfeld from '../komponenten/Zahlenfeld.jsx';
+import DateiAuswahl from '../komponenten/DateiAuswahl.jsx';
 
 const NAME_MAX_LAENGE = 24;
 
@@ -17,7 +18,30 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
   );
   const [sortierung, setSortierung] = useState(artikel?.sortierung ?? 0);
   const [beilagenIds, setBeilagenIds] = useState(artikel?.beilagen_ids ?? []);
+  const [bildUrl, setBildUrl] = useState(artikel?.bild_url ?? null);
   const [fehler, setFehler] = useState('');
+
+  async function bildHochladen(datei) {
+    setFehler('');
+    try {
+      const formData = new FormData();
+      formData.append('bild', datei);
+      const antwort = await apiUpload(`/api/artikel/${artikel.id}/bild`, formData);
+      setBildUrl(antwort.bild_url);
+    } catch (f) {
+      setFehler(f.message);
+    }
+  }
+
+  async function bildEntfernen() {
+    setFehler('');
+    try {
+      await apiDelete(`/api/artikel/${artikel.id}/bild`);
+      setBildUrl(null);
+    } catch (f) {
+      setFehler(f.message);
+    }
+  }
 
   function beilageUmschalten(id) {
     setBeilagenIds(beilagenIds.includes(id)
@@ -108,6 +132,32 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
           </button>
         ))}
       </div>
+
+      <label className="mb-1 block text-xs text-schrift-gedimmt">Artikelbild</label>
+      <p className="mb-2 text-xs text-schrift-gedimmt">
+        Querformat empfohlen (z. B. 4:3), Motiv mittig platziert, mindestens 1200×900 Pixel.
+        PNG, JPEG oder WebP bis 10 MB.
+      </p>
+      {!artikel && (
+        <p className="mb-2.5 text-xs text-schrift-gedimmt">
+          Kann nach dem Anlegen in der Bearbeiten-Ansicht ergänzt werden.
+        </p>
+      )}
+      {artikel && bildUrl && (
+        <div className="mb-2.5 flex items-center gap-2.5">
+          <img src={bildUrl} alt={artikel.name} className="h-20 w-20 rounded-lg border border-linie object-cover" />
+          <button type="button" onClick={bildEntfernen}
+            className="cursor-pointer rounded-full border border-linie px-2.5 py-1.5 text-sm text-weinrot hover:bg-flaeche-hell">
+            Bild entfernen
+          </button>
+        </div>
+      )}
+      {artikel && !bildUrl && (
+        <div className="mb-2.5">
+          <DateiAuswahl akzeptiert="image/png,image/jpeg,image/webp" beschriftung="Bild hochladen"
+            typFehlerText="Bitte nur PNG-, JPEG- oder WebP-Bilder ablegen." onWahl={bildHochladen} />
+        </div>
+      )}
 
       {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
 

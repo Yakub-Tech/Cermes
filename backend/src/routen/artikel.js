@@ -1,10 +1,31 @@
 import express from 'express';
-import { oeffneDatenbank } from '../db.js';
+import multer from 'multer';
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
+import { oeffneDatenbank, datenVerzeichnis } from '../db.js';
 import { heutigesDatum } from '../zeit.js';
 import { brauchtRolle } from '../auth.js';
 import { sendeEreignis } from '../broadcast.js';
 
 const router = express.Router();
+
+const erlaubteBildTypen = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/webp': 'webp',
+};
+
+function artikelBilderOrdner() {
+  const ordner = path.join(datenVerzeichnis(), 'artikelbilder');
+  fs.mkdirSync(ordner, { recursive: true });
+  return ordner;
+}
+
+const bildUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
 
 function pruefeArtikelDaten(daten) {
   if (!daten.name || String(daten.name).trim() === '') {
@@ -44,7 +65,10 @@ function artikelMitDetails(db, zeile) {
     `SELECT MAX(nummer) AS n FROM kaertchen
      WHERE artikel_id = ? AND substr(erstellt_am, 1, 10) = ? AND status != 'storniert'`
   ).get(zeile.id, heutigesDatum()).n;
-  return { ...zeile, beilagen_ids: beilagenIds, hoechste_nummer_heute: hoechsteHeute };
+  return {
+    ...zeile, beilagen_ids: beilagenIds, hoechste_nummer_heute: hoechsteHeute,
+    bild_url: zeile.bild_dateiname ? `/artikelbilder/${zeile.bild_dateiname}` : null,
+  };
 }
 
 router.get('/api/artikel', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
@@ -134,4 +158,51 @@ router.delete('/api/artikel/:id', brauchtRolle(['admin', 'verwaltung']), (anfrag
   antwort.json({ ok: true });
 });
 
+router.post('/api/artikel/:id/bild', brauchtRolle(['admin', 'verwaltung']),
+  bildUpload.single('bild'), (anfrage, antwort) => {
+    const db = oeffneDatenbank();
+    const vorhanden = db.prepare('SELECT * FROM artikel WHERE id = ? AND geloescht = 0')
+      .get(anfrage.params.id);
+    if (!vorhanden) {
+      return antwort.status(404).json({ fehler: 'Dieser Artikel existiert nicht mehr.' });
+    }
+    if (!anfrage.file) {
+      return antwort.status(400).json({ fehler: 'Bitte eine Bilddatei auswählen.' });
+    }
+    const endung = erlaubteBildTypen[anfrage.file.mimetype];
+    if (!endung) {
+      return antwort.status(400).json({ fehler: 'Nur Bilder im Format PNG, JPEG oder WebP sind erlaubt.' });
+    }
+    const dateiname = `${Date.now()}-${crypto.randomBytes(4).toString('hex')}.${endung}`;
+    fs.writeFileSync(path.join(artikelBilderOrdner(), dateiname), anfrage.file.buffer);
+    db.prepare('UPDATE artikel SET bild_dateiname = ? WHERE id = ?').run(dateiname, vorhanden.id);
+    if (vorhanden.bild_dateiname) {
+      const alteDatei = path.join(artikelBilderOrdner(), vorhanden.bild_dateiname);
+      try {
+        if (fs.existsSync(alteDatei)) fs.unlinkSync(alteDatei);
+      } catch {
+      }
+    }
+    const neu = db.prepare('SELECT * FROM artikel WHERE id = ?').get(vorhanden.id);
+    sendeEreignis('artikel');
+    antwort.json(artikelMitDetails(db, neu));
+  });
+
+router.delete('/api/artikel/:id/bild', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
+  const db = oeffneDatenbank();
+  const vorhanden = db.prepare('SELECT * FROM artikel WHERE id = ? AND geloescht = 0')
+    .get(anfrage.params.id);
+  if (!vorhanden) {
+    return antwort.status(404).json({ fehler: 'Dieser Artikel existiert nicht mehr.' });
+  }
+  if (vorhanden.bild_dateiname) {
+    const datei = path.join(artikelBilderOrdner(), vorhanden.bild_dateiname);
+    if (fs.existsSync(datei)) fs.unlinkSync(datei);
+  }
+  db.prepare('UPDATE artikel SET bild_dateiname = NULL WHERE id = ?').run(vorhanden.id);
+  sendeEreignis('artikel');
+  antwort.json({ ok: true });
+});
+
+export { artikelBilderOrdner };
 export default router;

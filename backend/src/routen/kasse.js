@@ -3,6 +3,7 @@ import { oeffneDatenbank } from '../db.js';
 import { jetztIso, heutigesDatum } from '../zeit.js';
 import { brauchtRolle } from '../auth.js';
 import { sendeEreignis } from '../broadcast.js';
+import { kundenzustandSchreiben } from '../kundenzustand.js';
 
 const router = express.Router();
 
@@ -77,9 +78,18 @@ router.get('/api/kasse/artikel', brauchtRolle('kasse'), (_anfrage, antwort) => {
        JOIN artikel_beilage ab ON ab.beilage_id = b.id
        WHERE ab.artikel_id = ? AND b.geloescht = 0 ORDER BY b.name`
     ).all(artikel.id);
-    return { ...artikel, beilagen };
+    return {
+      ...artikel, beilagen,
+      bild_url: artikel.bild_dateiname ? `/artikelbilder/${artikel.bild_dateiname}` : null,
+    };
   });
   antwort.json(mitBeilagen);
+});
+
+router.put('/api/kasse/kundenanzeige', brauchtRolle('kasse'), (anfrage, antwort) => {
+  kundenzustandSchreiben(anfrage.body);
+  sendeEreignis('kunden_anzeige');
+  antwort.json({ ok: true });
 });
 
 router.post('/api/kasse/kassieren', brauchtRolle('kasse'), (anfrage, antwort) => {

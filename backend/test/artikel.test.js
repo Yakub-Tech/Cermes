@@ -1,5 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import request from 'supertest';
 import { frischeApp, angemeldeterAgent } from './helfer.js';
 
 test('Artikel anlegen, zuordnen, deaktivieren, löschen', async () => {
@@ -86,4 +89,47 @@ test('Beilage bearbeiten und Soft-Delete', async () => {
   await admin.delete(`/api/beilagen/${mayo.id}`);
   assert.equal((await admin.get('/api/beilagen')).body.length, 0);
   assert.equal(db.prepare('SELECT geloescht FROM beilage WHERE id = ?').get(mayo.id).geloescht, 1);
+});
+
+test('Artikelbild: Hochladen, Ersetzen, Entfernen', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const pommes = (await admin.post('/api/artikel').send({
+    name: 'Pommes', farbe: '#f5c211', preis_cent: 350, sortierung: 1,
+  })).body;
+  assert.equal(pommes.bild_url, null);
+
+  const hochgeladen = await admin.post(`/api/artikel/${pommes.id}/bild`)
+    .attach('bild', Buffer.from([0x89, 0x50, 0x4e, 0x47]), 'test.png');
+  assert.equal(hochgeladen.status, 200);
+  assert.ok(hochgeladen.body.bild_url.startsWith('/artikelbilder/'));
+  const ersteDatei = hochgeladen.body.bild_url;
+
+  const abgerufen = await request(app).get(ersteDatei);
+  assert.equal(abgerufen.status, 200);
+
+  await admin.post(`/api/artikel/${pommes.id}/bild`)
+    .attach('bild', Buffer.from([0x89, 0x50, 0x4e, 0x47]), 'neu.png');
+  const ordner = path.join(process.env.DATEN_VERZEICHNIS, 'artikelbilder');
+  assert.equal(fs.readdirSync(ordner).length, 1);
+
+  await admin.delete(`/api/artikel/${pommes.id}/bild`);
+  assert.equal(fs.readdirSync(ordner).length, 0);
+  const liste = (await admin.get('/api/artikel')).body;
+  assert.equal(liste[0].bild_url, null);
+});
+
+test('Artikelbild: falscher Dateityp wird abgelehnt, unbekannter Artikel liefert 404', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const pommes = (await admin.post('/api/artikel').send({
+    name: 'Pommes', farbe: '#f5c211', preis_cent: 350, sortierung: 1,
+  })).body;
+  const falscherTyp = await admin.post(`/api/artikel/${pommes.id}/bild`)
+    .attach('bild', Buffer.from('kein bild'), { filename: 'x.txt', contentType: 'text/plain' });
+  assert.equal(falscherTyp.status, 400);
+
+  const unbekannt = await admin.post('/api/artikel/9999/bild')
+    .attach('bild', Buffer.from([0x89, 0x50, 0x4e, 0x47]), 'test.png');
+  assert.equal(unbekannt.status, 404);
 });
