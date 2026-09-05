@@ -26,7 +26,7 @@ export default function FokusAnsicht({ fokus }) {
                     !beilage.aktiv
                       ? 'border-linie text-schrift-gedimmt opacity-40'
                       : beilage.ausgewaehlt
-                        ? 'border-navy bg-navy text-grund'
+                        ? 'border-gruen bg-gruen text-grund'
                         : hatBild
                           ? 'border-flaeche/60 bg-flaeche/20 text-flaeche'
                           : 'border-linie bg-grund text-schrift'
