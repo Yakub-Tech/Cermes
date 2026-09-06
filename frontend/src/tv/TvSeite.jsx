@@ -47,7 +47,7 @@ export default function TvSeite() {
           transformOrigin: 'top left',
         }}
       >
-        <main className="flex h-full cursor-none select-none flex-col gap-3 overflow-hidden bg-grund p-3">
+        <main className="flex h-full cursor-none select-none flex-col gap-3 overflow-hidden bg-tv-grund p-3">
           <div className="flex min-h-0 flex-1 gap-3">
             <div className="min-w-0 flex-1">
               <StatusSpalte titel="In Bearbeitung" titelTuerkisch="Hazırlanıyor"
