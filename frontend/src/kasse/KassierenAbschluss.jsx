@@ -1,7 +1,25 @@
 import { formatEuro } from '../api.js';
 import { lesbareSchriftfarbe, dunklereFarbe } from '../komponenten/farbe.js';
 
+function nachArtikelGruppiert(kaertchenListe) {
+  const gruppenProArtikel = new Map();
+  for (const kaertchen of kaertchenListe) {
+    const schluessel = kaertchen.artikel_name;
+    if (!gruppenProArtikel.has(schluessel)) {
+      gruppenProArtikel.set(schluessel, []);
+    }
+    gruppenProArtikel.get(schluessel).push(kaertchen);
+  }
+  const gruppiert = [];
+  for (const gruppe of gruppenProArtikel.values()) {
+    gruppe.sort((a, b) => a.nummer - b.nummer);
+    gruppiert.push(...gruppe);
+  }
+  return gruppiert;
+}
+
 export default function KassierenAbschluss({ ergebnis, laeuft, fehler, onZurueck, onFertig }) {
+  const kaertchenGruppiert = nachArtikelGruppiert(ergebnis.kaertchen);
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-grund p-6">
       <h2 className="mb-4 text-center font-display text-3xl text-navy">
@@ -9,7 +27,7 @@ export default function KassierenAbschluss({ ergebnis, laeuft, fehler, onZurueck
       </h2>
 
       <div className="flex flex-1 flex-wrap content-start items-start justify-center gap-4 overflow-y-auto">
-        {ergebnis.kaertchen.map((kaertchen, index) => {
+        {kaertchenGruppiert.map((kaertchen, index) => {
           const schrift = lesbareSchriftfarbe(kaertchen.artikel_farbe);
           return (
             <div key={index}
