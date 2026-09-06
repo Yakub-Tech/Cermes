@@ -5,10 +5,11 @@ import Urheberrechtshinweis from '../komponenten/Urheberrechtshinweis.jsx';
 import ArtikelKarte from './ArtikelKarte.jsx';
 import WarenkorbListe from './WarenkorbListe.jsx';
 import FokusAnsicht from './FokusAnsicht.jsx';
+import BestellUebersicht from './BestellUebersicht.jsx';
 
 export default function KundeSeite() {
   const [artikelListe, setArtikelListe] = useState([]);
-  const [zustand, setZustand] = useState({ warenkorb: [], fokus: null });
+  const [zustand, setZustand] = useState({ warenkorb: [], fokus: null, summe_cent: null });
   const letzteAbfrage = useRef(0);
 
   useLiveUpdate(['artikel', 'beilagen'], () => {
@@ -22,6 +23,15 @@ export default function KundeSeite() {
       if (eigeneAbfrage === letzteAbfrage.current) setZustand(neu);
     }).catch(() => {});
   });
+
+  if (zustand.summe_cent !== null) {
+    return (
+      <>
+        <BestellUebersicht warenkorb={zustand.warenkorb} summeCent={zustand.summe_cent} />
+        <Urheberrechtshinweis />
+      </>
+    );
+  }
 
   return (
     <div className="flex h-screen flex-col">

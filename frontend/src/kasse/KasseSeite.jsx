@@ -87,8 +87,9 @@ export default function KasseSeite() {
         menge: p.menge,
       })),
       fokus,
+      summe_cent: ergebnis ? ergebnis.summe_cent : null,
     });
-  }, [positionen, beilagenArtikel, fokusAuswahl]);
+  }, [positionen, beilagenArtikel, fokusAuswahl, ergebnis]);
 
   async function kassierenVorschauAnzeigen() {
     setLaeuft(true);
