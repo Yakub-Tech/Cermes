@@ -24,6 +24,11 @@ export default function NummernBestaetigung({ ergebnis, onFertig }) {
               {kaertchen.beilagen.length > 0 && (
                 <p className="mt-1 text-sm opacity-80">{kaertchen.beilagen.join(', ')}</p>
               )}
+              {kaertchen.hinweis && (
+                <p className="mt-2 rounded-lg bg-grund/90 px-2 py-1 text-sm font-semibold text-weinrot">
+                  {kaertchen.hinweis}
+                </p>
+              )}
             </div>
           );
         })}

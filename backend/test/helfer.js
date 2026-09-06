@@ -12,7 +12,7 @@ const { erstelleApp } = await import('../src/server.js');
 export function frischeApp() {
   const db = oeffneDatenbank();
   db.exec(`DELETE FROM kaertchen; DELETE FROM kassiervorgang;
-    DELETE FROM artikel_beilage; DELETE FROM beilage; DELETE FROM artikel;
+    DELETE FROM artikel_beilage; DELETE FROM artikel_nummernblock; DELETE FROM beilage; DELETE FROM artikel;
     DELETE FROM werbebild; DELETE FROM logo; DELETE FROM benutzer;`);
   return { app: erstelleApp(), db };
 }

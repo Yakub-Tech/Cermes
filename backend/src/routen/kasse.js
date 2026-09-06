@@ -4,8 +4,19 @@ import { jetztIso, heutigesDatum } from '../zeit.js';
 import { brauchtRolle } from '../auth.js';
 import { sendeEreignis } from '../broadcast.js';
 import { kundenzustandSchreiben } from '../kundenzustand.js';
+import { sortiereNachVon, ermittleVergabeUndNeuePosition, ermittleStatus, hinweisText } from '../nummernbloecke.js';
 
 const router = express.Router();
+
+function bloeckeLaden(db, artikelId) {
+  return sortiereNachVon(
+    db.prepare('SELECT von, bis FROM artikel_nummernblock WHERE artikel_id = ?').all(artikelId)
+  );
+}
+
+const STATUS_SCHWERE = {
+  ok: 0, block_wechseln: 1, block_eintragen: 2, aufgebraucht: 3,
+};
 
 export function kassieren(db, benutzerId, positionen) {
   if (!Array.isArray(positionen) || positionen.length === 0) {
@@ -48,9 +59,13 @@ export function kassieren(db, benutzerId, positionen) {
     ).run(jetztIso(), summe, benutzerId);
 
     const kaertchen = [];
+    const dringendsterZustandProArtikel = new Map();
     for (const { artikel, beilagenNamen } of vorbereitet) {
-      const nummer = db.prepare('SELECT naechste_nummer FROM artikel WHERE id = ?').get(artikel.id).naechste_nummer;
-      db.prepare('UPDATE artikel SET naechste_nummer = naechste_nummer + 1 WHERE id = ?').run(artikel.id);
+      const bisherigePosition = db.prepare('SELECT naechste_nummer FROM artikel WHERE id = ?')
+        .get(artikel.id).naechste_nummer;
+      const bloecke = bloeckeLaden(db, artikel.id);
+      const { nummer, neuePosition } = ermittleVergabeUndNeuePosition(bloecke, bisherigePosition);
+      db.prepare('UPDATE artikel SET naechste_nummer = ? WHERE id = ?').run(neuePosition, artikel.id);
       const eintrag = db.prepare(
         `INSERT INTO kaertchen (kassiervorgang_id, artikel_id, nummer, artikel_name, artikel_farbe,
            preis_cent, einkaufskosten_cent, beilagen, status, erstellt_am)
@@ -60,7 +75,16 @@ export function kassieren(db, benutzerId, positionen) {
       kaertchen.push({
         id: eintrag.lastInsertRowid, nummer, artikel_name: artikel.name,
         artikel_farbe: artikel.farbe, preis_cent: artikel.preis_cent, beilagen: beilagenNamen,
+        hinweis: null,
       });
+      const statusInfo = ermittleStatus(bloecke, nummer);
+      const bisher = dringendsterZustandProArtikel.get(artikel.id);
+      if (!bisher || STATUS_SCHWERE[statusInfo.status] >= STATUS_SCHWERE[bisher.statusInfo.status]) {
+        dringendsterZustandProArtikel.set(artikel.id, { kaertchenIndex: kaertchen.length - 1, statusInfo });
+      }
+    }
+    for (const { kaertchenIndex, statusInfo } of dringendsterZustandProArtikel.values()) {
+      kaertchen[kaertchenIndex].hinweis = hinweisText(statusInfo.status, statusInfo);
     }
     return { kassiervorgang_id: vorgang.lastInsertRowid, summe_cent: summe, kaertchen };
   });

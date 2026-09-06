@@ -8,8 +8,11 @@ import { heutigesDatum } from '../zeit.js';
 import { brauchtRolle } from '../auth.js';
 import { sendeEreignis } from '../broadcast.js';
 import { komprimiereBild } from '../bildkompression.js';
+import { pruefeBloecke, sortiereNachVon, ermittleStatus, hinweisText } from '../nummernbloecke.js';
 
 const router = express.Router();
+
+const DEFAULT_NUMMERNBLOCK = [{ von: 1, bis: 999999999 }];
 
 const erlaubteBildTypen = {
   'image/png': 'png',
@@ -58,6 +61,20 @@ function ohneKosten({ einkaufskosten_cent, ...rest }) {
   return rest;
 }
 
+function bloeckeLaden(db, artikelId) {
+  return sortiereNachVon(
+    db.prepare('SELECT von, bis FROM artikel_nummernblock WHERE artikel_id = ?').all(artikelId)
+  );
+}
+
+function bloeckeSpeichern(db, artikelId, bloecke) {
+  db.prepare('DELETE FROM artikel_nummernblock WHERE artikel_id = ?').run(artikelId);
+  for (const block of bloecke) {
+    db.prepare('INSERT INTO artikel_nummernblock (artikel_id, von, bis) VALUES (?, ?, ?)')
+      .run(artikelId, block.von, block.bis);
+  }
+}
+
 function artikelMitDetails(db, zeile) {
   const beilagenIds = db.prepare(
     'SELECT beilage_id FROM artikel_beilage WHERE artikel_id = ? ORDER BY beilage_id'
@@ -66,9 +83,12 @@ function artikelMitDetails(db, zeile) {
     `SELECT MAX(nummer) AS n FROM kaertchen
      WHERE artikel_id = ? AND substr(erstellt_am, 1, 10) = ? AND status != 'storniert'`
   ).get(zeile.id, heutigesDatum()).n;
+  const bloecke = bloeckeLaden(db, zeile.id);
+  const statusInfo = ermittleStatus(bloecke, zeile.naechste_nummer);
   return {
     ...zeile, beilagen_ids: beilagenIds, hoechste_nummer_heute: hoechsteHeute,
     bild_url: zeile.bild_dateiname ? `/artikelbilder/${zeile.bild_dateiname}` : null,
+    bloecke, hinweis: hinweisText(statusInfo.status, statusInfo),
   };
 }
 
@@ -86,6 +106,9 @@ router.post('/api/artikel', brauchtRolle(['admin', 'verwaltung']), (anfrage, ant
   const daten = anfrage.body;
   const fehler = pruefeArtikelDaten(daten);
   if (fehler) return antwort.status(400).json({ fehler });
+  const bloecke = daten.bloecke === undefined ? DEFAULT_NUMMERNBLOCK : daten.bloecke;
+  const bloeckeFehler = pruefeBloecke(bloecke);
+  if (bloeckeFehler) return antwort.status(400).json({ fehler: bloeckeFehler });
   const istVerwaltung = anfrage.benutzer.rolle === 'verwaltung';
   const einkaufskostenCent = istVerwaltung ? null : (daten.einkaufskosten_cent ?? null);
   const ergebnis = db.prepare(
@@ -94,6 +117,7 @@ router.post('/api/artikel', brauchtRolle(['admin', 'verwaltung']), (anfrage, ant
   ).run(daten.name.trim(), daten.farbe, daten.preis_cent,
     einkaufskostenCent, daten.aktiv ?? 1, daten.sortierung ?? 0);
   beilagenZuordnen(db, ergebnis.lastInsertRowid, daten.beilagen_ids);
+  bloeckeSpeichern(db, ergebnis.lastInsertRowid, bloecke);
   const neu = db.prepare('SELECT * FROM artikel WHERE id = ?').get(ergebnis.lastInsertRowid);
   sendeEreignis('artikel');
   const antwortDaten = artikelMitDetails(db, neu);
@@ -110,6 +134,10 @@ router.put('/api/artikel/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, 
   const daten = anfrage.body;
   const fehler = pruefeArtikelDaten(daten);
   if (fehler) return antwort.status(400).json({ fehler });
+  if (daten.bloecke !== undefined) {
+    const bloeckeFehler = pruefeBloecke(daten.bloecke);
+    if (bloeckeFehler) return antwort.status(400).json({ fehler: bloeckeFehler });
+  }
   const istVerwaltung = anfrage.benutzer.rolle === 'verwaltung';
   const einkaufskostenCent = istVerwaltung
     ? vorhanden.einkaufskosten_cent
@@ -120,6 +148,9 @@ router.put('/api/artikel/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, 
   ).run(daten.name.trim(), daten.farbe, daten.preis_cent, einkaufskostenCent,
     daten.aktiv ?? 1, daten.sortierung ?? 0, vorhanden.id);
   beilagenZuordnen(db, vorhanden.id, daten.beilagen_ids);
+  if (daten.bloecke !== undefined) {
+    bloeckeSpeichern(db, vorhanden.id, daten.bloecke);
+  }
   const neu = db.prepare('SELECT * FROM artikel WHERE id = ?').get(vorhanden.id);
   sendeEreignis('artikel');
   const antwortDaten = artikelMitDetails(db, neu);

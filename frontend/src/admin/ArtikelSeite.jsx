@@ -87,6 +87,9 @@ export default function ArtikelSeite({ rolle }) {
                     className="nummer cursor-pointer rounded-full border border-linie px-2 py-1 text-sm hover:bg-flaeche-hell">
                     {artikel.naechste_nummer}
                   </button>
+                  {artikel.hinweis && (
+                    <p className="mt-1 max-w-48 text-xs text-weinrot">{artikel.hinweis}</p>
+                  )}
                 </td>
                 <td className="px-2.5 py-2">
                   <button

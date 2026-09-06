@@ -19,7 +19,20 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
   const [sortierung, setSortierung] = useState(artikel?.sortierung ?? 0);
   const [beilagenIds, setBeilagenIds] = useState(artikel?.beilagen_ids ?? []);
   const [bildUrl, setBildUrl] = useState(artikel?.bild_url ?? null);
+  const [bloecke, setBloecke] = useState(artikel?.bloecke ?? []);
   const [fehler, setFehler] = useState('');
+
+  function blockHinzufuegen() {
+    setBloecke([...bloecke, { von: '', bis: '' }]);
+  }
+
+  function blockAendern(index, feld, wert) {
+    setBloecke(bloecke.map((block, i) => (i === index ? { ...block, [feld]: wert } : block)));
+  }
+
+  function blockEntfernen(index) {
+    setBloecke(bloecke.filter((_, i) => i !== index));
+  }
 
   async function bildHochladen(datei) {
     setFehler('');
@@ -63,6 +76,19 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
         return;
       }
     }
+    let bloeckeDaten;
+    if (bloecke.length > 0) {
+      bloeckeDaten = [];
+      for (const block of bloecke) {
+        const von = Number(block.von);
+        const bis = Number(block.bis);
+        if (!Number.isInteger(von) || von < 1 || !Number.isInteger(bis) || bis < von) {
+          setFehler('Bitte bei jedem Nummernblock eine gültige Von- und Bis-Nummer angeben (Bis mindestens Von).');
+          return;
+        }
+        bloeckeDaten.push({ von, bis });
+      }
+    }
     onSpeichern({
       name,
       farbe,
@@ -71,6 +97,7 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
       sortierung: Number(sortierung) || 0,
       aktiv: artikel?.aktiv ?? 1,
       beilagen_ids: beilagenIds,
+      ...(bloeckeDaten ? { bloecke: bloeckeDaten } : {}),
     }).catch((f) => setFehler(f.message));
   }
 
@@ -132,6 +159,32 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
           </button>
         ))}
       </div>
+
+      <label className="mb-1 block text-xs text-schrift-gedimmt">
+        Nummernblöcke (für Kärtchenrollen mit Lücken)
+      </label>
+      <p className="mb-2 text-xs text-schrift-gedimmt">
+        Ohne Angabe zählt die Nummer einfach unbegrenzt hoch. Nur eintragen, wenn
+        bestimmte Nummernbereiche fehlen (z. B. Rolle 1 bis 100 vorhanden, 101 bis 160 fehlt,
+        ab 161 geht es weiter).
+      </p>
+      {bloecke.map((block, index) => (
+        <div key={index} className="mb-1.5 flex items-center gap-1.5">
+          <Zahlenfeld min="1" wert={block.von} klasse="w-24"
+            onWahl={(wert) => blockAendern(index, 'von', wert)} />
+          <span className="text-xs text-schrift-gedimmt">bis</span>
+          <Zahlenfeld min="1" wert={block.bis} klasse="w-24"
+            onWahl={(wert) => blockAendern(index, 'bis', wert)} />
+          <button type="button" onClick={() => blockEntfernen(index)}
+            className="cursor-pointer rounded-full border border-linie px-2 py-1 text-xs text-weinrot hover:bg-flaeche-hell">
+            Entfernen
+          </button>
+        </div>
+      ))}
+      <button type="button" onClick={blockHinzufuegen}
+        className="mb-2.5 cursor-pointer rounded-full border border-linie px-2.5 py-1 text-xs text-schrift-gedimmt hover:bg-flaeche-hell">
+        + Nummernblock hinzufügen
+      </button>
 
       <label className="mb-1 block text-xs text-schrift-gedimmt">Artikelbild</label>
       <p className="mb-2 text-xs text-schrift-gedimmt">
