@@ -19,8 +19,10 @@ export default function TvSeite() {
   const [werbung, setWerbung] = useState([]);
   const [virtuelleGroesse, setVirtuelleGroesse] = useState(berechneVirtuelleGroesse);
 
-  useLiveUpdate(['kaertchen', 'werbung'], () => {
+  useLiveUpdate(['kaertchen'], () => {
     apiGet('/api/tv/kaertchen').then(setKaertchen).catch(() => {});
+  });
+  useLiveUpdate(['werbung'], () => {
     apiGet('/api/tv/werbung').then(setWerbung).catch(() => {});
   });
 

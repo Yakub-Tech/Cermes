@@ -40,9 +40,10 @@ export function erstelleApp() {
   app.use(statistikRouter);
   app.use(benutzerRouter);
   app.use(backupRouter);
-  app.use('/werbung', express.static(werbeOrdner()));
-  app.use('/logo', express.static(logoOrdner()));
-  app.use('/artikelbilder', express.static(artikelBilderOrdner()));
+  const bilderCacheOptionen = { maxAge: '1y', immutable: true };
+  app.use('/werbung', express.static(werbeOrdner(), bilderCacheOptionen));
+  app.use('/logo', express.static(logoOrdner(), bilderCacheOptionen));
+  app.use('/artikelbilder', express.static(artikelBilderOrdner(), bilderCacheOptionen));
   frontendAusliefern(app);
   return app;
 }

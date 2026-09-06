@@ -5,6 +5,11 @@ import path from 'node:path';
 import request from 'supertest';
 import { frischeApp, angemeldeterAgent } from './helfer.js';
 
+const GUELTIGES_MINI_PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+  'base64'
+);
+
 test('Einstellungen: lesen für Angemeldete, ändern nur als Admin', async () => {
   const { app, db } = frischeApp();
   const ausgabe = await angemeldeterAgent(app, db, 'ausgabe');
@@ -46,7 +51,7 @@ test('Werbung: Upload, Liste, TV-Sicht, Deaktivieren, Löschen', async () => {
   const admin = await angemeldeterAgent(app, db, 'admin');
 
   const hochgeladen = await admin.post('/api/werbung')
-    .attach('bild', Buffer.from([0x89, 0x50, 0x4e, 0x47]), 'test.png');
+    .attach('bild', GUELTIGES_MINI_PNG, 'test.png');
   assert.equal(hochgeladen.status, 200);
   const bild = hochgeladen.body;
 
