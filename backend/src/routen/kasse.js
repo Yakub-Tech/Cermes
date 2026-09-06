@@ -18,41 +18,80 @@ const STATUS_SCHWERE = {
   ok: 0, block_wechseln: 1, block_eintragen: 2, aufgebraucht: 3,
 };
 
-export function kassieren(db, benutzerId, positionen) {
+function bereitePositionenVor(db, positionen) {
   if (!Array.isArray(positionen) || positionen.length === 0) {
     const fehler = new Error('Der Warenkorb ist leer.');
     fehler.status = 400;
     throw fehler;
   }
-  const transaktion = db.transaction(() => {
-    let summe = 0;
-    const vorbereitet = [];
-    for (const position of positionen) {
-      const artikel = db.prepare(
-        'SELECT * FROM artikel WHERE id = ? AND aktiv = 1 AND geloescht = 0'
-      ).get(position.artikel_id);
-      if (!artikel) {
-        const fehler = new Error('Ein Artikel im Warenkorb ist nicht mehr verfügbar. Bitte Position entfernen.');
+  let summe = 0;
+  const vorbereitet = [];
+  for (const position of positionen) {
+    const artikel = db.prepare(
+      'SELECT * FROM artikel WHERE id = ? AND aktiv = 1 AND geloescht = 0'
+    ).get(position.artikel_id);
+    if (!artikel) {
+      const fehler = new Error('Ein Artikel im Warenkorb ist nicht mehr verfügbar. Bitte Position entfernen.');
+      fehler.status = 409;
+      throw fehler;
+    }
+    const beilagenNamen = [];
+    for (const beilageId of position.beilagen_ids || []) {
+      const beilage = db.prepare(
+        `SELECT b.* FROM beilage b
+         JOIN artikel_beilage ab ON ab.beilage_id = b.id AND ab.artikel_id = ?
+         WHERE b.id = ? AND b.aktiv = 1 AND b.geloescht = 0`
+      ).get(artikel.id, beilageId);
+      if (!beilage) {
+        const fehler = new Error(`Eine Beilage für „${artikel.name}“ ist nicht mehr verfügbar. Bitte Position neu wählen.`);
         fehler.status = 409;
         throw fehler;
       }
-      const beilagenNamen = [];
-      for (const beilageId of position.beilagen_ids || []) {
-        const beilage = db.prepare(
-          `SELECT b.* FROM beilage b
-           JOIN artikel_beilage ab ON ab.beilage_id = b.id AND ab.artikel_id = ?
-           WHERE b.id = ? AND b.aktiv = 1 AND b.geloescht = 0`
-        ).get(artikel.id, beilageId);
-        if (!beilage) {
-          const fehler = new Error(`Eine Beilage für „${artikel.name}“ ist nicht mehr verfügbar. Bitte Position neu wählen.`);
-          fehler.status = 409;
-          throw fehler;
-        }
-        beilagenNamen.push(beilage.name);
-      }
-      summe += artikel.preis_cent;
-      vorbereitet.push({ artikel, beilagenNamen });
+      beilagenNamen.push(beilage.name);
     }
+    summe += artikel.preis_cent;
+    vorbereitet.push({ artikel, beilagenNamen });
+  }
+  return { vorbereitet, summe };
+}
+
+function ermittleVorschauKaertchen(db, vorbereitet) {
+  const kaertchen = [];
+  const naechstePositionProArtikel = new Map();
+  const dringendsterZustandProArtikel = new Map();
+  for (const { artikel, beilagenNamen } of vorbereitet) {
+    let bisherigePosition = naechstePositionProArtikel.get(artikel.id);
+    if (bisherigePosition === undefined) {
+      bisherigePosition = db.prepare('SELECT naechste_nummer FROM artikel WHERE id = ?')
+        .get(artikel.id).naechste_nummer;
+    }
+    const bloecke = bloeckeLaden(db, artikel.id);
+    const { nummer, neuePosition } = ermittleVergabeUndNeuePosition(bloecke, bisherigePosition);
+    naechstePositionProArtikel.set(artikel.id, neuePosition);
+    kaertchen.push({
+      artikel_name: artikel.name, artikel_farbe: artikel.farbe,
+      preis_cent: artikel.preis_cent, beilagen: beilagenNamen, nummer, hinweis: null,
+    });
+    const statusInfo = ermittleStatus(bloecke, nummer);
+    const bisher = dringendsterZustandProArtikel.get(artikel.id);
+    if (!bisher || STATUS_SCHWERE[statusInfo.status] >= STATUS_SCHWERE[bisher.statusInfo.status]) {
+      dringendsterZustandProArtikel.set(artikel.id, { kaertchenIndex: kaertchen.length - 1, statusInfo });
+    }
+  }
+  for (const { kaertchenIndex, statusInfo } of dringendsterZustandProArtikel.values()) {
+    kaertchen[kaertchenIndex].hinweis = hinweisText(statusInfo.status, statusInfo);
+  }
+  return kaertchen;
+}
+
+export function kassierenVorschau(db, positionen) {
+  const { vorbereitet, summe } = bereitePositionenVor(db, positionen);
+  return { summe_cent: summe, kaertchen: ermittleVorschauKaertchen(db, vorbereitet) };
+}
+
+export function kassieren(db, benutzerId, positionen, erwarteteNummern, erwartetePreiseCent) {
+  const transaktion = db.transaction(() => {
+    const { vorbereitet, summe } = bereitePositionenVor(db, positionen);
 
     const vorgang = db.prepare(
       'INSERT INTO kassiervorgang (zeitpunkt, summe_cent, benutzer_id) VALUES (?, ?, ?)'
@@ -60,11 +99,26 @@ export function kassieren(db, benutzerId, positionen) {
 
     const kaertchen = [];
     const dringendsterZustandProArtikel = new Map();
-    for (const { artikel, beilagenNamen } of vorbereitet) {
+    for (const [index, { artikel, beilagenNamen }] of vorbereitet.entries()) {
+      if (erwartetePreiseCent && erwartetePreiseCent[index] !== undefined
+        && erwartetePreiseCent[index] !== artikel.preis_cent) {
+        const fehler = new Error(
+          'Ein Preis hat sich inzwischen geändert. Bitte „Zurück“ tippen und die Bestellung erneut kassieren.'
+        );
+        fehler.status = 409;
+        throw fehler;
+      }
       const bisherigePosition = db.prepare('SELECT naechste_nummer FROM artikel WHERE id = ?')
         .get(artikel.id).naechste_nummer;
       const bloecke = bloeckeLaden(db, artikel.id);
       const { nummer, neuePosition } = ermittleVergabeUndNeuePosition(bloecke, bisherigePosition);
+      if (erwarteteNummern && erwarteteNummern[index] !== undefined && erwarteteNummern[index] !== nummer) {
+        const fehler = new Error(
+          'Die Kärtchen-Nummern haben sich inzwischen geändert. Bitte „Zurück“ tippen und die Bestellung erneut kassieren.'
+        );
+        fehler.status = 409;
+        throw fehler;
+      }
       db.prepare('UPDATE artikel SET naechste_nummer = ? WHERE id = ?').run(neuePosition, artikel.id);
       const eintrag = db.prepare(
         `INSERT INTO kaertchen (kassiervorgang_id, artikel_id, nummer, artikel_name, artikel_farbe,
@@ -119,8 +173,21 @@ router.put('/api/kasse/kundenanzeige', brauchtRolle('kasse'), (anfrage, antwort)
 router.post('/api/kasse/kassieren', brauchtRolle('kasse'), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   try {
-    const ergebnis = kassieren(db, anfrage.benutzer.id, anfrage.body.positionen);
+    const ergebnis = kassieren(
+      db, anfrage.benutzer.id, anfrage.body.positionen,
+      anfrage.body.erwartete_nummern, anfrage.body.erwartete_preise_cent
+    );
     sendeEreignis('kaertchen');
+    antwort.json(ergebnis);
+  } catch (fehler) {
+    antwort.status(fehler.status || 500).json({ fehler: fehler.message });
+  }
+});
+
+router.post('/api/kasse/kassieren-vorschau', brauchtRolle('kasse'), (anfrage, antwort) => {
+  const db = oeffneDatenbank();
+  try {
+    const ergebnis = kassierenVorschau(db, anfrage.body.positionen);
     antwort.json(ergebnis);
   } catch (fehler) {
     antwort.status(fehler.status || 500).json({ fehler: fehler.message });

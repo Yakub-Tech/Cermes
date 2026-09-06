@@ -1,7 +1,7 @@
 import { formatEuro } from '../api.js';
 import { lesbareSchriftfarbe, dunklereFarbe } from '../komponenten/farbe.js';
 
-export default function NummernBestaetigung({ ergebnis, onFertig }) {
+export default function KassierenAbschluss({ ergebnis, laeuft, fehler, onZurueck, onFertig }) {
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-grund p-6">
       <h2 className="mb-4 text-center font-display text-3xl text-navy">
@@ -9,10 +9,10 @@ export default function NummernBestaetigung({ ergebnis, onFertig }) {
       </h2>
 
       <div className="flex flex-1 flex-wrap content-start items-start justify-center gap-4 overflow-y-auto">
-        {ergebnis.kaertchen.map((kaertchen) => {
+        {ergebnis.kaertchen.map((kaertchen, index) => {
           const schrift = lesbareSchriftfarbe(kaertchen.artikel_farbe);
           return (
-            <div key={kaertchen.id}
+            <div key={index}
               className="putz-textur w-52 rounded-[24px] border p-4 text-center shadow-[0_2px_5px_rgba(0,0,0,0.18)]"
               style={{
                 backgroundColor: kaertchen.artikel_farbe,
@@ -34,12 +34,22 @@ export default function NummernBestaetigung({ ergebnis, onFertig }) {
         })}
       </div>
 
+      {fehler && (
+        <p className="mx-auto mb-2 max-w-2xl rounded bg-blau/30 px-3 py-2 text-center text-blau">
+          {fehler}
+        </p>
+      )}
+
       <div className="mt-4 flex items-center justify-between rounded-xl bg-flaeche px-6 py-4">
+        <button onClick={onZurueck} disabled={laeuft}
+          className="cursor-pointer rounded-full border border-linie px-8 py-4 text-xl font-bold text-navy hover:bg-flaeche-hell disabled:cursor-not-allowed disabled:opacity-40">
+          Zurück
+        </button>
         <span className="text-xl text-schrift-gedimmt">
           Zu zahlen: <span className="nummer text-3xl text-navy">{formatEuro(ergebnis.summe_cent)}</span>
         </span>
-        <button onClick={onFertig} autoFocus
-          className="cursor-pointer rounded-full bg-blau px-12 py-4 text-2xl font-bold text-flaeche hover:bg-blau-hell">
+        <button onClick={onFertig} disabled={laeuft} autoFocus
+          className="cursor-pointer rounded-full bg-blau px-12 py-4 text-2xl font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
           Fertig
         </button>
       </div>
