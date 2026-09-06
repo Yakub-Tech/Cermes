@@ -7,6 +7,7 @@ import { oeffneDatenbank, datenVerzeichnis } from '../db.js';
 import { heutigesDatum } from '../zeit.js';
 import { brauchtRolle } from '../auth.js';
 import { sendeEreignis } from '../broadcast.js';
+import { komprimiereBild } from '../bildkompression.js';
 
 const router = express.Router();
 
@@ -159,7 +160,7 @@ router.delete('/api/artikel/:id', brauchtRolle(['admin', 'verwaltung']), (anfrag
 });
 
 router.post('/api/artikel/:id/bild', brauchtRolle(['admin', 'verwaltung']),
-  bildUpload.single('bild'), (anfrage, antwort) => {
+  bildUpload.single('bild'), async (anfrage, antwort) => {
     const db = oeffneDatenbank();
     const vorhanden = db.prepare('SELECT * FROM artikel WHERE id = ? AND geloescht = 0')
       .get(anfrage.params.id);
@@ -169,13 +170,24 @@ router.post('/api/artikel/:id/bild', brauchtRolle(['admin', 'verwaltung']),
     if (!anfrage.file) {
       return antwort.status(400).json({ fehler: 'Bitte eine Bilddatei auswählen.' });
     }
-    const endung = erlaubteBildTypen[anfrage.file.mimetype];
-    if (!endung) {
+    if (!erlaubteBildTypen[anfrage.file.mimetype]) {
       return antwort.status(400).json({ fehler: 'Nur Bilder im Format PNG, JPEG oder WebP sind erlaubt.' });
     }
-    const dateiname = `${Date.now()}-${crypto.randomBytes(4).toString('hex')}.${endung}`;
-    fs.writeFileSync(path.join(artikelBilderOrdner(), dateiname), anfrage.file.buffer);
-    db.prepare('UPDATE artikel SET bild_dateiname = ? WHERE id = ?').run(dateiname, vorhanden.id);
+    let ergebnis;
+    try {
+      ergebnis = await komprimiereBild(anfrage.file.buffer, anfrage.file.mimetype);
+    } catch {
+      return antwort.status(400).json({ fehler: 'Diese Datei scheint kein gültiges Bild zu sein.' });
+    }
+    const dateiname = `${Date.now()}-${crypto.randomBytes(4).toString('hex')}.${ergebnis.endung}`;
+    try {
+      fs.writeFileSync(path.join(artikelBilderOrdner(), dateiname), ergebnis.puffer);
+      db.prepare('UPDATE artikel SET bild_dateiname = ? WHERE id = ?').run(dateiname, vorhanden.id);
+    } catch {
+      return antwort.status(500).json({
+        fehler: 'Das Bild konnte nicht gespeichert werden. Bitte prüfen, ob genug Speicherplatz frei ist.',
+      });
+    }
     if (vorhanden.bild_dateiname) {
       const alteDatei = path.join(artikelBilderOrdner(), vorhanden.bild_dateiname);
       try {

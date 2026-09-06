@@ -5,6 +5,11 @@ import path from 'node:path';
 import request from 'supertest';
 import { frischeApp, angemeldeterAgent } from './helfer.js';
 
+const GUELTIGES_MINI_PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+  'base64'
+);
+
 test('Artikel anlegen, zuordnen, deaktivieren, löschen', async () => {
   const { app, db } = frischeApp();
   const admin = await angemeldeterAgent(app, db, 'admin');
@@ -100,7 +105,7 @@ test('Artikelbild: Hochladen, Ersetzen, Entfernen', async () => {
   assert.equal(pommes.bild_url, null);
 
   const hochgeladen = await admin.post(`/api/artikel/${pommes.id}/bild`)
-    .attach('bild', Buffer.from([0x89, 0x50, 0x4e, 0x47]), 'test.png');
+    .attach('bild', GUELTIGES_MINI_PNG, 'test.png');
   assert.equal(hochgeladen.status, 200);
   assert.ok(hochgeladen.body.bild_url.startsWith('/artikelbilder/'));
   const ersteDatei = hochgeladen.body.bild_url;
@@ -109,7 +114,7 @@ test('Artikelbild: Hochladen, Ersetzen, Entfernen', async () => {
   assert.equal(abgerufen.status, 200);
 
   await admin.post(`/api/artikel/${pommes.id}/bild`)
-    .attach('bild', Buffer.from([0x89, 0x50, 0x4e, 0x47]), 'neu.png');
+    .attach('bild', GUELTIGES_MINI_PNG, 'neu.png');
   const ordner = path.join(process.env.DATEN_VERZEICHNIS, 'artikelbilder');
   assert.equal(fs.readdirSync(ordner).length, 1);
 
@@ -130,6 +135,6 @@ test('Artikelbild: falscher Dateityp wird abgelehnt, unbekannter Artikel liefert
   assert.equal(falscherTyp.status, 400);
 
   const unbekannt = await admin.post('/api/artikel/9999/bild')
-    .attach('bild', Buffer.from([0x89, 0x50, 0x4e, 0x47]), 'test.png');
+    .attach('bild', GUELTIGES_MINI_PNG, 'test.png');
   assert.equal(unbekannt.status, 404);
 });
