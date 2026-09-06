@@ -1,7 +1,7 @@
 import { formatEuro } from '../api.js';
 
-export default function Warenkorb({ positionen, onEntfernen, onKassieren, laeuft, fehler }) {
-  const summe = positionen.reduce((s, p) => s + p.artikel.preis_cent, 0);
+export default function Warenkorb({ positionen, onMengeAendern, onKassieren, laeuft, fehler }) {
+  const summe = positionen.reduce((s, p) => s + p.artikel.preis_cent * p.menge, 0);
 
   return (
     <aside className="flex w-96 shrink-0 flex-col border-l border-linie bg-flaeche">
@@ -26,12 +26,22 @@ export default function Warenkorb({ positionen, onEntfernen, onKassieren, laeuft
                 </p>
               )}
             </div>
-            <span className="nummer self-center text-lg">{formatEuro(position.artikel.preis_cent)}</span>
-            <button onClick={() => onEntfernen(position.schluessel)}
-              aria-label={`${position.artikel.name} entfernen`}
-              className="cursor-pointer self-center rounded-full border border-linie px-3 py-2 text-blau-hell hover:bg-flaeche-hell">
-              ✕
-            </button>
+            <span className="nummer self-center text-lg">
+              {formatEuro(position.artikel.preis_cent * position.menge)}
+            </span>
+            <div className="flex shrink-0 items-center gap-2 self-center">
+              <button onClick={() => onMengeAendern(position.schluessel, -1)}
+                aria-label={`${position.artikel.name} Menge verringern`}
+                className="cursor-pointer rounded-full border border-linie px-3 py-2 text-blau-hell hover:bg-flaeche-hell">
+                −
+              </button>
+              <span className="nummer w-6 text-center text-lg">{position.menge}</span>
+              <button onClick={() => onMengeAendern(position.schluessel, 1)}
+                aria-label={`${position.artikel.name} Menge erhöhen`}
+                className="cursor-pointer rounded-full border border-linie px-3 py-2 text-blau-hell hover:bg-flaeche-hell">
+                +
+              </button>
+            </div>
           </li>
         ))}
       </ul>

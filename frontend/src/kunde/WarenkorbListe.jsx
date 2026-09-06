@@ -12,12 +12,16 @@ export default function WarenkorbListe({ warenkorb }) {
         {warenkorb.map((position) => (
           <li key={position.schluessel} className="flex gap-3 border-b border-linie px-4 py-3">
             <div className="min-w-0 flex-1 self-center">
-              <p className="truncate text-lg">{position.artikel_name}</p>
+              <p className="truncate text-lg">
+                {position.menge > 1 ? `${position.menge}× ` : ''}{position.artikel_name}
+              </p>
               {position.beilagen.length > 0 && (
                 <p className="text-sm text-schrift-gedimmt">{position.beilagen.join(', ')}</p>
               )}
             </div>
-            <span className="nummer self-center text-sm">{formatEuro(position.preis_cent)}</span>
+            <span className="nummer self-center text-sm">
+              {formatEuro(position.preis_cent * position.menge)}
+            </span>
           </li>
         ))}
       </ul>

@@ -6,6 +6,7 @@ import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { apiGet, apiPost, apiPut, formatEuro } from '../api.js';
 import { erzeugeMeldungsFolge } from './meldungsFolge.js';
+import { positionHinzufuegen as positionZumWarenkorbHinzufuegen, mengeAendern, positionenFuerApi } from './warenkorb.js';
 import BeilagenDialog from './BeilagenDialog.jsx';
 import Warenkorb from './Warenkorb.jsx';
 import KassierenAbschluss from './KassierenAbschluss.jsx';
@@ -50,11 +51,18 @@ export default function KasseSeite() {
   }
 
   function positionHinzufuegen(artikel, beilagen) {
-    const schluessel = naechsterSchluessel.current;
-    naechsterSchluessel.current += 1;
-    setPositionen((alte) => [...alte, { schluessel, artikel, beilagen }]);
+    function naechsteNummer() {
+      const nummer = naechsterSchluessel.current;
+      naechsterSchluessel.current += 1;
+      return nummer;
+    }
+    setPositionen((alte) => positionZumWarenkorbHinzufuegen(alte, artikel, beilagen, naechsteNummer));
     setBeilagenArtikel(null);
     setFokusAuswahl([]);
+  }
+
+  function positionMengeAendern(schluessel, delta) {
+    setPositionen((alte) => mengeAendern(alte, schluessel, delta));
   }
 
   useEffect(() => {
@@ -76,23 +84,17 @@ export default function KasseSeite() {
         farbe: p.artikel.farbe,
         preis_cent: p.artikel.preis_cent,
         beilagen: p.beilagen.map((b) => b.name),
+        menge: p.menge,
       })),
       fokus,
     });
   }, [positionen, beilagenArtikel, fokusAuswahl]);
 
-  function positionenFuerApi() {
-    return positionen.map((p) => ({
-      artikel_id: p.artikel.id,
-      beilagen_ids: p.beilagen.map((b) => b.id),
-    }));
-  }
-
   async function kassierenVorschauAnzeigen() {
     setLaeuft(true);
     setFehler('');
     try {
-      const antwort = await apiPost('/api/kasse/kassieren-vorschau', { positionen: positionenFuerApi() });
+      const antwort = await apiPost('/api/kasse/kassieren-vorschau', { positionen: positionenFuerApi(positionen) });
       setErgebnis(antwort);
     } catch (f) {
       setFehler(f.message);
@@ -105,7 +107,7 @@ export default function KasseSeite() {
     setFehler('');
     try {
       await apiPost('/api/kasse/kassieren', {
-        positionen: positionenFuerApi(),
+        positionen: positionenFuerApi(positionen),
         erwartete_nummern: ergebnis.kaertchen.map((k) => k.nummer),
         erwartete_preise_cent: ergebnis.kaertchen.map((k) => k.preis_cent),
       });
@@ -157,8 +159,7 @@ export default function KasseSeite() {
           </div>
 
           <Warenkorb positionen={positionen} laeuft={laeuft} fehler={fehler}
-            onEntfernen={(schluessel) =>
-              setPositionen(positionen.filter((p) => p.schluessel !== schluessel))}
+            onMengeAendern={positionMengeAendern}
             onKassieren={kassierenVorschauAnzeigen} />
         </div>
       ) : (
