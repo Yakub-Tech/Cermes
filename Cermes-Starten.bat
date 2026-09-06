@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 title Cermes wird gestartet ...
-cd /d "%~dp0Quellcode"
+cd /d "%~dp0"
 
 echo Pruefe, ob Docker Desktop laeuft ...
 docker info >nul 2>&1

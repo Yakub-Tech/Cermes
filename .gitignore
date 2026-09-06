@@ -1,5 +1,5 @@
 node_modules/
 data/
-Quellcode/frontend/dist/
+frontend/dist/
 *.log
 .DS_Store

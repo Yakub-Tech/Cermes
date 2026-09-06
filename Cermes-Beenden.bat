@@ -1,6 +1,6 @@
 @echo off
 title Cermes wird beendet ...
-cd /d "%~dp0Quellcode"
+cd /d "%~dp0"
 
 echo Beende Cermes ...
 docker compose down
