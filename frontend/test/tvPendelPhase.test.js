@@ -4,7 +4,7 @@ import {
   berechnePendelPhase,
   PENDEL_GESCHWINDIGKEIT_PX_PRO_SEKUNDE,
   PENDEL_PAUSE_SEKUNDEN,
-} from '../src/tv/pendelPhase.js';
+} from '../src/komponenten/pendelPhase.js';
 
 test('bleibt oben stehen, wenn kein Überlauf vorliegt', () => {
   const ergebnis = berechnePendelPhase(0, 0);

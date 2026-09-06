@@ -1,6 +1,6 @@
 import { sortiereFuerFluss } from './gruppierung.js';
-import { useUeberlaufErkennung } from './useUeberlaufErkennung.js';
-import { usePendelScroll } from './usePendelScroll.js';
+import { useUeberlaufErkennung } from '../komponenten/useUeberlaufErkennung.js';
+import { usePendelScroll } from '../komponenten/usePendelScroll.js';
 import TvKarte from './TvKarte.jsx';
 
 const MINDESTBREITE_PX = 130;
