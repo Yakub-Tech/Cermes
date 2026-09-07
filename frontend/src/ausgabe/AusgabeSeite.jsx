@@ -6,20 +6,11 @@ import KaertchenKarte from '../komponenten/KaertchenKarte.jsx';
 import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { apiGet, apiPost } from '../api.js';
-
-function minutenSeit(iso, jetzt) {
-  return Math.floor((jetzt - new Date(iso).getTime()) / 60000);
-}
-
-function alterText(iso, jetzt) {
-  const minuten = minutenSeit(iso, jetzt);
-  if (minuten < 1) return 'gerade eben';
-  return `vor ${minuten} min`;
-}
+import { minutenSeit, alterText } from '../zeitAnzeige.js';
 
 export default function AusgabeSeite() {
   const session = useSession('ausgabe');
-  const [listen, setListen] = useState({ in_bearbeitung: [], abholbereit: [], zuletzt_abgeholt: [] });
+  const [listen, setListen] = useState({ abholbereit: [], zuletzt_abgeholt: [] });
   const [warnminuten, setWarnminuten] = useState(15);
   const [snackbar, setSnackbar] = useState(null);
   const [jetzt, setJetzt] = useState(Date.now());
@@ -51,34 +42,16 @@ export default function AusgabeSeite() {
 
   const spalten = [
     {
-      titel: 'In Bearbeitung',
-      kopfstil: 'stark',
-      kaertchen: listen.in_bearbeitung,
-      karte: (k) => (
-        <KaertchenKarte key={k.id} kaertchen={k} zeitText={alterText(k.erstellt_am, jetzt)}
-          onTippen={() => statusWechsel(k, 'abholbereit', 'in_bearbeitung', 'ist abholbereit')} />
-      ),
-    },
-    {
       titel: 'Abholbereit',
       kopfstil: 'stark',
       kaertchen: listen.abholbereit,
       karte: (k) => {
         const wartet = minutenSeit(k.abholbereit_am, jetzt);
         return (
-          <div key={k.id} className="flex items-center gap-2">
-            <div className="flex-1">
-              <KaertchenKarte kaertchen={k}
-                zeitText={wartet >= warnminuten ? `wartet seit ${wartet} min!` : alterText(k.abholbereit_am, jetzt)}
-                warnung={wartet >= warnminuten}
-                onTippen={() => statusWechsel(k, 'abgeholt', 'abholbereit', 'wurde abgeholt')} />
-            </div>
-            <button
-              onClick={() => apiPost(`/api/ausgabe/status/${k.id}`, { status: 'in_bearbeitung' }).catch(() => {})}
-              className="kaertchen-schatten cursor-pointer rounded-lg border border-linie px-3 py-6 text-schrift-gedimmt hover:bg-flaeche-hell">
-              Rückgängig
-            </button>
-          </div>
+          <KaertchenKarte key={k.id} kaertchen={k}
+            zeitText={wartet >= warnminuten ? `wartet seit ${wartet} min!` : alterText(k.abholbereit_am, jetzt)}
+            warnung={wartet >= warnminuten}
+            onTippen={() => statusWechsel(k, 'abgeholt', 'abholbereit', 'wurde abgeholt')} />
         );
       },
     },
@@ -105,7 +78,7 @@ export default function AusgabeSeite() {
     <div className="flex h-screen flex-col">
       <Kopfzeile titel="Ausgabe" benutzername={session.benutzername} />
 
-      <div className="grid min-h-0 flex-1 grid-cols-3 gap-3 bg-grund p-3">
+      <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 bg-grund p-3">
         {spalten.map((spalte) => (
           <section key={spalte.titel}
             className="flex min-h-0 flex-col overflow-hidden rounded-lg bg-flaeche shadow-sm">

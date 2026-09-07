@@ -17,7 +17,7 @@ test('Storno setzt Status, verschwindet aus Listen, Nummer nicht wiederverwendet
   const { app, db } = frischeApp();
   const admin = await angemeldeterAgent(app, db, 'admin');
   const kasse = await angemeldeterAgent(app, db, 'kasse');
-  const ausgabe = await angemeldeterAgent(app, db, 'ausgabe');
+  const belegen = await angemeldeterAgent(app, db, 'belegen');
   const { artikel, kaertchen } = await verkaufteBestellung(admin, kasse);
 
   const stornierbar = (await kasse.get('/api/kasse/stornierbar')).body;
@@ -30,7 +30,7 @@ test('Storno setzt Status, verschwindet aus Listen, Nummer nicht wiederverwendet
   assert.ok(zeile.storniert_am);
   assert.ok(zeile.storniert_von);
 
-  const listen = (await ausgabe.get('/api/ausgabe/kaertchen')).body;
+  const listen = (await belegen.get('/api/belegen/kaertchen')).body;
   assert.equal(listen.in_bearbeitung.length, 0);
   assert.equal((await kasse.get('/api/kasse/stornierbar')).body.length, 0);
 
@@ -44,10 +44,11 @@ test('Bereits abgeholtes Kärtchen ist nicht stornierbar', async () => {
   const { app, db } = frischeApp();
   const admin = await angemeldeterAgent(app, db, 'admin');
   const kasse = await angemeldeterAgent(app, db, 'kasse');
+  const belegen = await angemeldeterAgent(app, db, 'belegen');
   const ausgabe = await angemeldeterAgent(app, db, 'ausgabe');
   const { kaertchen } = await verkaufteBestellung(admin, kasse);
 
-  await ausgabe.post(`/api/ausgabe/status/${kaertchen.id}`).send({ status: 'abholbereit' });
+  await belegen.post(`/api/belegen/status/${kaertchen.id}`).send({ status: 'abholbereit' });
   await ausgabe.post(`/api/ausgabe/status/${kaertchen.id}`).send({ status: 'abgeholt' });
 
   const antwort = await kasse.post(`/api/kasse/storno/${kaertchen.id}`);
@@ -60,13 +61,14 @@ test('Statuswechsel-Kette mit Zeitstempeln, Rückgängig und verbotenen Sprünge
   const { app, db } = frischeApp();
   const admin = await angemeldeterAgent(app, db, 'admin');
   const kasse = await angemeldeterAgent(app, db, 'kasse');
+  const belegen = await angemeldeterAgent(app, db, 'belegen');
   const ausgabe = await angemeldeterAgent(app, db, 'ausgabe');
   const { kaertchen } = await verkaufteBestellung(admin, kasse);
 
   const sprung = await ausgabe.post(`/api/ausgabe/status/${kaertchen.id}`).send({ status: 'abgeholt' });
   assert.equal(sprung.status, 409);
 
-  assert.equal((await ausgabe.post(`/api/ausgabe/status/${kaertchen.id}`).send({ status: 'abholbereit' })).status, 200);
+  assert.equal((await belegen.post(`/api/belegen/status/${kaertchen.id}`).send({ status: 'abholbereit' })).status, 200);
   let zeile = db.prepare('SELECT * FROM kaertchen WHERE id = ?').get(kaertchen.id);
   assert.ok(zeile.abholbereit_am);
 
@@ -75,17 +77,40 @@ test('Statuswechsel-Kette mit Zeitstempeln, Rückgängig und verbotenen Sprünge
   assert.ok(zeile.abgeholt_am);
 
   assert.equal((await ausgabe.post(`/api/ausgabe/status/${kaertchen.id}`).send({ status: 'abholbereit' })).status, 200);
-  assert.equal((await ausgabe.post(`/api/ausgabe/status/${kaertchen.id}`).send({ status: 'in_bearbeitung' })).status, 200);
+  assert.equal((await belegen.post(`/api/belegen/status/${kaertchen.id}`).send({ status: 'in_bearbeitung' })).status, 200);
 
   await kasse.post(`/api/kasse/storno/${kaertchen.id}`);
-  const nachStorno = await ausgabe.post(`/api/ausgabe/status/${kaertchen.id}`).send({ status: 'abholbereit' });
+  const nachStorno = await belegen.post(`/api/belegen/status/${kaertchen.id}`).send({ status: 'abholbereit' });
   assert.equal(nachStorno.status, 409);
 });
 
-test('Ausgabe-Listen: Sortierung und zuletzt abgeholt', async () => {
+test('Belegen- und Ausgabe-Rolle sind serverseitig strikt getrennt', async () => {
   const { app, db } = frischeApp();
   const admin = await angemeldeterAgent(app, db, 'admin');
   const kasse = await angemeldeterAgent(app, db, 'kasse');
+  const belegen = await angemeldeterAgent(app, db, 'belegen');
+  const ausgabe = await angemeldeterAgent(app, db, 'ausgabe');
+  const { kaertchen } = await verkaufteBestellung(admin, kasse);
+
+  const belegenAufAusgabe = await belegen.post(`/api/ausgabe/status/${kaertchen.id}`).send({ status: 'abgeholt' });
+  assert.equal(belegenAufAusgabe.status, 403);
+
+  await belegen.post(`/api/belegen/status/${kaertchen.id}`).send({ status: 'abholbereit' });
+
+  const ausgabeAufBelegen = await ausgabe.post(`/api/belegen/status/${kaertchen.id}`).send({ status: 'in_bearbeitung' });
+  assert.equal(ausgabeAufBelegen.status, 403);
+
+  const ausgabeListenZugriff = await belegen.get('/api/ausgabe/kaertchen');
+  assert.equal(ausgabeListenZugriff.status, 403);
+  const belegenListenZugriff = await ausgabe.get('/api/belegen/kaertchen');
+  assert.equal(belegenListenZugriff.status, 403);
+});
+
+test('Ausgabe- und Belegen-Listen: Sortierung und zuletzt abgeholt', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const kasse = await angemeldeterAgent(app, db, 'kasse');
+  const belegen = await angemeldeterAgent(app, db, 'belegen');
   const ausgabe = await angemeldeterAgent(app, db, 'ausgabe');
   const artikel = (await admin.post('/api/artikel').send({
     name: 'Adana', farbe: '#2255cc', preis_cent: 700, beilagen_ids: [], sortierung: 1,
@@ -99,22 +124,24 @@ test('Ausgabe-Listen: Sortierung und zuletzt abgeholt', async () => {
   })).body;
   const [erstes, zweites] = ergebnis.kaertchen;
 
-  await ausgabe.post(`/api/ausgabe/status/${erstes.id}`).send({ status: 'abholbereit' });
+  await belegen.post(`/api/belegen/status/${erstes.id}`).send({ status: 'abholbereit' });
   await ausgabe.post(`/api/ausgabe/status/${erstes.id}`).send({ status: 'abgeholt' });
-  await ausgabe.post(`/api/ausgabe/status/${zweites.id}`).send({ status: 'abholbereit' });
+  await belegen.post(`/api/belegen/status/${zweites.id}`).send({ status: 'abholbereit' });
 
-  const listen = (await ausgabe.get('/api/ausgabe/kaertchen')).body;
-  assert.equal(listen.in_bearbeitung.length, 1);
-  assert.equal(listen.abholbereit.length, 1);
-  assert.equal(listen.abholbereit[0].nummer, 2);
-  assert.equal(listen.zuletzt_abgeholt.length, 1);
-  assert.equal(listen.zuletzt_abgeholt[0].nummer, 1);
+  const belegenListen = (await belegen.get('/api/belegen/kaertchen')).body;
+  assert.equal(belegenListen.in_bearbeitung.length, 1);
+
+  const ausgabeListen = (await ausgabe.get('/api/ausgabe/kaertchen')).body;
+  assert.equal(ausgabeListen.abholbereit.length, 1);
+  assert.equal(ausgabeListen.abholbereit[0].nummer, 2);
+  assert.equal(ausgabeListen.zuletzt_abgeholt.length, 1);
+  assert.equal(ausgabeListen.zuletzt_abgeholt[0].nummer, 1);
 });
 
 test('Beilagen-Übersicht zeigt nur aktive Beilagen aktiver Artikel', async () => {
   const { app, db } = frischeApp();
   const admin = await angemeldeterAgent(app, db, 'admin');
-  const ausgabe = await angemeldeterAgent(app, db, 'ausgabe');
+  const belegen = await angemeldeterAgent(app, db, 'belegen');
   const mayo = (await admin.post('/api/beilagen').send({ name: 'Mayo' })).body;
   const ketchup = (await admin.post('/api/beilagen').send({ name: 'Ketchup' })).body;
   await admin.put(`/api/beilagen/${ketchup.id}`).send({ name: 'Ketchup', aktiv: 0 });
@@ -123,7 +150,7 @@ test('Beilagen-Übersicht zeigt nur aktive Beilagen aktiver Artikel', async () =
     beilagen_ids: [mayo.id, ketchup.id], sortierung: 1,
   });
 
-  const uebersicht = (await ausgabe.get('/api/ausgabe/beilagen-uebersicht')).body;
+  const uebersicht = (await belegen.get('/api/belegen/beilagen-uebersicht')).body;
   assert.equal(uebersicht.length, 1);
   assert.equal(uebersicht[0].artikel_name, 'Pommes');
   assert.deepEqual(uebersicht[0].beilagen, ['Mayo']);

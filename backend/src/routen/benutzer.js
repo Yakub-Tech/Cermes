@@ -22,8 +22,8 @@ router.post('/api/benutzer', brauchtRolle('admin'), (anfrage, antwort) => {
   if (!passwort || passwort.length < 8) {
     return antwort.status(400).json({ fehler: 'Das Passwort muss mindestens 8 Zeichen haben.' });
   }
-  if (!['admin', 'kasse', 'ausgabe', 'verwaltung'].includes(rolle)) {
-    return antwort.status(400).json({ fehler: 'Bitte eine Rolle wählen: Admin, Verwaltung, Kasse oder Ausgabe.' });
+  if (!['admin', 'kasse', 'belegen', 'ausgabe', 'verwaltung'].includes(rolle)) {
+    return antwort.status(400).json({ fehler: 'Bitte eine Rolle wählen: Admin, Verwaltung, Kasse, Belegen oder Ausgabe.' });
   }
   const vorhanden = db.prepare('SELECT id FROM benutzer WHERE benutzername = ?')
     .get(benutzername.trim());

@@ -17,6 +17,7 @@ import artikelRouter, { artikelBilderOrdner } from './routen/artikel.js';
 import beilagenRouter from './routen/beilagen.js';
 import kasseRouter from './routen/kasse.js';
 import ausgabeRouter from './routen/ausgabe.js';
+import belegenRouter from './routen/belegen.js';
 
 export function erstelleApp() {
   oeffneDatenbank();
@@ -32,6 +33,7 @@ export function erstelleApp() {
   app.use(beilagenRouter);
   app.use(kasseRouter);
   app.use(ausgabeRouter);
+  app.use(belegenRouter);
   app.use(tvRouter);
   app.use(kundeRouter);
   app.use(werbungRouter);

@@ -3,7 +3,7 @@ import { apiGet, apiPost, apiDelete } from '../api.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 
-const rollenNamen = { admin: 'Admin', verwaltung: 'Verwaltung', kasse: 'Kasse', ausgabe: 'Ausgabe' };
+const rollenNamen = { admin: 'Admin', verwaltung: 'Verwaltung', kasse: 'Kasse', belegen: 'Belegen', ausgabe: 'Ausgabe' };
 
 export default function BenutzerSeite() {
   const [benutzer, setBenutzer] = useState([]);
@@ -100,6 +100,7 @@ export default function BenutzerSeite() {
             onWahl={(neueRolle) => setAnlage({ ...anlage, rolle: neueRolle })}
             optionen={[
               { wert: 'kasse', text: 'Kasse' },
+              { wert: 'belegen', text: 'Belegen' },
               { wert: 'ausgabe', text: 'Ausgabe' },
               { wert: 'verwaltung', text: 'Verwaltung' },
               { wert: 'admin', text: 'Admin' },

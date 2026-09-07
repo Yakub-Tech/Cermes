@@ -6,6 +6,7 @@ import Urheberrechtshinweis from '../komponenten/Urheberrechtshinweis.jsx';
 
 const ansichtsTitel = {
   kasse: 'Kasse',
+  belegen: 'Belegen',
   ausgabe: 'Ausgabe',
   admin: 'Verwaltung',
 };
