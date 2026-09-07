@@ -5,6 +5,7 @@ import {
 import { formatEuro } from '../api.js';
 import { datumAnzeigen } from './datum.js';
 import { artikelSortieren, SORTIER_OPTIONEN } from './artikelSortierung.js';
+import { gewinnmargeBerechnen } from './gewinnmarge.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 
 export const stueckFarbe = '#2563A6';
@@ -113,6 +114,7 @@ export function FarbLegende() {
 export function Kennzahlen({ gesamt, stosszeit }) {
   const zeigtGeld = gesamt.umsatz_cent !== undefined;
   const kostenVollstaendig = !gesamt.stueck_ohne_kosten;
+  const marge = zeigtGeld ? gewinnmargeBerechnen(gesamt) : null;
 
   const kennzahlen = [
     { beschriftung: 'Verkaufte Portionen', wert: gesamt.stueck, farbe: stueckFarbe },
@@ -120,6 +122,10 @@ export function Kennzahlen({ gesamt, stosszeit }) {
       { beschriftung: 'Umsatz', wert: formatEuro(gesamt.umsatz_cent), farbe: umsatzFarbe },
       {
         beschriftung: 'Gewinn', wert: formatEuro(gesamt.gewinn_cent),
+        farbe: kostenVollstaendig ? gewinnFarbe : gewinnNeutralFarbe,
+      },
+      {
+        beschriftung: 'Gewinnmarge', wert: marge === null ? '–' : `${marge} %`,
         farbe: kostenVollstaendig ? gewinnFarbe : gewinnNeutralFarbe,
       },
     ] : []),
