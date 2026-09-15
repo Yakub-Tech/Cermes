@@ -5,18 +5,29 @@ import { kundenzustandLesen, kundenzustandSchreiben } from '../src/kundenzustand
 import { frischeApp, angemeldeterAgent } from './helfer.js';
 
 test('Kundenzustand: Standardwert leer, Schreiben und Lesen', () => {
-  assert.deepEqual(kundenzustandLesen(), { warenkorb: [], fokus: null, summe_cent: null });
+  assert.deepEqual(kundenzustandLesen(), { warenkorb: [], fokus: null, summe_cent: null, sprache: 'de' });
   kundenzustandSchreiben({
-    warenkorb: [{ artikel_name: 'Pommes' }], fokus: { artikel_name: 'Pommes' }, summe_cent: 350,
+    warenkorb: [{ artikel_name: 'Pommes' }], fokus: { artikel_name: 'Pommes' }, summe_cent: 350, sprache: 'tr',
   });
   assert.deepEqual(kundenzustandLesen(), {
-    warenkorb: [{ artikel_name: 'Pommes' }], fokus: { artikel_name: 'Pommes' }, summe_cent: 350,
+    warenkorb: [{ artikel_name: 'Pommes' }], fokus: { artikel_name: 'Pommes' }, summe_cent: 350, sprache: 'tr',
   });
 });
 
 test('Kundenzustand: unvollständige Daten werden robust auf leer/null abgebildet', () => {
   kundenzustandSchreiben({});
-  assert.deepEqual(kundenzustandLesen(), { warenkorb: [], fokus: null, summe_cent: null });
+  assert.deepEqual(kundenzustandLesen(), { warenkorb: [], fokus: null, summe_cent: null, sprache: 'de' });
+});
+
+test('Kundenzustand: sprache nur bei "de" oder "tr" übernommen, sonst "de"', () => {
+  kundenzustandSchreiben({ sprache: 'tr' });
+  assert.equal(kundenzustandLesen().sprache, 'tr');
+  kundenzustandSchreiben({ sprache: 'fr' });
+  assert.equal(kundenzustandLesen().sprache, 'de');
+  kundenzustandSchreiben({ sprache: 123 });
+  assert.equal(kundenzustandLesen().sprache, 'de');
+  kundenzustandSchreiben({});
+  assert.equal(kundenzustandLesen().sprache, 'de');
 });
 
 test('Kundenzustand: summe_cent nur bei gültiger, nicht-negativer Zahl übernommen', () => {
@@ -37,6 +48,7 @@ test('Kasse kann Live-Zustand schreiben, nur mit Rolle kasse', async () => {
     warenkorb: [{ schluessel: 1, artikel_name: 'Pommes', farbe: '#f5c211', preis_cent: 350, beilagen: [] }],
     fokus: null,
     summe_cent: 350,
+    sprache: 'tr',
   });
   assert.equal(antwort.status, 200);
 
@@ -44,6 +56,7 @@ test('Kasse kann Live-Zustand schreiben, nur mit Rolle kasse', async () => {
   assert.equal(zustand.warenkorb.length, 1);
   assert.equal(zustand.warenkorb[0].artikel_name, 'Pommes');
   assert.equal(zustand.summe_cent, 350);
+  assert.equal(zustand.sprache, 'tr');
 
   assert.equal((await admin.put('/api/kasse/kundenanzeige').send({})).status, 403);
   assert.equal((await request(app).put('/api/kasse/kundenanzeige').send({})).status, 401);
