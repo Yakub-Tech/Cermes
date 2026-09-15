@@ -3,13 +3,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { apiPost } from '../api.js';
 import { sollEnterAbsenden } from './enterAbsenden.js';
 import Urheberrechtshinweis from '../komponenten/Urheberrechtshinweis.jsx';
-
-const ansichtsTitel = {
-  kasse: 'Kasse',
-  belegen: 'Belegen',
-  ausgabe: 'Ausgabe',
-  admin: 'Verwaltung',
-};
+import SprachSchalter from '../komponenten/SprachSchalter.jsx';
+import { useStationsSprache } from '../sprache/useStationsSprache.js';
+import { de, tr, inaktivHinweisDe, inaktivHinweisTr } from '../sprache/login.js';
 
 export default function LoginSeite() {
   const { ansicht } = useParams();
@@ -18,18 +14,19 @@ export default function LoginSeite() {
   const [passwort, setPasswort] = useState('');
   const [fehler, setFehler] = useState('');
   const [laeuft, setLaeuft] = useState(false);
-  const [inaktivitaetsHinweis, setInaktivitaetsHinweis] = useState('');
+  const [abgemeldetNachMinuten, setAbgemeldetNachMinuten] = useState(null);
+  const [sprache, setSprache] = useStationsSprache();
+  const texte = sprache === 'tr' ? tr : de;
 
   useEffect(() => {
     const eintrag = sessionStorage.getItem('cermes-inaktiv-abgemeldet');
     if (!eintrag) return;
     sessionStorage.removeItem('cermes-inaktiv-abgemeldet');
     const { minuten } = JSON.parse(eintrag);
-    const minutenWort = minuten === 1 ? 'Minute' : 'Minuten';
-    setInaktivitaetsHinweis(`Sie wurden nach ${minuten} ${minutenWort} Inaktivität automatisch abgemeldet.`);
+    setAbgemeldetNachMinuten(minuten);
   }, []);
 
-  const titel = ansichtsTitel[ansicht] || 'Anmeldung';
+  const titel = texte.rollenTitel[ansicht] || texte.anmeldung;
 
   function beiEnterAbsenden(ereignis) {
     if (!sollEnterAbsenden({ taste: ereignis.key, wiederholt: ereignis.repeat, laeuft })) return;
@@ -56,31 +53,34 @@ export default function LoginSeite() {
     <>
       <main className="anmeldung flex min-h-screen items-center justify-center p-4">
         <form onSubmit={anmelden}
-          className="w-full max-w-sm rounded-xl border border-linie bg-flaeche p-8 shadow-2xl">
+          className="relative w-full max-w-sm rounded-xl border border-linie bg-flaeche p-8 shadow-2xl">
+          <div className="absolute left-3 top-3">
+            <SprachSchalter sprache={sprache} onWahl={setSprache} />
+          </div>
           <Link to="/" className="mx-auto mb-4 block w-28 transition-opacity hover:opacity-80">
-            <img src="/logo/aktuell" alt="Vereinslogo" className="h-28 w-28" />
+            <img src="/logo/aktuell" alt={texte.vereinslogo} className="h-28 w-28" />
           </Link>
           <h1 className="mb-1 text-center font-display text-3xl text-navy">Cermes</h1>
-          <p className="text-center text-schrift-gedimmt">Anmeldung</p>
+          <p className="text-center text-schrift-gedimmt">{texte.anmeldung}</p>
           <p className="mb-6 text-center text-sm italic text-schrift-gedimmt/60">{titel}</p>
 
           <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="benutzername">
-            Benutzername
+            {texte.benutzername}
           </label>
           <input id="benutzername" value={benutzername} autoFocus autoComplete="username"
             onChange={(e) => setBenutzername(e.target.value)} onKeyDown={beiEnterAbsenden}
             className="mb-4 w-full rounded border border-linie bg-grund px-3 py-3 text-lg outline-none focus:border-blau-hell" />
 
           <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="passwort">
-            Passwort
+            {texte.passwort}
           </label>
           <input id="passwort" type="password" value={passwort} autoComplete="current-password"
             onChange={(e) => setPasswort(e.target.value)} onKeyDown={beiEnterAbsenden}
             className="mb-4 w-full rounded border border-linie bg-grund px-3 py-3 text-lg outline-none focus:border-blau-hell" />
 
-          {inaktivitaetsHinweis && (
+          {abgemeldetNachMinuten !== null && (
             <p className="mb-4 rounded border border-linie bg-flaeche-hell px-3 py-2 text-schrift-gedimmt">
-              {inaktivitaetsHinweis}
+              {sprache === 'tr' ? inaktivHinweisTr(abgemeldetNachMinuten) : inaktivHinweisDe(abgemeldetNachMinuten)}
             </p>
           )}
 
@@ -90,7 +90,7 @@ export default function LoginSeite() {
 
           <button type="submit" disabled={laeuft}
             className="w-full cursor-pointer rounded-full bg-blau py-3 text-lg font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-50">
-            Anmelden
+            {texte.anmelden}
           </button>
         </form>
       </main>
