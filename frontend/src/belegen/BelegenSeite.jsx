@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import Kopfzeile from '../komponenten/Kopfzeile.jsx';
+import SprachSchalter from '../komponenten/SprachSchalter.jsx';
+import { useStationsSprache } from '../sprache/useStationsSprache.js';
 import Fusszeile from '../komponenten/Fusszeile.jsx';
 import Snackbar from '../komponenten/Snackbar.jsx';
 import KaertchenKarte from '../komponenten/KaertchenKarte.jsx';
@@ -10,6 +12,7 @@ import { alterText } from '../zeitAnzeige.js';
 
 export default function BelegenSeite() {
   const session = useSession('belegen');
+  const [sprache, setSprache] = useStationsSprache();
   const [listen, setListen] = useState({ in_bearbeitung: [], abholbereit: [] });
   const [snackbar, setSnackbar] = useState(null);
   const [jetzt, setJetzt] = useState(Date.now());
@@ -68,7 +71,8 @@ export default function BelegenSeite() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Kopfzeile titel="Belegen" benutzername={session.benutzername} />
+      <Kopfzeile titel="Belegen" benutzername={session.benutzername} sprache={sprache}
+        rechts={<SprachSchalter sprache={sprache} onWahl={setSprache} />} />
 
       <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 bg-grund p-3">
         {spalten.map((spalte) => (

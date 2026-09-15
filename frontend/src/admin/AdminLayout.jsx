@@ -1,5 +1,7 @@
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import Kopfzeile from '../komponenten/Kopfzeile.jsx';
+import SprachSchalter from '../komponenten/SprachSchalter.jsx';
+import { useStationsSprache } from '../sprache/useStationsSprache.js';
 import Fusszeile from '../komponenten/Fusszeile.jsx';
 import { useSession } from '../anmeldung/useSession.js';
 import StatistikSeite from './StatistikSeite.jsx';
@@ -22,13 +24,15 @@ const bereiche = [
 
 export default function AdminLayout() {
   const session = useSession(['admin', 'verwaltung']);
+  const [sprache, setSprache] = useStationsSprache();
   if (session.laedt) return null;
 
   const sichtbareBereiche = bereiche.filter(([, , rollen]) => rollen.includes(session.rolle));
 
   return (
     <div className="flex h-screen flex-col">
-      <Kopfzeile titel="Verwaltung" benutzername={session.benutzername} />
+      <Kopfzeile titel="Verwaltung" benutzername={session.benutzername} sprache={sprache}
+        rechts={<SprachSchalter sprache={sprache} onWahl={setSprache} />} />
 
       <div className="verwaltung flex min-h-0 flex-1">
         <nav className="w-36 shrink-0 border-r border-linie bg-flaeche py-2.5">

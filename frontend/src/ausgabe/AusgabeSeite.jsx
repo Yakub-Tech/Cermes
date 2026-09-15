@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import Kopfzeile from '../komponenten/Kopfzeile.jsx';
+import SprachSchalter from '../komponenten/SprachSchalter.jsx';
+import { useStationsSprache } from '../sprache/useStationsSprache.js';
 import Fusszeile from '../komponenten/Fusszeile.jsx';
 import Snackbar from '../komponenten/Snackbar.jsx';
 import KaertchenKarte from '../komponenten/KaertchenKarte.jsx';
@@ -10,6 +12,7 @@ import { minutenSeit, alterText } from '../zeitAnzeige.js';
 
 export default function AusgabeSeite() {
   const session = useSession('ausgabe');
+  const [sprache, setSprache] = useStationsSprache();
   const [listen, setListen] = useState({ abholbereit: [], zuletzt_abgeholt: [] });
   const [warnminuten, setWarnminuten] = useState(15);
   const [snackbar, setSnackbar] = useState(null);
@@ -76,7 +79,8 @@ export default function AusgabeSeite() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Kopfzeile titel="Ausgabe" benutzername={session.benutzername} />
+      <Kopfzeile titel="Ausgabe" benutzername={session.benutzername} sprache={sprache}
+        rechts={<SprachSchalter sprache={sprache} onWahl={setSprache} />} />
 
       <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 bg-grund p-3">
         {spalten.map((spalte) => (
