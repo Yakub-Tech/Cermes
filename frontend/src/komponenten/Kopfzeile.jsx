@@ -4,8 +4,10 @@ import { apiPost } from '../api.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { useInaktivitaetsAbmeldung } from '../anmeldung/useInaktivitaetsAbmeldung.js';
 import { formatiereCountdown } from '../anmeldung/inaktivitaet.js';
+import { de, tr } from '../sprache/kopfzeile.js';
 
-export default function Kopfzeile({ titel, benutzername, rechts, aufLogoKlick }) {
+export default function Kopfzeile({ titel, benutzername, rechts, aufLogoKlick, sprache = 'de' }) {
+  const texte = sprache === 'tr' ? tr : de;
   const [logoVersion, setLogoVersion] = useState(0);
   useLiveUpdate(['logo'], () => setLogoVersion((v) => v + 1));
   const { verbleibendeSekunden } = useInaktivitaetsAbmeldung(!!benutzername);
@@ -28,13 +30,13 @@ export default function Kopfzeile({ titel, benutzername, rechts, aufLogoKlick })
             <div className="flex items-center gap-2">
               <span className="text-xs text-schrift-gedimmt">{benutzername}</span>
               <span className="text-xs text-schrift-gedimmt">
-                Abmeldung in {formatiereCountdown(verbleibendeSekunden)}
+                {texte.abmeldungIn} {formatiereCountdown(verbleibendeSekunden)}
               </span>
               <button
                 onClick={abmelden}
                 className="cursor-pointer rounded-full border border-linie px-2 py-1 text-xs text-schrift-gedimmt hover:bg-flaeche-hell"
               >
-                Abmelden
+                {texte.abmelden}
               </button>
             </div>
           )}
