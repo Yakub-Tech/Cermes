@@ -39,7 +39,9 @@ router.put('/api/beilagen/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage,
     return antwort.status(400).json({ fehler: 'Bitte einen Namen für die Beilage angeben.' });
   }
   const aktiv = anfrage.body.aktiv ? 1 : 0;
-  const nameTr = normalisiereNameTr(anfrage.body.name_tr);
+  const nameTr = 'name_tr' in anfrage.body
+    ? normalisiereNameTr(anfrage.body.name_tr)
+    : vorhanden.name_tr;
   db.prepare('UPDATE beilage SET name = ?, name_tr = ?, aktiv = ? WHERE id = ?')
     .run(name, nameTr, aktiv, vorhanden.id);
   sendeEreignis('beilagen');

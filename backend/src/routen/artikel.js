@@ -147,10 +147,11 @@ router.put('/api/artikel/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, 
   const einkaufskostenCent = istVerwaltung
     ? vorhanden.einkaufskosten_cent
     : (daten.einkaufskosten_cent ?? null);
+  const nameTr = 'name_tr' in daten ? normalisiereNameTr(daten.name_tr) : vorhanden.name_tr;
   db.prepare(
     `UPDATE artikel SET name = ?, name_tr = ?, farbe = ?, preis_cent = ?, einkaufskosten_cent = ?,
        aktiv = ?, sortierung = ? WHERE id = ?`
-  ).run(daten.name.trim(), normalisiereNameTr(daten.name_tr), daten.farbe, daten.preis_cent,
+  ).run(daten.name.trim(), nameTr, daten.farbe, daten.preis_cent,
     einkaufskostenCent, daten.aktiv ?? 1, daten.sortierung ?? 0, vorhanden.id);
   beilagenZuordnen(db, vorhanden.id, daten.beilagen_ids);
   if (daten.bloecke !== undefined) {

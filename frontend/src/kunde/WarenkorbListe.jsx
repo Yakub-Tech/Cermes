@@ -35,7 +35,7 @@ export default function WarenkorbListe({ warenkorb, sprache }) {
                   </p>
                   {position.beilagen.length > 0 && (
                     <p className="text-sm text-schrift-gedimmt">
-                      {position.beilagen.map((name, i) => zweisprachigerName(name, position.beilagen_tr[i], sprache)).join(', ')}
+                      {position.beilagen.map((name, i) => zweisprachigerName(name, (position.beilagen_tr ?? [])[i], sprache)).join(', ')}
                     </p>
                   )}
                 </div>

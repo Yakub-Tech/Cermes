@@ -11,7 +11,7 @@ const NAME_MAX_LAENGE = 24;
 export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern, onAbbrechen }) {
   const [name, setName] = useState(artikel?.name ?? '');
   const [nameTr, setNameTr] = useState(artikel?.name_tr ?? '');
-  const [nurDeutsch, setNurDeutsch] = useState(!artikel || !artikel?.name_tr);
+  const [nurDeutsch, setNurDeutsch] = useState(artikel ? !artikel.name_tr : false);
   const [farbe, setFarbe] = useState(artikel?.farbe ?? '#b53030');
   const [preisText, setPreisText] = useState(
     artikel ? formatEuro(artikel.preis_cent).replace(' €', '') : ''
@@ -114,7 +114,7 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
     'mb-2.5 w-full rounded border border-linie bg-grund px-2 py-1.5 text-sm outline-none focus:border-blau-hell';
 
   return (
-    <Dialog titel={artikel ? `${artikel.name} bearbeiten` : 'Artikel anlegen'}
+    <Dialog titel={artikel ? `${beideSprachenName(artikel.name, artikel.name_tr)} bearbeiten` : 'Artikel anlegen'}
       onSchliessen={onAbbrechen}>
       <label className="mb-1 block text-xs text-schrift-gedimmt">Name</label>
       <input value={name} autoFocus maxLength={NAME_MAX_LAENGE} onChange={(e) => setName(e.target.value)}

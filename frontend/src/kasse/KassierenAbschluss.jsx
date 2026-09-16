@@ -44,7 +44,7 @@ export default function KassierenAbschluss({ ergebnis, laeuft, fehler, onZurueck
               </p>
               {kaertchen.beilagen.length > 0 && (
                 <p className="mt-1 text-sm opacity-80">
-                  {kaertchen.beilagen.map((name, i) => zweisprachigerName(name, kaertchen.beilagen_tr[i], sprache)).join(', ')}
+                  {kaertchen.beilagen.map((name, i) => zweisprachigerName(name, (kaertchen.beilagen_tr ?? [])[i], sprache)).join(', ')}
                 </p>
               )}
               {kaertchen.hinweis && (

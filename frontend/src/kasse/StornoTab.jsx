@@ -73,7 +73,7 @@ export default function StornoTab({ sprache }) {
                 <span className="block truncate text-sm text-schrift-gedimmt">
                   {kaertchen.erstellt_am.slice(11, 16)} Uhr
                   {kaertchen.beilagen.length > 0 &&
-                    ` · ${kaertchen.beilagen.map((name, i) => zweisprachigerName(name, kaertchen.beilagen_tr[i], sprache)).join(', ')}`}
+                    ` · ${kaertchen.beilagen.map((name, i) => zweisprachigerName(name, (kaertchen.beilagen_tr ?? [])[i], sprache)).join(', ')}`}
                 </span>
               </span>
               <span className="nummer">{formatEuro(kaertchen.preis_cent)}</span>

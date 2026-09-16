@@ -20,7 +20,7 @@ export default function KaertchenKarte({ kaertchen, zeitText, warnung, onTippen,
       </span>
       {kaertchen.beilagen.length > 0 && (
         <span className="block text-sm opacity-80">
-          {kaertchen.beilagen.map((name, i) => zweisprachigerName(name, kaertchen.beilagen_tr[i], sprache)).join(', ')}
+          {kaertchen.beilagen.map((name, i) => zweisprachigerName(name, (kaertchen.beilagen_tr ?? [])[i], sprache)).join(', ')}
         </span>
       )}
       {zeitText && (

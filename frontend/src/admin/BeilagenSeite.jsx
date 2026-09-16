@@ -9,6 +9,7 @@ export default function BeilagenSeite() {
   const [beilagen, setBeilagen] = useState([]);
   const [neuerName, setNeuerName] = useState('');
   const [neuerNameTr, setNeuerNameTr] = useState('');
+  const [neuerNurDeutsch, setNeuerNurDeutsch] = useState(false);
   const [bearbeitung, setBearbeitung] = useState(null);
   const [loeschung, setLoeschung] = useState(null);
   const [fehler, setFehler] = useState('');
@@ -19,11 +20,16 @@ export default function BeilagenSeite() {
 
   async function anlegen(ereignis) {
     ereignis.preventDefault();
+    if (!neuerNurDeutsch && neuerNameTr.trim() === '') {
+      setFehler('Bitte einen türkischen Namen angeben oder „Nur auf Deutsch“ ankreuzen.');
+      return;
+    }
     setFehler('');
     try {
-      await apiPost('/api/beilagen', { name: neuerName, name_tr: neuerNameTr });
+      await apiPost('/api/beilagen', { name: neuerName, name_tr: neuerNurDeutsch ? '' : neuerNameTr });
       setNeuerName('');
       setNeuerNameTr('');
+      setNeuerNurDeutsch(false);
     } catch (f) {
       setFehler(f.message);
     }
@@ -50,13 +56,19 @@ export default function BeilagenSeite() {
     <div>
       <h2 className="mb-4 font-display text-base text-navy">Beilagen</h2>
 
-      <form onSubmit={anlegen} className="mb-4 flex max-w-md gap-2">
+      <form onSubmit={anlegen} className="mb-4 flex max-w-md flex-wrap items-center gap-2">
         <input value={neuerName} onChange={(e) => setNeuerName(e.target.value)}
           placeholder="Neue Beilage, z. B. Ketchup"
           className="flex-1 rounded border border-linie bg-flaeche px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
-        <input value={neuerNameTr} onChange={(e) => setNeuerNameTr(e.target.value)}
-          placeholder="Türkisch, optional"
-          className="flex-1 rounded border border-linie bg-flaeche px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
+        {!neuerNurDeutsch && (
+          <input value={neuerNameTr} onChange={(e) => setNeuerNameTr(e.target.value)}
+            placeholder="Name (Türkisch)"
+            className="flex-1 rounded border border-linie bg-flaeche px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
+        )}
+        <label className="flex items-center gap-1.5 text-xs text-schrift-gedimmt">
+          <Kontrollkaestchen markiert={neuerNurDeutsch} onWahl={setNeuerNurDeutsch} />
+          Nur auf Deutsch
+        </label>
         <button type="submit" disabled={neuerName.trim() === ''}
           className="kaertchen-schatten cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
           Anlegen

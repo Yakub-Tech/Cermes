@@ -87,6 +87,38 @@ test('Beilage: türkischer Name optional, leerer String wird zu null normalisier
   assert.equal(geaendert.name_tr, null);
 });
 
+test('Artikel: PUT ohne name_tr-Feld (z. B. nur Aktiv-Umschalten) lässt bestehenden türkischen Namen unverändert', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+
+  const mitTr = (await admin.post('/api/artikel').send({
+    name: 'Döner', name_tr: 'Döner', farbe: '#f5c211', preis_cent: 500, beilagen_ids: [], sortierung: 1,
+  })).body;
+  assert.equal(mitTr.name_tr, 'Döner');
+
+  const nurAktivUmgeschaltet = { ...mitTr, aktiv: 0 };
+  delete nurAktivUmgeschaltet.name_tr;
+  const geaendert = (await admin.put(`/api/artikel/${mitTr.id}`).send(nurAktivUmgeschaltet)).body;
+
+  assert.equal(geaendert.name_tr, 'Döner');
+  assert.equal(geaendert.aktiv, 0);
+});
+
+test('Beilage: PUT ohne name_tr-Feld (Aktiv-Umschalter) lässt bestehenden türkischen Namen unverändert', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+
+  const mitTr = (await admin.post('/api/beilagen').send({ name: 'Ketchup', name_tr: 'Ketçap' })).body;
+  assert.equal(mitTr.name_tr, 'Ketçap');
+
+  const geaendert = (await admin.put(`/api/beilagen/${mitTr.id}`).send({
+    name: mitTr.name, aktiv: mitTr.aktiv ? 0 : 1,
+  })).body;
+
+  assert.equal(geaendert.name_tr, 'Ketçap');
+  assert.equal(geaendert.aktiv, 0);
+});
+
 test('Verwaltung sieht keine Einkaufskosten und kann sie nicht setzen oder ändern', async () => {
   const { app, db } = frischeApp();
   const admin = await angemeldeterAgent(app, db, 'admin');
