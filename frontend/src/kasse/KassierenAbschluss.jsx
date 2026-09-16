@@ -1,5 +1,6 @@
 import { formatEuro } from '../api.js';
 import { lesbareSchriftfarbe, dunklereFarbe } from '../komponenten/farbe.js';
+import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 
 function nachArtikelGruppiert(kaertchenListe) {
   const gruppenProArtikel = new Map();
@@ -18,7 +19,7 @@ function nachArtikelGruppiert(kaertchenListe) {
   return gruppiert;
 }
 
-export default function KassierenAbschluss({ ergebnis, laeuft, fehler, onZurueck, onFertig }) {
+export default function KassierenAbschluss({ ergebnis, laeuft, fehler, onZurueck, onFertig, sprache }) {
   const kaertchenGruppiert = nachArtikelGruppiert(ergebnis.kaertchen);
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-grund p-6">
@@ -38,9 +39,13 @@ export default function KassierenAbschluss({ ergebnis, laeuft, fehler, onZurueck
                 color: schrift,
               }}>
               <p className="nummer text-7xl">{kaertchen.nummer}</p>
-              <p className="mt-1 text-xl font-semibold">{kaertchen.artikel_name}</p>
+              <p className="mt-1 text-xl font-semibold">
+                {zweisprachigerName(kaertchen.artikel_name, kaertchen.artikel_name_tr, sprache)}
+              </p>
               {kaertchen.beilagen.length > 0 && (
-                <p className="mt-1 text-sm opacity-80">{kaertchen.beilagen.join(', ')}</p>
+                <p className="mt-1 text-sm opacity-80">
+                  {kaertchen.beilagen.map((name, i) => zweisprachigerName(name, kaertchen.beilagen_tr[i], sprache)).join(', ')}
+                </p>
               )}
               {kaertchen.hinweis && (
                 <p className="mt-2 rounded-lg bg-grund/90 px-2 py-1 text-sm font-semibold text-weinrot">

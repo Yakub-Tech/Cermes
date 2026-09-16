@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import Dialog from '../komponenten/Dialog.jsx';
+import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 
-export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen, onAuswahlAendern }) {
+export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen, onAuswahlAendern, sprache }) {
   const [gewaehlt, setGewaehlt] = useState([]);
 
   function umschalten(beilage) {
@@ -15,7 +16,7 @@ export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen, on
   const beilagenSortiert = [...artikel.beilagen].sort((a, b) => a.name.localeCompare(b.name, 'de'));
 
   return (
-    <Dialog titel={`${artikel.name}: Beilagen wählen`} onSchliessen={onAbbrechen}>
+    <Dialog titel={`${zweisprachigerName(artikel.name, artikel.name_tr, sprache)}: Beilagen wählen`} onSchliessen={onAbbrechen}>
       <div className="mb-6 grid grid-cols-2 gap-3">
         {beilagenSortiert.map((beilage) => {
           const aktivGewaehlt = gewaehlt.some((b) => b.id === beilage.id);
@@ -23,7 +24,7 @@ export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen, on
             return (
               <div key={beilage.id}
                 className="cursor-not-allowed rounded-full border border-linie px-4 py-4 text-center text-schrift-gedimmt opacity-40">
-                {beilage.name}
+                {zweisprachigerName(beilage.name, beilage.name_tr, sprache)}
                 <span className="block text-xs">gerade nicht verfügbar</span>
               </div>
             );
@@ -35,7 +36,7 @@ export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen, on
                   ? 'border-navy bg-navy text-grund font-bold'
                   : 'border-linie bg-grund hover:bg-flaeche-hell'
               }`}>
-              {beilage.name}
+              {zweisprachigerName(beilage.name, beilage.name_tr, sprache)}
             </button>
           );
         })}

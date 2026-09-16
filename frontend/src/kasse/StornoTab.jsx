@@ -4,8 +4,9 @@ import { useLiveUpdate } from '../useLiveUpdate.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { lesbareSchriftfarbe } from '../komponenten/farbe.js';
+import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 
-export default function StornoTab() {
+export default function StornoTab({ sprache }) {
   const [kaertchenListe, setKaertchenListe] = useState([]);
   const [nummernFilter, setNummernFilter] = useState('');
   const [artikelFilter, setArtikelFilter] = useState('');
@@ -66,10 +67,13 @@ export default function StornoTab() {
                 {kaertchen.nummer}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-lg">{kaertchen.artikel_name}</span>
+                <span className="block truncate text-lg">
+                  {zweisprachigerName(kaertchen.artikel_name, kaertchen.artikel_name_tr, sprache)}
+                </span>
                 <span className="block truncate text-sm text-schrift-gedimmt">
                   {kaertchen.erstellt_am.slice(11, 16)} Uhr
-                  {kaertchen.beilagen.length > 0 && ` · ${kaertchen.beilagen.join(', ')}`}
+                  {kaertchen.beilagen.length > 0 &&
+                    ` · ${kaertchen.beilagen.map((name, i) => zweisprachigerName(name, kaertchen.beilagen_tr[i], sprache)).join(', ')}`}
                 </span>
               </span>
               <span className="nummer">{formatEuro(kaertchen.preis_cent)}</span>
@@ -81,7 +85,7 @@ export default function StornoTab() {
       {auswahl && (
         <Dialog titel="Stornieren?" onSchliessen={() => setAuswahl(null)}>
           <p className="mb-6 text-lg">
-            {auswahl.artikel_name} Nr. {auswahl.nummer} stornieren,{' '}
+            {zweisprachigerName(auswahl.artikel_name, auswahl.artikel_name_tr, sprache)} Nr. {auswahl.nummer} stornieren,{' '}
             <strong>{formatEuro(auswahl.preis_cent)} zurückgeben</strong> und
             Kärtchen {auswahl.nummer} einziehen?
           </p>

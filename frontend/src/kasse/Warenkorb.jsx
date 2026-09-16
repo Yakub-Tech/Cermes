@@ -1,6 +1,7 @@
 import { formatEuro } from '../api.js';
+import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 
-export default function Warenkorb({ positionen, onMengeAendern, onKassieren, laeuft, fehler }) {
+export default function Warenkorb({ positionen, onMengeAendern, onKassieren, laeuft, fehler, sprache }) {
   const summe = positionen.reduce((s, p) => s + p.artikel.preis_cent * p.menge, 0);
 
   return (
@@ -19,10 +20,12 @@ export default function Warenkorb({ positionen, onMengeAendern, onKassieren, lae
             <span className="w-1.5 shrink-0 rounded"
               style={{ backgroundColor: position.artikel.farbe }} />
             <div className="min-w-0 flex-1 self-center">
-              <p className="truncate text-lg">{position.artikel.name}</p>
+              <p className="truncate text-lg">
+                {zweisprachigerName(position.artikel.name, position.artikel.name_tr, sprache)}
+              </p>
               {position.beilagen.length > 0 && (
                 <p className="text-sm text-schrift-gedimmt">
-                  {position.beilagen.map((b) => b.name).join(', ')}
+                  {position.beilagen.map((b) => zweisprachigerName(b.name, b.name_tr, sprache)).join(', ')}
                 </p>
               )}
             </div>

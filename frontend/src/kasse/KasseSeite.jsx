@@ -13,6 +13,7 @@ import Warenkorb from './Warenkorb.jsx';
 import KassierenAbschluss from './KassierenAbschluss.jsx';
 import StornoTab from './StornoTab.jsx';
 import WarenkorbVerlassenDialog from './WarenkorbVerlassenDialog.jsx';
+import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 
 export default function KasseSeite() {
   const session = useSession('kasse');
@@ -152,7 +153,9 @@ export default function KasseSeite() {
               <button key={artikel.id} onClick={() => artikelTippen(artikel)}
                 className="putz-textur-hell kaertchen-schatten-vertieft min-h-32 cursor-pointer rounded-[24px] border border-linie bg-flaeche p-4 text-left hover:bg-flaeche-hell active:scale-[0.98]"
                 style={{ borderTop: `6px solid ${artikel.farbe}` }}>
-                <p className="break-words text-2xl font-semibold">{artikel.name}</p>
+                <p className="break-words text-2xl font-semibold">
+                  {zweisprachigerName(artikel.name, artikel.name_tr, sprache)}
+                </p>
                 <p className="nummer mt-2 text-xl text-navy">{formatEuro(artikel.preis_cent)}</p>
                 {artikel.beilagen.length > 0 && (
                   <p className="mt-1 text-sm text-schrift-gedimmt">mit Beilagen-Auswahl</p>
@@ -166,25 +169,25 @@ export default function KasseSeite() {
             )}
           </div>
 
-          <Warenkorb positionen={positionen} laeuft={laeuft} fehler={fehler}
+          <Warenkorb positionen={positionen} laeuft={laeuft} fehler={fehler} sprache={sprache}
             onMengeAendern={positionMengeAendern}
             onKassieren={kassierenVorschauAnzeigen} />
         </div>
       ) : (
-        <StornoTab />
+        <StornoTab sprache={sprache} />
       )}
 
       <Fusszeile />
 
       {beilagenArtikel && (
-        <BeilagenDialog artikel={beilagenArtikel}
+        <BeilagenDialog artikel={beilagenArtikel} sprache={sprache}
           onBestaetigen={(beilagen) => positionHinzufuegen(beilagenArtikel, beilagen)}
           onAbbrechen={() => { setBeilagenArtikel(null); setFokusAuswahl([]); }}
           onAuswahlAendern={setFokusAuswahl} />
       )}
 
       {ergebnis && (
-        <KassierenAbschluss ergebnis={ergebnis} laeuft={laeuft} fehler={fehler}
+        <KassierenAbschluss ergebnis={ergebnis} laeuft={laeuft} fehler={fehler} sprache={sprache}
           onZurueck={() => { setErgebnis(null); setFehler(''); }}
           onFertig={kassierenBuchen} />
       )}
