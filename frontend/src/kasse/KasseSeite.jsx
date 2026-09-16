@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Kopfzeile from '../komponenten/Kopfzeile.jsx';
 import Fusszeile from '../komponenten/Fusszeile.jsx';
+import SprachSchalter from '../komponenten/SprachSchalter.jsx';
 import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { apiGet, apiPost, apiPut, formatEuro } from '../api.js';
@@ -25,6 +26,7 @@ export default function KasseSeite() {
   const [laeuft, setLaeuft] = useState(false);
   const [fehler, setFehler] = useState('');
   const [warenkorbVerlassenAktiv, setWarenkorbVerlassenAktiv] = useState(false);
+  const [sprache, setSprache] = useState('de');
   const naechsterSchluessel = useRef(1);
   const kundenMelden = useRef(erzeugeMeldungsFolge(
     (stand) => apiPut('/api/kasse/kundenanzeige', stand)
@@ -88,8 +90,9 @@ export default function KasseSeite() {
       })),
       fokus,
       summe_cent: ergebnis ? ergebnis.summe_cent : null,
+      sprache,
     });
-  }, [positionen, beilagenArtikel, fokusAuswahl, ergebnis]);
+  }, [positionen, beilagenArtikel, fokusAuswahl, ergebnis, sprache]);
 
   async function kassierenVorschauAnzeigen() {
     setLaeuft(true);
@@ -125,17 +128,21 @@ export default function KasseSeite() {
   return (
     <div className="flex h-screen flex-col">
       <Kopfzeile titel="Kasse" benutzername={session.benutzername} aufLogoKlick={logoGeklickt}
+        sprache={sprache}
         rechts={
-          <nav className="flex gap-1 rounded-full border border-linie p-1">
-            {[['verkauf', 'Verkauf'], ['storno', 'Storno']].map(([wert, beschriftung]) => (
-              <button key={wert} onClick={() => setTab(wert)}
-                className={`cursor-pointer rounded-full px-5 py-2 text-lg ${
-                  tab === wert ? 'bg-blau font-bold text-flaeche' : 'text-schrift-gedimmt hover:bg-flaeche-hell'
-                }`}>
-                {beschriftung}
-              </button>
-            ))}
-          </nav>
+          <>
+            <SprachSchalter sprache={sprache} onWahl={setSprache} />
+            <nav className="flex gap-1 rounded-full border border-linie p-1">
+              {[['verkauf', 'Verkauf'], ['storno', 'Storno']].map(([wert, beschriftung]) => (
+                <button key={wert} onClick={() => setTab(wert)}
+                  className={`cursor-pointer rounded-full px-5 py-2 text-lg ${
+                    tab === wert ? 'bg-blau font-bold text-flaeche' : 'text-schrift-gedimmt hover:bg-flaeche-hell'
+                  }`}>
+                  {beschriftung}
+                </button>
+              ))}
+            </nav>
+          </>
         } />
 
       {tab === 'verkauf' ? (

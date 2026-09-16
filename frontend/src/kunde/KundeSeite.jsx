@@ -9,7 +9,7 @@ import BestellUebersicht from './BestellUebersicht.jsx';
 
 export default function KundeSeite() {
   const [artikelListe, setArtikelListe] = useState([]);
-  const [zustand, setZustand] = useState({ warenkorb: [], fokus: null, summe_cent: null });
+  const [zustand, setZustand] = useState({ warenkorb: [], fokus: null, summe_cent: null, sprache: 'de' });
   const letzteAbfrage = useRef(0);
 
   useLiveUpdate(['artikel', 'beilagen'], () => {
