@@ -1,8 +1,9 @@
 import { formatEuro } from '../api.js';
 import { useUeberlaufErkennung } from '../komponenten/useUeberlaufErkennung.js';
 import { usePendelScroll } from '../komponenten/usePendelScroll.js';
+import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 
-export default function WarenkorbListe({ warenkorb }) {
+export default function WarenkorbListe({ warenkorb, sprache }) {
   const { rahmen, inhalt, ueberlauf, ueberlaufPx } = useUeberlaufErkennung(warenkorb);
   const { versatzPx, uebergangSekunden } = usePendelScroll(ueberlaufPx);
 
@@ -29,10 +30,13 @@ export default function WarenkorbListe({ warenkorb }) {
               <li key={position.schluessel} className="flex gap-3 border-b border-linie px-4 py-3">
                 <div className="min-w-0 flex-1 self-center">
                   <p className="truncate text-lg">
-                    {position.menge > 1 ? `${position.menge}× ` : ''}{position.artikel_name}
+                    {position.menge > 1 ? `${position.menge}× ` : ''}
+                    {zweisprachigerName(position.artikel_name, position.artikel_name_tr, sprache)}
                   </p>
                   {position.beilagen.length > 0 && (
-                    <p className="text-sm text-schrift-gedimmt">{position.beilagen.join(', ')}</p>
+                    <p className="text-sm text-schrift-gedimmt">
+                      {position.beilagen.map((name, i) => zweisprachigerName(name, position.beilagen_tr[i], sprache)).join(', ')}
+                    </p>
                   )}
                 </div>
                 <span className="nummer self-center text-sm">

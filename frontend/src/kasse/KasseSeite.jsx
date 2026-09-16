@@ -71,11 +71,13 @@ export default function KasseSeite() {
   useEffect(() => {
     const fokus = beilagenArtikel ? {
       artikel_name: beilagenArtikel.name,
+      artikel_name_tr: beilagenArtikel.name_tr,
       farbe: beilagenArtikel.farbe,
       bild_url: beilagenArtikel.bild_url ?? null,
       preis_cent: beilagenArtikel.preis_cent,
       beilagenOptionen: beilagenArtikel.beilagen.map((beilage) => ({
         name: beilage.name,
+        name_tr: beilage.name_tr,
         aktiv: !!beilage.aktiv,
         ausgewaehlt: fokusAuswahl.some((g) => g.id === beilage.id),
       })),
@@ -84,9 +86,11 @@ export default function KasseSeite() {
       warenkorb: positionen.map((p) => ({
         schluessel: p.schluessel,
         artikel_name: p.artikel.name,
+        artikel_name_tr: p.artikel.name_tr,
         farbe: p.artikel.farbe,
         preis_cent: p.artikel.preis_cent,
         beilagen: p.beilagen.map((b) => b.name),
+        beilagen_tr: p.beilagen.map((b) => b.name_tr),
         menge: p.menge,
       })),
       fokus,

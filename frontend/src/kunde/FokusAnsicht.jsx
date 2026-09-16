@@ -1,6 +1,7 @@
 import { formatEuro } from '../api.js';
+import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 
-export default function FokusAnsicht({ fokus }) {
+export default function FokusAnsicht({ fokus, sprache }) {
   const hatBild = !!fokus.bild_url;
 
   return (
@@ -12,7 +13,7 @@ export default function FokusAnsicht({ fokus }) {
         {hatBild && <div className="absolute inset-0 bg-schrift/50" />}
         <div className="relative w-full">
           <p className={`break-words text-5xl font-bold ${hatBild ? 'text-flaeche drop-shadow-md' : 'text-schrift'}`}>
-            {fokus.artikel_name}
+            {zweisprachigerName(fokus.artikel_name, fokus.artikel_name_tr, sprache)}
           </p>
           <p className={`nummer mt-3 text-3xl ${hatBild ? 'text-flaeche/90 drop-shadow-md' : 'text-schrift-gedimmt'}`}>
             {formatEuro(fokus.preis_cent)}
@@ -31,7 +32,7 @@ export default function FokusAnsicht({ fokus }) {
                           ? 'border-flaeche/60 bg-flaeche/20 text-flaeche'
                           : 'border-linie bg-grund text-schrift'
                   }`}>
-                  {beilage.name}
+                  {zweisprachigerName(beilage.name, beilage.name_tr, sprache)}
                 </div>
               ))}
             </div>

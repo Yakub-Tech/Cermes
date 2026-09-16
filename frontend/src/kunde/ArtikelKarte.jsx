@@ -1,6 +1,7 @@
 import { formatEuro } from '../api.js';
+import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 
-export default function ArtikelKarte({ artikel }) {
+export default function ArtikelKarte({ artikel, sprache }) {
   const hatBild = !!artikel.bild_url;
 
   return (
@@ -11,7 +12,7 @@ export default function ArtikelKarte({ artikel }) {
       {hatBild && <div className="absolute inset-0 bg-schrift/45" />}
       <div className="relative">
         <p className={`break-words text-2xl font-bold ${hatBild ? 'text-flaeche drop-shadow-md' : 'text-schrift'}`}>
-          {artikel.name}
+          {zweisprachigerName(artikel.name, artikel.name_tr, sprache)}
         </p>
         <p className={`nummer mt-2 text-xl ${hatBild ? 'text-flaeche/90 drop-shadow-md' : 'text-navy'}`}>
           {formatEuro(artikel.preis_cent)}

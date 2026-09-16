@@ -27,7 +27,7 @@ export default function KundeSeite() {
   if (zustand.summe_cent !== null) {
     return (
       <>
-        <BestellUebersicht warenkorb={zustand.warenkorb} summeCent={zustand.summe_cent} />
+        <BestellUebersicht warenkorb={zustand.warenkorb} summeCent={zustand.summe_cent} sprache={zustand.sprache} />
         <Urheberrechtshinweis />
       </>
     );
@@ -38,7 +38,7 @@ export default function KundeSeite() {
       <div className="flex min-h-0 flex-1">
         <div className="grid flex-1 auto-rows-min grid-cols-2 gap-4 overflow-y-auto px-4 pt-8 pb-4 sm:grid-cols-3 lg:grid-cols-4">
           {artikelListe.map((artikel) => (
-            <ArtikelKarte key={artikel.id} artikel={artikel} />
+            <ArtikelKarte key={artikel.id} artikel={artikel} sprache={zustand.sprache} />
           ))}
           {artikelListe.length === 0 && (
             <p className="col-span-full p-4 text-schrift-gedimmt">
@@ -47,10 +47,10 @@ export default function KundeSeite() {
           )}
         </div>
 
-        <WarenkorbListe warenkorb={zustand.warenkorb} />
+        <WarenkorbListe warenkorb={zustand.warenkorb} sprache={zustand.sprache} />
       </div>
 
-      {zustand.fokus && <FokusAnsicht fokus={zustand.fokus} />}
+      {zustand.fokus && <FokusAnsicht fokus={zustand.fokus} sprache={zustand.sprache} />}
       <Urheberrechtshinweis />
     </div>
   );
