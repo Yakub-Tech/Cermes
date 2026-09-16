@@ -36,6 +36,7 @@ function bereitePositionenVor(db, positionen) {
       throw fehler;
     }
     const beilagenNamen = [];
+    const beilagenNamenTr = [];
     for (const beilageId of position.beilagen_ids || []) {
       const beilage = db.prepare(
         `SELECT b.* FROM beilage b
@@ -48,9 +49,10 @@ function bereitePositionenVor(db, positionen) {
         throw fehler;
       }
       beilagenNamen.push(beilage.name);
+      beilagenNamenTr.push(beilage.name_tr);
     }
     summe += artikel.preis_cent;
-    vorbereitet.push({ artikel, beilagenNamen });
+    vorbereitet.push({ artikel, beilagenNamen, beilagenNamenTr });
   }
   return { vorbereitet, summe };
 }
@@ -59,7 +61,7 @@ function ermittleVorschauKaertchen(db, vorbereitet) {
   const kaertchen = [];
   const naechstePositionProArtikel = new Map();
   const dringendsterZustandProArtikel = new Map();
-  for (const { artikel, beilagenNamen } of vorbereitet) {
+  for (const { artikel, beilagenNamen, beilagenNamenTr } of vorbereitet) {
     let bisherigePosition = naechstePositionProArtikel.get(artikel.id);
     if (bisherigePosition === undefined) {
       bisherigePosition = db.prepare('SELECT naechste_nummer FROM artikel WHERE id = ?')
@@ -69,8 +71,9 @@ function ermittleVorschauKaertchen(db, vorbereitet) {
     const { nummer, neuePosition } = ermittleVergabeUndNeuePosition(bloecke, bisherigePosition);
     naechstePositionProArtikel.set(artikel.id, neuePosition);
     kaertchen.push({
-      artikel_name: artikel.name, artikel_farbe: artikel.farbe,
-      preis_cent: artikel.preis_cent, beilagen: beilagenNamen, nummer, hinweis: null,
+      artikel_name: artikel.name, artikel_name_tr: artikel.name_tr, artikel_farbe: artikel.farbe,
+      preis_cent: artikel.preis_cent, beilagen: beilagenNamen, beilagen_tr: beilagenNamenTr,
+      nummer, hinweis: null,
     });
     const statusInfo = ermittleStatus(bloecke, nummer);
     const bisher = dringendsterZustandProArtikel.get(artikel.id);
@@ -99,7 +102,7 @@ export function kassieren(db, benutzerId, positionen, erwarteteNummern, erwartet
 
     const kaertchen = [];
     const dringendsterZustandProArtikel = new Map();
-    for (const [index, { artikel, beilagenNamen }] of vorbereitet.entries()) {
+    for (const [index, { artikel, beilagenNamen, beilagenNamenTr }] of vorbereitet.entries()) {
       if (erwartetePreiseCent && erwartetePreiseCent[index] !== undefined
         && erwartetePreiseCent[index] !== artikel.preis_cent) {
         const fehler = new Error(
@@ -121,15 +124,16 @@ export function kassieren(db, benutzerId, positionen, erwarteteNummern, erwartet
       }
       db.prepare('UPDATE artikel SET naechste_nummer = ? WHERE id = ?').run(neuePosition, artikel.id);
       const eintrag = db.prepare(
-        `INSERT INTO kaertchen (kassiervorgang_id, artikel_id, nummer, artikel_name, artikel_farbe,
-           preis_cent, einkaufskosten_cent, beilagen, status, erstellt_am)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'in_bearbeitung', ?)`
-      ).run(vorgang.lastInsertRowid, artikel.id, nummer, artikel.name, artikel.farbe,
-        artikel.preis_cent, artikel.einkaufskosten_cent, JSON.stringify(beilagenNamen), jetztIso());
+        `INSERT INTO kaertchen (kassiervorgang_id, artikel_id, nummer, artikel_name, artikel_name_tr,
+           artikel_farbe, preis_cent, einkaufskosten_cent, beilagen, beilagen_tr, status, erstellt_am)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'in_bearbeitung', ?)`
+      ).run(vorgang.lastInsertRowid, artikel.id, nummer, artikel.name, artikel.name_tr, artikel.farbe,
+        artikel.preis_cent, artikel.einkaufskosten_cent, JSON.stringify(beilagenNamen),
+        JSON.stringify(beilagenNamenTr), jetztIso());
       kaertchen.push({
-        id: eintrag.lastInsertRowid, nummer, artikel_name: artikel.name,
+        id: eintrag.lastInsertRowid, nummer, artikel_name: artikel.name, artikel_name_tr: artikel.name_tr,
         artikel_farbe: artikel.farbe, preis_cent: artikel.preis_cent, beilagen: beilagenNamen,
-        hinweis: null,
+        beilagen_tr: beilagenNamenTr, hinweis: null,
       });
       const statusInfo = ermittleStatus(bloecke, nummer);
       const bisher = dringendsterZustandProArtikel.get(artikel.id);

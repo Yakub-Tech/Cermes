@@ -5,9 +5,10 @@ import { frischeApp, angemeldeterAgent } from './helfer.js';
 test('Kassieren-Vorschau zeigt dieselben Nummern wie das echte Kassieren, bucht aber nichts', async () => {
   const { app, db } = frischeApp();
   const admin = await angemeldeterAgent(app, db, 'admin');
-  const mayo = (await admin.post('/api/beilagen').send({ name: 'Mayo' })).body;
+  const mayo = (await admin.post('/api/beilagen').send({ name: 'Mayo', name_tr: 'Mayonez' })).body;
   const pommes = (await admin.post('/api/artikel').send({
-    name: 'Pommes', farbe: '#f5c211', preis_cent: 350, beilagen_ids: [mayo.id], sortierung: 1,
+    name: 'Pommes', name_tr: 'Patates', farbe: '#f5c211', preis_cent: 350,
+    beilagen_ids: [mayo.id], sortierung: 1,
   })).body;
   const adana = (await admin.post('/api/artikel').send({
     name: 'Adana', farbe: '#2255cc', preis_cent: 700, beilagen_ids: [], sortierung: 2,
@@ -25,6 +26,8 @@ test('Kassieren-Vorschau zeigt dieselben Nummern wie das echte Kassieren, bucht 
   const vorschauNummern = vorschau.kaertchen.map((k) => [k.artikel_name, k.nummer]);
   assert.deepEqual(vorschauNummern, [['Pommes', 1], ['Pommes', 2], ['Adana', 1]]);
   assert.deepEqual(vorschau.kaertchen[0].beilagen, ['Mayo']);
+  assert.deepEqual(vorschau.kaertchen[0].artikel_name_tr, 'Patates');
+  assert.deepEqual(vorschau.kaertchen[0].beilagen_tr, ['Mayonez']);
 
   assert.equal(db.prepare('SELECT COUNT(*) AS n FROM kaertchen').get().n, 0);
   assert.equal(db.prepare('SELECT COUNT(*) AS n FROM kassiervorgang').get().n, 0);

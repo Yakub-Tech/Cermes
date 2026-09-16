@@ -5,9 +5,10 @@ import { frischeApp, angemeldeterAgent } from './helfer.js';
 test('Kassieren vergibt Nummern pro Artikel aufsteigend und friert Werte ein', async () => {
   const { app, db } = frischeApp();
   const admin = await angemeldeterAgent(app, db, 'admin');
-  const mayo = (await admin.post('/api/beilagen').send({ name: 'Mayo' })).body;
+  const mayo = (await admin.post('/api/beilagen').send({ name: 'Mayo', name_tr: 'Mayonez' })).body;
   const pommes = (await admin.post('/api/artikel').send({
-    name: 'Pommes', farbe: '#f5c211', preis_cent: 350, beilagen_ids: [mayo.id], sortierung: 1,
+    name: 'Pommes', name_tr: 'Patates', farbe: '#f5c211', preis_cent: 350,
+    beilagen_ids: [mayo.id], sortierung: 1,
   })).body;
   const adana = (await admin.post('/api/artikel').send({
     name: 'Adana', farbe: '#2255cc', preis_cent: 700, beilagen_ids: [], sortierung: 2,
@@ -26,6 +27,15 @@ test('Kassieren vergibt Nummern pro Artikel aufsteigend und friert Werte ein', a
   const nummern = ergebnis.kaertchen.map((k) => [k.artikel_name, k.nummer]);
   assert.deepEqual(nummern, [['Pommes', 1], ['Pommes', 2], ['Adana', 1]]);
   assert.deepEqual(ergebnis.kaertchen[0].beilagen, ['Mayo']);
+  assert.deepEqual(ergebnis.kaertchen[0].artikel_name_tr, 'Patates');
+  assert.deepEqual(ergebnis.kaertchen[0].beilagen_tr, ['Mayonez']);
+  assert.deepEqual(ergebnis.kaertchen[2].artikel_name_tr, null);
+
+  const gespeichertTr = db.prepare(
+    'SELECT artikel_name_tr, beilagen_tr FROM kaertchen WHERE id = ?'
+  ).get(ergebnis.kaertchen[0].id);
+  assert.equal(gespeichertTr.artikel_name_tr, 'Patates');
+  assert.deepEqual(JSON.parse(gespeichertTr.beilagen_tr), ['Mayonez']);
 
   await admin.put(`/api/artikel/${pommes.id}`).send({ ...pommes, preis_cent: 999, aktiv: 1, beilagen_ids: [mayo.id] });
   const gespeichert = db.prepare('SELECT preis_cent FROM kaertchen WHERE id = ?').get(ergebnis.kaertchen[0].id);
