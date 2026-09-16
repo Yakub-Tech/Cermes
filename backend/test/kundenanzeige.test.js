@@ -65,9 +65,9 @@ test('Kasse kann Live-Zustand schreiben, nur mit Rolle kasse', async () => {
 test('Kundenanzeige-Artikel: öffentlich, ohne Kosten, nur aktive/nicht gelöschte', async () => {
   const { app, db } = frischeApp();
   const admin = await angemeldeterAgent(app, db, 'admin');
-  const ketchup = (await admin.post('/api/beilagen').send({ name: 'Ketchup' })).body;
+  const ketchup = (await admin.post('/api/beilagen').send({ name: 'Ketchup', name_tr: 'Ketçap' })).body;
   await admin.post('/api/artikel').send({
-    name: 'Pommes', farbe: '#f5c211', preis_cent: 350, einkaufskosten_cent: 120,
+    name: 'Pommes', name_tr: 'Patates', farbe: '#f5c211', preis_cent: 350, einkaufskosten_cent: 120,
     sortierung: 1, beilagen_ids: [ketchup.id],
   });
   await admin.post('/api/artikel').send({ name: 'Inaktiv', farbe: '#000000', preis_cent: 100, aktiv: 0 });
@@ -79,4 +79,6 @@ test('Kundenanzeige-Artikel: öffentlich, ohne Kosten, nur aktive/nicht gelösch
   assert.equal(antwort.body[0].einkaufskosten_cent, undefined);
   assert.deepEqual(antwort.body[0].beilagen.map((b) => b.name), ['Ketchup']);
   assert.equal(antwort.body[0].bild_url, null);
+  assert.equal(antwort.body[0].name_tr, 'Patates');
+  assert.deepEqual(antwort.body[0].beilagen.map((b) => b.name_tr), ['Ketçap']);
 });

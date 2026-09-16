@@ -11,12 +11,13 @@ router.get('/api/kunde/artikel', (_anfrage, antwort) => {
   ).all();
   const mitDetails = artikelListe.map((artikel) => {
     const beilagen = db.prepare(
-      `SELECT b.id, b.name, b.aktiv FROM beilage b
+      `SELECT b.id, b.name, b.name_tr, b.aktiv FROM beilage b
        JOIN artikel_beilage ab ON ab.beilage_id = b.id
        WHERE ab.artikel_id = ? AND b.geloescht = 0 ORDER BY b.name`
     ).all(artikel.id);
     return {
-      id: artikel.id, name: artikel.name, farbe: artikel.farbe, preis_cent: artikel.preis_cent,
+      id: artikel.id, name: artikel.name, name_tr: artikel.name_tr,
+      farbe: artikel.farbe, preis_cent: artikel.preis_cent,
       bild_url: artikel.bild_dateiname ? `/artikelbilder/${artikel.bild_dateiname}` : null,
       beilagen,
     };

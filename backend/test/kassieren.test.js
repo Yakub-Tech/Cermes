@@ -77,7 +77,7 @@ test('Kassieren mit inaktiver Beilage wird mit Klartext abgelehnt', async () => 
 test('Kassen-Artikelliste zeigt nur aktive Artikel mit allen Beilagen', async () => {
   const { app, db } = frischeApp();
   const admin = await angemeldeterAgent(app, db, 'admin');
-  const mayo = (await admin.post('/api/beilagen').send({ name: 'Mayo' })).body;
+  const mayo = (await admin.post('/api/beilagen').send({ name: 'Mayo', name_tr: 'Mayonez' })).body;
   const ketchup = (await admin.post('/api/beilagen').send({ name: 'Ketchup' })).body;
   await admin.put(`/api/beilagen/${ketchup.id}`).send({ name: 'Ketchup', aktiv: 0 });
   await admin.post('/api/artikel').send({
@@ -95,6 +95,8 @@ test('Kassen-Artikelliste zeigt nur aktive Artikel mit allen Beilagen', async ()
   assert.equal(liste[0].name, 'Pommes');
   const beilagenNamen = liste[0].beilagen.map((b) => [b.name, b.aktiv]);
   assert.deepEqual(beilagenNamen.sort(), [['Ketchup', 0], ['Mayo', 1]]);
+  const beilagenTr = liste[0].beilagen.map((b) => b.name_tr);
+  assert.deepEqual(beilagenTr.sort(), ['Mayonez', null]);
 });
 
 test('Leerer Warenkorb wird abgelehnt', async () => {
