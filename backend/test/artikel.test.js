@@ -46,6 +46,47 @@ test('Artikel-Validierung lehnt Unsinn verständlich ab', async () => {
   assert.equal(falscherPreis.status, 400);
 });
 
+test('Artikel: türkischer Name optional, leerer String wird zu null normalisiert', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+
+  const mitTr = (await admin.post('/api/artikel').send({
+    name: 'Döner', name_tr: 'Döner', farbe: '#f5c211', preis_cent: 500, beilagen_ids: [], sortierung: 1,
+  })).body;
+  assert.equal(mitTr.name_tr, 'Döner');
+
+  const leererString = (await admin.post('/api/artikel').send({
+    name: 'Cola', name_tr: '   ', farbe: '#333333', preis_cent: 250, beilagen_ids: [], sortierung: 2,
+  })).body;
+  assert.equal(leererString.name_tr, null);
+
+  const ohneFeld = (await admin.post('/api/artikel').send({
+    name: 'Wasser', farbe: '#00aaff', preis_cent: 150, beilagen_ids: [], sortierung: 3,
+  })).body;
+  assert.equal(ohneFeld.name_tr, null);
+
+  const geaendert = (await admin.put(`/api/artikel/${mitTr.id}`).send({
+    ...mitTr, name_tr: 'Dürüm',
+  })).body;
+  assert.equal(geaendert.name_tr, 'Dürüm');
+});
+
+test('Beilage: türkischer Name optional, leerer String wird zu null normalisiert', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+
+  const mitTr = (await admin.post('/api/beilagen').send({ name: 'Ketchup', name_tr: 'Ketçap' })).body;
+  assert.equal(mitTr.name_tr, 'Ketçap');
+
+  const ohneFeld = (await admin.post('/api/beilagen').send({ name: 'Mayo' })).body;
+  assert.equal(ohneFeld.name_tr, null);
+
+  const geaendert = (await admin.put(`/api/beilagen/${mitTr.id}`).send({
+    name: 'Ketchup', name_tr: '  ', aktiv: 1,
+  })).body;
+  assert.equal(geaendert.name_tr, null);
+});
+
 test('Verwaltung sieht keine Einkaufskosten und kann sie nicht setzen oder ändern', async () => {
   const { app, db } = frischeApp();
   const admin = await angemeldeterAgent(app, db, 'admin');

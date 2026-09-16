@@ -5,6 +5,11 @@ import { sendeEreignis } from '../broadcast.js';
 
 const router = express.Router();
 
+function normalisiereNameTr(wert) {
+  const getrimmt = String(wert ?? '').trim();
+  return getrimmt === '' ? null : getrimmt;
+}
+
 router.get('/api/beilagen', brauchtRolle(['admin', 'verwaltung']), (_anfrage, antwort) => {
   const db = oeffneDatenbank();
   antwort.json(db.prepare('SELECT * FROM beilage WHERE geloescht = 0 ORDER BY name').all());
@@ -16,7 +21,8 @@ router.post('/api/beilagen', brauchtRolle(['admin', 'verwaltung']), (anfrage, an
   if (name === '') {
     return antwort.status(400).json({ fehler: 'Bitte einen Namen für die Beilage angeben.' });
   }
-  const ergebnis = db.prepare('INSERT INTO beilage (name) VALUES (?)').run(name);
+  const nameTr = normalisiereNameTr(anfrage.body.name_tr);
+  const ergebnis = db.prepare('INSERT INTO beilage (name, name_tr) VALUES (?, ?)').run(name, nameTr);
   sendeEreignis('beilagen');
   antwort.json(db.prepare('SELECT * FROM beilage WHERE id = ?').get(ergebnis.lastInsertRowid));
 });
@@ -33,7 +39,9 @@ router.put('/api/beilagen/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage,
     return antwort.status(400).json({ fehler: 'Bitte einen Namen für die Beilage angeben.' });
   }
   const aktiv = anfrage.body.aktiv ? 1 : 0;
-  db.prepare('UPDATE beilage SET name = ?, aktiv = ? WHERE id = ?').run(name, aktiv, vorhanden.id);
+  const nameTr = normalisiereNameTr(anfrage.body.name_tr);
+  db.prepare('UPDATE beilage SET name = ?, name_tr = ?, aktiv = ? WHERE id = ?')
+    .run(name, nameTr, aktiv, vorhanden.id);
   sendeEreignis('beilagen');
   antwort.json(db.prepare('SELECT * FROM beilage WHERE id = ?').get(vorhanden.id));
 });

@@ -49,6 +49,11 @@ function pruefeArtikelDaten(daten) {
   return null;
 }
 
+function normalisiereNameTr(wert) {
+  const getrimmt = String(wert ?? '').trim();
+  return getrimmt === '' ? null : getrimmt;
+}
+
 function beilagenZuordnen(db, artikelId, beilagenIds) {
   db.prepare('DELETE FROM artikel_beilage WHERE artikel_id = ?').run(artikelId);
   for (const beilageId of beilagenIds || []) {
@@ -112,9 +117,9 @@ router.post('/api/artikel', brauchtRolle(['admin', 'verwaltung']), (anfrage, ant
   const istVerwaltung = anfrage.benutzer.rolle === 'verwaltung';
   const einkaufskostenCent = istVerwaltung ? null : (daten.einkaufskosten_cent ?? null);
   const ergebnis = db.prepare(
-    `INSERT INTO artikel (name, farbe, preis_cent, einkaufskosten_cent, aktiv, sortierung)
-     VALUES (?, ?, ?, ?, ?, ?)`
-  ).run(daten.name.trim(), daten.farbe, daten.preis_cent,
+    `INSERT INTO artikel (name, name_tr, farbe, preis_cent, einkaufskosten_cent, aktiv, sortierung)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`
+  ).run(daten.name.trim(), normalisiereNameTr(daten.name_tr), daten.farbe, daten.preis_cent,
     einkaufskostenCent, daten.aktiv ?? 1, daten.sortierung ?? 0);
   beilagenZuordnen(db, ergebnis.lastInsertRowid, daten.beilagen_ids);
   bloeckeSpeichern(db, ergebnis.lastInsertRowid, bloecke);
@@ -143,10 +148,10 @@ router.put('/api/artikel/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, 
     ? vorhanden.einkaufskosten_cent
     : (daten.einkaufskosten_cent ?? null);
   db.prepare(
-    `UPDATE artikel SET name = ?, farbe = ?, preis_cent = ?, einkaufskosten_cent = ?,
+    `UPDATE artikel SET name = ?, name_tr = ?, farbe = ?, preis_cent = ?, einkaufskosten_cent = ?,
        aktiv = ?, sortierung = ? WHERE id = ?`
-  ).run(daten.name.trim(), daten.farbe, daten.preis_cent, einkaufskostenCent,
-    daten.aktiv ?? 1, daten.sortierung ?? 0, vorhanden.id);
+  ).run(daten.name.trim(), normalisiereNameTr(daten.name_tr), daten.farbe, daten.preis_cent,
+    einkaufskostenCent, daten.aktiv ?? 1, daten.sortierung ?? 0, vorhanden.id);
   beilagenZuordnen(db, vorhanden.id, daten.beilagen_ids);
   if (daten.bloecke !== undefined) {
     bloeckeSpeichern(db, vorhanden.id, daten.bloecke);
