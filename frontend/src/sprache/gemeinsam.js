@@ -1,0 +1,28 @@
+export const de = {
+  abbrechen: 'Abbrechen',
+  speichern: 'Speichern',
+  loeschen: 'Löschen',
+  jaLoeschen: 'Ja, löschen',
+  entfernen: 'Entfernen',
+  jaEntfernen: 'Ja, entfernen',
+  aktiv: 'aktiv',
+  inaktiv: 'inaktiv',
+  rueckgaengig: 'Rückgängig',
+  uhr: 'Uhr',
+  alleArtikel: 'Alle Artikel',
+  dateiTypFehler: 'Bitte nur PNG-, JPEG- oder WebP-Bilder ablegen.',
+};
+export const tr = {
+  abbrechen: 'İptal',
+  speichern: 'Kaydet',
+  loeschen: 'Sil',
+  jaLoeschen: 'Evet, sil',
+  entfernen: 'Kaldır',
+  jaEntfernen: 'Evet, kaldır',
+  aktiv: 'aktif',
+  inaktiv: 'pasif',
+  rueckgaengig: 'Geri al',
+  uhr: '',
+  alleArtikel: 'Tüm ürünler',
+  dateiTypFehler: 'Lütfen sadece PNG, JPEG veya WebP resim dosyaları yükleyin.',
+};
