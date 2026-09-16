@@ -11,6 +11,7 @@ export const de = {
   uhr: 'Uhr',
   alleArtikel: 'Alle Artikel',
   dateiTypFehler: 'Bitte nur PNG-, JPEG- oder WebP-Bilder ablegen.',
+  deineBestellung: 'Deine Bestellung',
 };
 export const tr = {
   abbrechen: 'İptal',
@@ -25,4 +26,5 @@ export const tr = {
   uhr: '',
   alleArtikel: 'Tüm ürünler',
   dateiTypFehler: 'Lütfen sadece PNG, JPEG veya WebP resim dosyaları yükleyin.',
+  deineBestellung: 'Siparişin',
 };
