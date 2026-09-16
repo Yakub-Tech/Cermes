@@ -9,7 +9,7 @@ test('Tagesstatistik: Stückzahlen, Umsatz, Gewinn, Stunden, Stornos', async () 
   const kasse = await angemeldeterAgent(app, db, 'kasse');
 
   const pommes = (await admin.post('/api/artikel').send({
-    name: 'Pommes', farbe: '#f5c211', preis_cent: 350,
+    name: 'Pommes', name_tr: 'Patates', farbe: '#f5c211', preis_cent: 350,
     einkaufskosten_cent: 120, beilagen_ids: [], sortierung: 1,
   })).body;
   const cola = (await admin.post('/api/artikel').send({
@@ -35,6 +35,8 @@ test('Tagesstatistik: Stückzahlen, Umsatz, Gewinn, Stunden, Stornos', async () 
   assert.equal(proArtikel.Pommes.umsatz_cent, 700);
   assert.equal(proArtikel.Pommes.gewinn_cent, 2 * (350 - 120));
   assert.equal(proArtikel.Pommes.stueck_ohne_kosten, 0);
+  assert.equal(proArtikel.Pommes.artikel_name_tr, 'Patates');
+  assert.equal(proArtikel.Cola.artikel_name_tr, null);
   assert.equal(proArtikel.Cola.stueck, 2);
   assert.equal(proArtikel.Cola.umsatz_cent, 500);
   assert.equal(proArtikel.Cola.gewinn_cent, 500);
@@ -54,6 +56,7 @@ test('Tagesstatistik: Stückzahlen, Umsatz, Gewinn, Stunden, Stornos', async () 
   assert.equal(statistik.stornos.length, 1);
   assert.equal(statistik.stornos[0].nummer, stornierte.nummer);
   assert.equal(statistik.stornos[0].artikel_name, 'Pommes');
+  assert.equal(statistik.stornos[0].artikel_name_tr, 'Patates');
   assert.equal(statistik.stornos[0].preis_cent, 350);
   assert.equal(statistik.stornos[0].storniert_von, 'test-kasse');
   assert.match(statistik.stornos[0].zeit, /^\d{2}:\d{2}$/);

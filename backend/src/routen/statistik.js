@@ -7,6 +7,7 @@ const router = express.Router();
 function artikelLaden(db, whereKlausel, werte) {
   return db.prepare(
     `SELECT artikel_name,
+            MAX(artikel_name_tr) AS artikel_name_tr,
             COUNT(*) AS stueck,
             SUM(preis_cent) AS umsatz_cent,
             SUM(preis_cent - COALESCE(einkaufskosten_cent, 0)) AS gewinn_cent,
@@ -31,7 +32,7 @@ function stornosLaden(db, whereKlausel, werte, mitDatum) {
   const datumSpalte = mitDatum ? 'substr(k.storniert_am, 1, 10) AS datum,' : '';
   return db.prepare(
     `SELECT ${datumSpalte} substr(k.storniert_am, 12, 5) AS zeit,
-            k.nummer, k.artikel_name, k.preis_cent, b.benutzername AS storniert_von
+            k.nummer, k.artikel_name, k.artikel_name_tr, k.preis_cent, b.benutzername AS storniert_von
      FROM kaertchen k
      JOIN benutzer b ON b.id = k.storniert_von
      WHERE k.status = 'storniert' AND ${whereKlausel}
