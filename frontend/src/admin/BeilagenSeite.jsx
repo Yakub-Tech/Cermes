@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { apiGet, apiPost, apiPut, apiDelete } from '../api.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import Dialog from '../komponenten/Dialog.jsx';
+import Kontrollkaestchen from '../komponenten/Kontrollkaestchen.jsx';
 
 export default function BeilagenSeite() {
   const [beilagen, setBeilagen] = useState([]);
   const [neuerName, setNeuerName] = useState('');
+  const [neuerNameTr, setNeuerNameTr] = useState('');
   const [bearbeitung, setBearbeitung] = useState(null);
   const [loeschung, setLoeschung] = useState(null);
   const [fehler, setFehler] = useState('');
@@ -18,18 +20,24 @@ export default function BeilagenSeite() {
     ereignis.preventDefault();
     setFehler('');
     try {
-      await apiPost('/api/beilagen', { name: neuerName });
+      await apiPost('/api/beilagen', { name: neuerName, name_tr: neuerNameTr });
       setNeuerName('');
+      setNeuerNameTr('');
     } catch (f) {
       setFehler(f.message);
     }
   }
 
   async function speichern() {
+    if (!bearbeitung.nurDeutsch && (bearbeitung.name_tr ?? '').trim() === '') {
+      setFehler('Bitte einen türkischen Namen angeben oder „Nur auf Deutsch“ ankreuzen.');
+      return;
+    }
     setFehler('');
     try {
       await apiPut(`/api/beilagen/${bearbeitung.id}`, {
-        name: bearbeitung.name, aktiv: bearbeitung.aktiv,
+        name: bearbeitung.name, name_tr: bearbeitung.nurDeutsch ? '' : bearbeitung.name_tr,
+        aktiv: bearbeitung.aktiv,
       });
       setBearbeitung(null);
     } catch (f) {
@@ -44,6 +52,9 @@ export default function BeilagenSeite() {
       <form onSubmit={anlegen} className="mb-4 flex max-w-md gap-2">
         <input value={neuerName} onChange={(e) => setNeuerName(e.target.value)}
           placeholder="Neue Beilage, z. B. Ketchup"
+          className="flex-1 rounded border border-linie bg-flaeche px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
+        <input value={neuerNameTr} onChange={(e) => setNeuerNameTr(e.target.value)}
+          placeholder="Türkisch, optional"
           className="flex-1 rounded border border-linie bg-flaeche px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
         <button type="submit" disabled={neuerName.trim() === ''}
           className="kaertchen-schatten cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
@@ -71,7 +82,7 @@ export default function BeilagenSeite() {
               }`}>
               {beilage.aktiv ? 'aktiv' : 'inaktiv'}
             </button>
-            <button onClick={() => setBearbeitung({ ...beilage })}
+            <button onClick={() => setBearbeitung({ ...beilage, nurDeutsch: !beilage.name_tr })}
               className="cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
               Umbenennen
             </button>
@@ -88,6 +99,16 @@ export default function BeilagenSeite() {
           <input value={bearbeitung.name} autoFocus
             onChange={(e) => setBearbeitung({ ...bearbeitung, name: e.target.value })}
             className="mb-2.5 w-full rounded border border-linie bg-grund px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
+          <label className="mb-1 flex items-center gap-1.5 text-xs text-schrift-gedimmt">
+            <Kontrollkaestchen markiert={bearbeitung.nurDeutsch}
+              onWahl={(wert) => setBearbeitung({ ...bearbeitung, nurDeutsch: wert })} />
+            Nur auf Deutsch
+          </label>
+          {!bearbeitung.nurDeutsch && (
+            <input value={bearbeitung.name_tr ?? ''} placeholder="Name (Türkisch)"
+              onChange={(e) => setBearbeitung({ ...bearbeitung, name_tr: e.target.value })}
+              className="mb-2.5 w-full rounded border border-linie bg-grund px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
+          )}
           <div className="flex gap-2">
             <button onClick={() => setBearbeitung(null)}
               className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">

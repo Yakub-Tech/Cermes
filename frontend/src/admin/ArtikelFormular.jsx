@@ -3,11 +3,14 @@ import { euroZuCent, formatEuro, apiUpload, apiDelete } from '../api.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import Zahlenfeld from '../komponenten/Zahlenfeld.jsx';
 import DateiAuswahl from '../komponenten/DateiAuswahl.jsx';
+import Kontrollkaestchen from '../komponenten/Kontrollkaestchen.jsx';
 
 const NAME_MAX_LAENGE = 24;
 
 export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern, onAbbrechen }) {
   const [name, setName] = useState(artikel?.name ?? '');
+  const [nameTr, setNameTr] = useState(artikel?.name_tr ?? '');
+  const [nurDeutsch, setNurDeutsch] = useState(!artikel || !artikel?.name_tr);
   const [farbe, setFarbe] = useState(artikel?.farbe ?? '#b53030');
   const [preisText, setPreisText] = useState(
     artikel ? formatEuro(artikel.preis_cent).replace(' €', '') : ''
@@ -63,6 +66,10 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
   }
 
   function speichern() {
+    if (!nurDeutsch && nameTr.trim() === '') {
+      setFehler('Bitte einen türkischen Namen angeben oder „Nur auf Deutsch“ ankreuzen.');
+      return;
+    }
     const preisCent = euroZuCent(preisText);
     if (preisCent === null) {
       setFehler('Bitte einen gültigen Verkaufspreis eingeben, z. B. 3,50');
@@ -91,6 +98,7 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
     }
     onSpeichern({
       name,
+      name_tr: nurDeutsch ? '' : nameTr,
       farbe,
       preis_cent: preisCent,
       einkaufskosten_cent: kostenCent,
@@ -113,6 +121,18 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
       <p className="mb-2.5 text-right text-xs text-schrift-gedimmt">
         {name.length}/{NAME_MAX_LAENGE} Zeichen
       </p>
+
+      <label className="mb-1 flex items-center gap-1.5 text-xs text-schrift-gedimmt">
+        <Kontrollkaestchen markiert={nurDeutsch} onWahl={setNurDeutsch} />
+        Nur auf Deutsch
+      </label>
+      {!nurDeutsch && (
+        <>
+          <label className="mb-1 block text-xs text-schrift-gedimmt">Name (Türkisch)</label>
+          <input value={nameTr} maxLength={NAME_MAX_LAENGE} onChange={(e) => setNameTr(e.target.value)}
+            className={eingabeKlasse} />
+        </>
+      )}
 
       <div className="flex gap-2.5">
         <div className="flex-1">
