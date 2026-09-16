@@ -5,6 +5,7 @@ import { heutigesDatum, datumAnzeigen } from './datum.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { Kennzahlen, ArtikelDiagramme, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
 import { staerkstesElement } from './staerkstesElement.js';
+import { beideSprachenName } from '../sprache/zweisprachigerName.js';
 
 export default function StatistikEinzeltag() {
   const [tage, setTage] = useState([]);
@@ -78,7 +79,7 @@ export default function StatistikEinzeltag() {
             <Auswahlmenue wert={stundenArtikel} onWahl={stundenArtikelWaehlen}
               optionen={[
                 { wert: '', text: 'Alle Artikel' },
-                ...artikelListe.map((a) => ({ wert: String(a.id), text: a.name })),
+                ...artikelListe.map((a) => ({ wert: String(a.id), text: beideSprachenName(a.name, a.name_tr) })),
               ]}
               klasse="text-xs" />
           } />

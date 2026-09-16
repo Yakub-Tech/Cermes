@@ -3,6 +3,7 @@ import { apiGet, apiPost, apiPut, apiDelete } from '../api.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import Kontrollkaestchen from '../komponenten/Kontrollkaestchen.jsx';
+import { beideSprachenName } from '../sprache/zweisprachigerName.js';
 
 export default function BeilagenSeite() {
   const [beilagen, setBeilagen] = useState([]);
@@ -71,7 +72,7 @@ export default function BeilagenSeite() {
         {beilagen.map((beilage) => (
           <li key={beilage.id} className="flex items-center gap-2.5 px-2.5 py-2">
             <span className={`flex-1 text-sm ${beilage.aktiv ? '' : 'text-schrift-gedimmt line-through'}`}>
-              {beilage.name}
+              {beideSprachenName(beilage.name, beilage.name_tr)}
             </span>
             <button
               onClick={() => apiPut(`/api/beilagen/${beilage.id}`, {

@@ -3,6 +3,7 @@ import { apiPost } from '../api.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import Kontrollkaestchen from '../komponenten/Kontrollkaestchen.jsx';
 import Zahlenfeld from '../komponenten/Zahlenfeld.jsx';
+import { beideSprachenName } from '../sprache/zweisprachigerName.js';
 
 export default function StartnummerDialog({ artikel, onFertig, onAbbrechen }) {
   const [nummerText, setNummerText] = useState(String(artikel.naechste_nummer));
@@ -29,7 +30,7 @@ export default function StartnummerDialog({ artikel, onFertig, onAbbrechen }) {
   }
 
   return (
-    <Dialog titel={`Startnummer für ${artikel.name}`} onSchliessen={onAbbrechen}>
+    <Dialog titel={`Startnummer für ${beideSprachenName(artikel.name, artikel.name_tr)}`} onSchliessen={onAbbrechen}>
       <label className="mb-1 block text-xs text-schrift-gedimmt">Weiter bei Nummer</label>
       <Zahlenfeld min="1" wert={nummerText} autoFokus klasse="mb-2.5 w-28"
         onWahl={(neuerWert) => { setNummerText(neuerWert); setWarnung(null); }} />

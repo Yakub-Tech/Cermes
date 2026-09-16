@@ -4,6 +4,7 @@ import Dialog from '../komponenten/Dialog.jsx';
 import Zahlenfeld from '../komponenten/Zahlenfeld.jsx';
 import DateiAuswahl from '../komponenten/DateiAuswahl.jsx';
 import Kontrollkaestchen from '../komponenten/Kontrollkaestchen.jsx';
+import { beideSprachenName } from '../sprache/zweisprachigerName.js';
 
 const NAME_MAX_LAENGE = 24;
 
@@ -175,7 +176,7 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
                 ? 'bg-navy font-semibold text-grund'
                 : 'border border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
             }`}>
-            {beilage.name}
+            {beideSprachenName(beilage.name, beilage.name_tr)}
           </button>
         ))}
       </div>

@@ -4,6 +4,7 @@ import { useLiveUpdate } from '../useLiveUpdate.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import ArtikelFormular from './ArtikelFormular.jsx';
 import StartnummerDialog from './StartnummerDialog.jsx';
+import { beideSprachenName } from '../sprache/zweisprachigerName.js';
 
 export default function ArtikelSeite({ rolle }) {
   const [artikelListe, setArtikelListe] = useState([]);
@@ -19,7 +20,8 @@ export default function ArtikelSeite({ rolle }) {
   });
 
   function beilagenNamen(ids) {
-    return beilagen.filter((b) => ids.includes(b.id)).map((b) => b.name).join(', ');
+    return beilagen.filter((b) => ids.includes(b.id))
+      .map((b) => beideSprachenName(b.name, b.name_tr)).join(', ');
   }
 
   async function speichern(daten) {
@@ -69,7 +71,7 @@ export default function ArtikelSeite({ rolle }) {
                   {artikel.bild_url && (
                     <img src={artikel.bild_url} alt="" className="mr-1.5 inline-block h-6 w-6 rounded object-cover align-middle" />
                   )}
-                  <span className="text-sm">{artikel.name}</span>
+                  <span className="text-sm">{beideSprachenName(artikel.name, artikel.name_tr)}</span>
                 </td>
                 <td className="nummer px-2.5 py-2">{formatEuro(artikel.preis_cent)}</td>
                 {rolle === 'admin' && (
