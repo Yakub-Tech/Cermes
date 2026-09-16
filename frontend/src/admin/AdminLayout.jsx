@@ -68,7 +68,7 @@ export default function AdminLayout() {
         </main>
       </div>
 
-      <Fusszeile />
+      <Fusszeile sprache={sprache} />
     </div>
   );
 }

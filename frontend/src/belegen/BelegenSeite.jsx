@@ -90,11 +90,11 @@ export default function BelegenSeite() {
         ))}
       </div>
 
-      <Fusszeile />
+      <Fusszeile sprache={sprache} />
 
       {snackbar && (
         <Snackbar meldung={snackbar.meldung} onRueckgaengig={snackbar.rueckgaengig}
-          onZu={() => setSnackbar(null)} />
+          onZu={() => setSnackbar(null)} sprache={sprache} />
       )}
     </div>
   );

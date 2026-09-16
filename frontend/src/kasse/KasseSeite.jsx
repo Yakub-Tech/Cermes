@@ -181,7 +181,7 @@ export default function KasseSeite() {
         <StornoTab sprache={sprache} />
       )}
 
-      <Fusszeile />
+      <Fusszeile sprache={sprache} />
 
       {beilagenArtikel && (
         <BeilagenDialog artikel={beilagenArtikel} sprache={sprache}
