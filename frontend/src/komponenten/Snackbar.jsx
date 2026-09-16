@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
+import { de, tr } from '../sprache/gemeinsam.js';
 
-export default function Snackbar({ meldung, onRueckgaengig, onZu }) {
+export default function Snackbar({ meldung, onRueckgaengig, onZu, sprache = 'de' }) {
+  const texte = sprache === 'tr' ? tr : de;
+
   useEffect(() => {
     const timer = setTimeout(onZu, 5000);
     return () => clearTimeout(timer);
@@ -12,7 +15,7 @@ export default function Snackbar({ meldung, onRueckgaengig, onZu }) {
       {onRueckgaengig && (
         <button onClick={() => { onRueckgaengig(); onZu(); }}
           className="cursor-pointer rounded-full bg-navy px-4 py-2 font-bold text-grund hover:bg-blau-hell">
-          Rückgängig
+          {texte.rueckgaengig}
         </button>
       )}
     </div>

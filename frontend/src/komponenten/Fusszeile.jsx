@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useVerbindungsStatus } from './useVerbindungsStatus.js';
 import { formatiereDatum, formatiereUhrzeit, berlinerJahr } from './uhrzeitFormat.js';
 import { berechneUrheberrechtsText, URHEBERRECHT_STARTJAHR } from './urheberrechtsText.js';
+import { de, tr } from '../sprache/fusszeile.js';
 
-export default function Fusszeile() {
+export default function Fusszeile({ sprache = 'de' }) {
+  const texte = sprache === 'tr' ? tr : de;
   const verbunden = useVerbindungsStatus();
   const [uhrzeit, setUhrzeit] = useState(new Date());
 
@@ -22,7 +24,7 @@ export default function Fusszeile() {
           <span
             className={`h-1.5 w-1.5 rounded-full ${verbunden ? 'bg-schrift-gedimmt' : 'bg-weinrot'}`}
           />
-          {verbunden ? 'Verbunden' : 'Verbindung unterbrochen'}
+          {verbunden ? texte.verbunden : texte.verbindungUnterbrochen}
         </span>
         <span className="tabular-nums">{formatiereDatum(uhrzeit)}</span>
         <span className="tabular-nums">{formatiereUhrzeit(uhrzeit)}</span>

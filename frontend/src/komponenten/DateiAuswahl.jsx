@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { de, tr } from '../sprache/dateiAuswahl.js';
 
 const STANDARD_BUTTON_KLASSE =
   'cursor-pointer rounded-full border border-linie px-2.5 py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell';
@@ -15,9 +16,11 @@ function passtZuAkzeptiert(datei, akzeptiert) {
 }
 
 export default function DateiAuswahl({
-  akzeptiert, beschriftung = 'Datei auswählen', wert, onWahl, buttonKlasse,
-  grossflaechig = false, typFehlerText,
+  akzeptiert, beschriftung, wert, onWahl, buttonKlasse,
+  grossflaechig = false, typFehlerText, sprache = 'de',
 }) {
+  const texte = sprache === 'tr' ? tr : de;
+  const beschriftungAngezeigt = beschriftung ?? texte.standardBeschriftung;
   const eingabeRef = useRef(null);
   const [ziehtDrueber, setZiehtDrueber] = useState(false);
   const [typFehler, setTypFehler] = useState('');
@@ -25,7 +28,7 @@ export default function DateiAuswahl({
   function dateiUebernehmen(datei) {
     if (!datei) return;
     if (!passtZuAkzeptiert(datei, akzeptiert)) {
-      setTypFehler(typFehlerText || 'Diese Datei wird nicht unterstützt.');
+      setTypFehler(typFehlerText || texte.unbekannterTyp);
       return;
     }
     setTypFehler('');
@@ -69,8 +72,8 @@ export default function DateiAuswahl({
           onDrop={dateiAbgelegt}
           className={`flex min-h-24 flex-1 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed p-2 text-center text-sm text-schrift-gedimmt hover:bg-flaeche-hell ${rahmenKlasse}`}>
           {eingabe}
-          <span className="font-semibold text-navy">{beschriftung}</span>
-          <span>oder Datei hierher ziehen</span>
+          <span className="font-semibold text-navy">{beschriftungAngezeigt}</span>
+          <span>{texte.hierherZiehen}</span>
         </div>
         {typFehler && <p className="rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{typFehler}</p>}
       </div>
@@ -87,10 +90,10 @@ export default function DateiAuswahl({
         {eingabe}
         <button type="button" onClick={() => eingabeRef.current.click()}
           className={buttonKlasse ?? STANDARD_BUTTON_KLASSE}>
-          {beschriftung}
+          {beschriftungAngezeigt}
         </button>
         {wert !== undefined && (
-          <span className="text-schrift-gedimmt">{wert ? wert.name : 'Keine Datei gewählt'}</span>
+          <span className="text-schrift-gedimmt">{wert ? wert.name : texte.keineDatei}</span>
         )}
       </div>
       {typFehler && <p className="rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{typFehler}</p>}
