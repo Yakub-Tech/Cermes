@@ -51,7 +51,7 @@ export default function AusgabeSeite() {
       karte: (k) => {
         const wartet = minutenSeit(k.abholbereit_am, jetzt);
         return (
-          <KaertchenKarte key={k.id} kaertchen={k}
+          <KaertchenKarte key={k.id} kaertchen={k} sprache={sprache}
             zeitText={wartet >= warnminuten ? `wartet seit ${wartet} min!` : alterText(k.abholbereit_am, jetzt)}
             warnung={wartet >= warnminuten}
             onTippen={() => statusWechsel(k, 'abgeholt', 'abholbereit', 'wurde abgeholt')} />
@@ -65,7 +65,7 @@ export default function AusgabeSeite() {
       karte: (k) => (
         <div key={k.id} className="flex items-center gap-2">
           <div className="flex-1 opacity-60">
-            <KaertchenKarte kaertchen={k} zeitText={alterText(k.abgeholt_am, jetzt)} />
+            <KaertchenKarte kaertchen={k} zeitText={alterText(k.abgeholt_am, jetzt)} sprache={sprache} />
           </div>
           <button
             onClick={() => apiPost(`/api/ausgabe/status/${k.id}`, { status: 'abholbereit' }).catch(() => {})}

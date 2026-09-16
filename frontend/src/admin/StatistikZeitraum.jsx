@@ -5,7 +5,7 @@ import { heutigesDatum, datumAnzeigen } from './datum.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { Kennzahlen, ArtikelDiagramme, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
 import { staerkstesElement } from './staerkstesElement.js';
-import { beideSprachenName } from '../sprache/zweisprachigerName.js';
+import { beideSprachenName, zweisprachigerName } from '../sprache/zweisprachigerName.js';
 
 function vorauswahlBerechnen(verkaufstage) {
   if (verkaufstage.length === 0) return { von: null, bis: null };
@@ -23,7 +23,7 @@ function vorauswahlBerechnen(verkaufstage) {
   return { von: verkaufstage[0], bis: verkaufstage[0] };
 }
 
-export default function StatistikZeitraum() {
+export default function StatistikZeitraum({ sprache }) {
   const [verkaufstage, setVerkaufstage] = useState([]);
   const [von, setVon] = useState(null);
   const [bis, setBis] = useState(null);
@@ -79,6 +79,13 @@ export default function StatistikZeitraum() {
   const stosstag = staerkstesElement(statistik.tage, 'stueck');
   const stosszeit = stosstag ? datumAnzeigen(stosstag.tag) : null;
 
+  const artikelAngezeigt = statistik.artikel.map((a) => ({
+    ...a, artikel_name: zweisprachigerName(a.artikel_name, a.artikel_name_tr, sprache),
+  }));
+  const stornosAngezeigt = statistik.stornos.map((s) => ({
+    ...s, artikel_name: zweisprachigerName(s.artikel_name, s.artikel_name_tr, sprache),
+  }));
+
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-center gap-2">
@@ -95,7 +102,7 @@ export default function StatistikZeitraum() {
       <Kennzahlen gesamt={statistik.gesamt} stosszeit={stosszeit} />
 
       <div className="space-y-2.5">
-        <ArtikelDiagramme gesamt={statistik.gesamt} artikel={statistik.artikel} />
+        <ArtikelDiagramme gesamt={statistik.gesamt} artikel={artikelAngezeigt} />
 
         <BalkenDiagramm titel="Verkäufe pro Tag" daten={verlaufDaten}
           xSchluessel="tag" ySchluessel="stueck"
@@ -109,7 +116,7 @@ export default function StatistikZeitraum() {
               klasse="text-xs" />
           } />
 
-        <StornoTabelle stornos={statistik.stornos} mitDatum />
+        <StornoTabelle stornos={stornosAngezeigt} mitDatum />
       </div>
     </div>
   );

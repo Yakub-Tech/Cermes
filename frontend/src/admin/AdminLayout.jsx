@@ -52,7 +52,7 @@ export default function AdminLayout() {
         <main className="flex-1 overflow-y-auto p-4">
           <Routes>
             <Route index element={<Navigate to="statistik" replace />} />
-            <Route path="statistik" element={<StatistikSeite />} />
+            <Route path="statistik" element={<StatistikSeite sprache={sprache} />} />
             <Route path="artikel" element={<ArtikelSeite rolle={session.rolle} />} />
             <Route path="beilagen" element={<BeilagenSeite />} />
             <Route path="werbung" element={<WerbungSeite />} />

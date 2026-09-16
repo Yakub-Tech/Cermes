@@ -2,7 +2,7 @@ import { useState } from 'react';
 import StatistikEinzeltag from './StatistikEinzeltag.jsx';
 import StatistikZeitraum from './StatistikZeitraum.jsx';
 
-export default function StatistikSeite() {
+export default function StatistikSeite({ sprache }) {
   const [reiter, setReiter] = useState('einzeltag');
 
   return (
@@ -25,10 +25,10 @@ export default function StatistikSeite() {
       </div>
 
       <div className={reiter === 'einzeltag' ? 'block' : 'hidden'}>
-        <StatistikEinzeltag />
+        <StatistikEinzeltag sprache={sprache} />
       </div>
       <div className={reiter === 'zeitraum' ? 'block' : 'hidden'}>
-        <StatistikZeitraum />
+        <StatistikZeitraum sprache={sprache} />
       </div>
     </div>
   );

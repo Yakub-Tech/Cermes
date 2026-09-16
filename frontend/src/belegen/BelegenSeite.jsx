@@ -46,7 +46,7 @@ export default function BelegenSeite() {
       kopfstil: 'stark',
       kaertchen: listen.in_bearbeitung,
       karte: (k) => (
-        <KaertchenKarte key={k.id} kaertchen={k} zeitText={alterText(k.erstellt_am, jetzt)}
+        <KaertchenKarte key={k.id} kaertchen={k} zeitText={alterText(k.erstellt_am, jetzt)} sprache={sprache}
           onTippen={() => statusWechsel(k, 'abholbereit', 'in_bearbeitung', 'ist abholbereit')} />
       ),
     },
@@ -57,7 +57,7 @@ export default function BelegenSeite() {
       karte: (k) => (
         <div key={k.id} className="flex items-center gap-2">
           <div className="flex-1">
-            <KaertchenKarte kaertchen={k} zeitText={alterText(k.abholbereit_am, jetzt)} />
+            <KaertchenKarte kaertchen={k} zeitText={alterText(k.abholbereit_am, jetzt)} sprache={sprache} />
           </div>
           <button
             onClick={() => statusWechsel(k, 'in_bearbeitung', 'abholbereit', 'zurück in Bearbeitung')}

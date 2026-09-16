@@ -5,9 +5,9 @@ import { heutigesDatum, datumAnzeigen } from './datum.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { Kennzahlen, ArtikelDiagramme, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
 import { staerkstesElement } from './staerkstesElement.js';
-import { beideSprachenName } from '../sprache/zweisprachigerName.js';
+import { beideSprachenName, zweisprachigerName } from '../sprache/zweisprachigerName.js';
 
-export default function StatistikEinzeltag() {
+export default function StatistikEinzeltag({ sprache }) {
   const [tage, setTage] = useState([]);
   const [datum, setDatum] = useState(heutigesDatum());
   const [statistik, setStatistik] = useState(null);
@@ -51,6 +51,13 @@ export default function StatistikEinzeltag() {
   const stossStunde = staerkstesElement(statistik.stunden, 'stueck');
   const stosszeit = stossStunde ? `${stossStunde.stunde}–${stossStunde.stunde + 1} Uhr` : null;
 
+  const artikelAngezeigt = statistik.artikel.map((a) => ({
+    ...a, artikel_name: zweisprachigerName(a.artikel_name, a.artikel_name_tr, sprache),
+  }));
+  const stornosAngezeigt = statistik.stornos.map((s) => ({
+    ...s, artikel_name: zweisprachigerName(s.artikel_name, s.artikel_name_tr, sprache),
+  }));
+
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-center gap-2">
@@ -71,7 +78,7 @@ export default function StatistikEinzeltag() {
       <Kennzahlen gesamt={statistik.gesamt} stosszeit={stosszeit} />
 
       <div className="space-y-2.5">
-        <ArtikelDiagramme gesamt={statistik.gesamt} artikel={statistik.artikel} />
+        <ArtikelDiagramme gesamt={statistik.gesamt} artikel={artikelAngezeigt} />
 
         <BalkenDiagramm titel="Verkäufe im Tagesverlauf" daten={stundenDaten}
           xSchluessel="stunde" ySchluessel="stueck" schraegeAchse={false}
@@ -84,7 +91,7 @@ export default function StatistikEinzeltag() {
               klasse="text-xs" />
           } />
 
-        <StornoTabelle stornos={statistik.stornos} />
+        <StornoTabelle stornos={stornosAngezeigt} />
       </div>
     </div>
   );
