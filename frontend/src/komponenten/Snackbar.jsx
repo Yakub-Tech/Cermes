@@ -3,7 +3,6 @@ import { de, tr } from '../sprache/gemeinsam.js';
 
 export default function Snackbar({ meldung, onRueckgaengig, onZu, sprache = 'de' }) {
   const texte = sprache === 'tr' ? tr : de;
-
   useEffect(() => {
     const timer = setTimeout(onZu, 5000);
     return () => clearTimeout(timer);
