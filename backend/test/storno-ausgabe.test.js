@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import request from 'supertest';
 import { frischeApp, angemeldeterAgent } from './helfer.js';
 
-async function verkaufteBestellung(admin, kasse, name = 'Pommes', preis = 350) {
+async function verkaufteBestellung(admin, kasse, name = 'Pommes', preis = 350, nameTr = null) {
   const artikel = (await admin.post('/api/artikel').send({
-    name, farbe: '#f5c211', preis_cent: preis, beilagen_ids: [], sortierung: 1,
+    name, name_tr: nameTr, farbe: '#f5c211', preis_cent: preis, beilagen_ids: [], sortierung: 1,
   })).body;
   const ergebnis = (await kasse.post('/api/kasse/kassieren').send({
     positionen: [{ artikel_id: artikel.id, beilagen_ids: [] }],
@@ -18,10 +18,12 @@ test('Storno setzt Status, verschwindet aus Listen, Nummer nicht wiederverwendet
   const admin = await angemeldeterAgent(app, db, 'admin');
   const kasse = await angemeldeterAgent(app, db, 'kasse');
   const belegen = await angemeldeterAgent(app, db, 'belegen');
-  const { artikel, kaertchen } = await verkaufteBestellung(admin, kasse);
+  const { artikel, kaertchen } = await verkaufteBestellung(admin, kasse, 'Pommes', 350, 'Test Türkisch');
 
   const stornierbar = (await kasse.get('/api/kasse/stornierbar')).body;
   assert.equal(stornierbar.length, 1);
+  assert.equal(stornierbar[0].artikel_name_tr, 'Test Türkisch');
+  assert.deepEqual(stornierbar[0].beilagen_tr, []);
 
   const antwort = await kasse.post(`/api/kasse/storno/${kaertchen.id}`);
   assert.equal(antwort.status, 200);
@@ -134,6 +136,7 @@ test('Ausgabe- und Belegen-Listen: Sortierung und zuletzt abgeholt', async () =>
   const ausgabeListen = (await ausgabe.get('/api/ausgabe/kaertchen')).body;
   assert.equal(ausgabeListen.abholbereit.length, 1);
   assert.equal(ausgabeListen.abholbereit[0].nummer, 2);
+  assert.equal(ausgabeListen.abholbereit[0].artikel_name_tr, null);
   assert.equal(ausgabeListen.zuletzt_abgeholt.length, 1);
   assert.equal(ausgabeListen.zuletzt_abgeholt[0].nummer, 1);
 });

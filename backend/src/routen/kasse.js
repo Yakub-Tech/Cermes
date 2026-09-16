@@ -201,12 +201,15 @@ router.post('/api/kasse/kassieren-vorschau', brauchtRolle('kasse'), (anfrage, an
 router.get('/api/kasse/stornierbar', brauchtRolle('kasse'), (_anfrage, antwort) => {
   const db = oeffneDatenbank();
   const zeilen = db.prepare(
-    `SELECT id, nummer, artikel_name, artikel_farbe, preis_cent, beilagen, status, erstellt_am
+    `SELECT id, nummer, artikel_name, artikel_name_tr, artikel_farbe, preis_cent,
+            beilagen, beilagen_tr, status, erstellt_am
      FROM kaertchen
      WHERE status IN ('in_bearbeitung', 'abholbereit') AND substr(erstellt_am, 1, 10) = ?
      ORDER BY erstellt_am DESC, id DESC`
   ).all(heutigesDatum());
-  antwort.json(zeilen.map((zeile) => ({ ...zeile, beilagen: JSON.parse(zeile.beilagen) })));
+  antwort.json(zeilen.map((zeile) => ({
+    ...zeile, beilagen: JSON.parse(zeile.beilagen), beilagen_tr: JSON.parse(zeile.beilagen_tr),
+  })));
 });
 
 router.post('/api/kasse/storno/:id', brauchtRolle('kasse'), (anfrage, antwort) => {
