@@ -6,11 +6,13 @@ import ArtikelKarte from './ArtikelKarte.jsx';
 import WarenkorbListe from './WarenkorbListe.jsx';
 import FokusAnsicht from './FokusAnsicht.jsx';
 import BestellUebersicht from './BestellUebersicht.jsx';
+import { de, tr } from '../sprache/kunde.js';
 
 export default function KundeSeite() {
   const [artikelListe, setArtikelListe] = useState([]);
   const [zustand, setZustand] = useState({ warenkorb: [], fokus: null, summe_cent: null, sprache: 'de' });
   const letzteAbfrage = useRef(0);
+  const texte = zustand.sprache === 'tr' ? tr : de;
 
   useLiveUpdate(['artikel', 'beilagen'], () => {
     apiGet('/api/kunde/artikel').then(setArtikelListe).catch(() => {});
@@ -42,7 +44,7 @@ export default function KundeSeite() {
           ))}
           {artikelListe.length === 0 && (
             <p className="col-span-full p-4 text-schrift-gedimmt">
-              Aktuell sind keine Artikel verfügbar.
+              {texte.keineArtikel}
             </p>
           )}
         </div>

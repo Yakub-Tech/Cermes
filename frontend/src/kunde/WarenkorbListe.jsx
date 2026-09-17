@@ -2,14 +2,17 @@ import { formatEuro } from '../api.js';
 import { useUeberlaufErkennung } from '../komponenten/useUeberlaufErkennung.js';
 import { usePendelScroll } from '../komponenten/usePendelScroll.js';
 import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
+import { de as eigeneDe, tr as eigeneTr } from '../sprache/warenkorbListe.js';
+import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function WarenkorbListe({ warenkorb, sprache }) {
+  const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const { rahmen, inhalt, ueberlauf, ueberlaufPx } = useUeberlaufErkennung(warenkorb);
   const { versatzPx, uebergangSekunden } = usePendelScroll(ueberlaufPx);
 
   return (
     <aside className="flex w-96 shrink-0 flex-col border-l border-linie bg-flaeche">
-      <h2 className="border-b border-linie px-4 py-3 font-display text-xl text-navy">Deine Bestellung</h2>
+      <h2 className="border-b border-linie px-4 py-3 font-display text-xl text-navy">{texte.deineBestellung}</h2>
 
       <div className="min-h-0 flex-1">
         <div
@@ -24,7 +27,7 @@ export default function WarenkorbListe({ warenkorb, sprache }) {
             }}
           >
             {warenkorb.length === 0 && (
-              <li className="px-4 py-6 text-schrift-gedimmt">Noch nichts ausgewählt.</li>
+              <li className="px-4 py-6 text-schrift-gedimmt">{texte.leer}</li>
             )}
             {warenkorb.map((position) => (
               <li key={position.schluessel} className="flex gap-3 border-b border-linie px-4 py-3">
