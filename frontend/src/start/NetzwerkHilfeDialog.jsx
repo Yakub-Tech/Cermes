@@ -1,37 +1,34 @@
 import Dialog from '../komponenten/Dialog.jsx';
+import { de, tr } from '../sprache/netzwerkHilfeDialog.js';
 
-export default function NetzwerkHilfeDialog({ adresse, onSchliessen }) {
+export default function NetzwerkHilfeDialog({ adresse, onSchliessen, sprache = 'de' }) {
+  const texte = sprache === 'tr' ? tr : de;
   return (
-    <Dialog titel="Andere Geräte verbinden" onSchliessen={onSchliessen}>
+    <Dialog titel={texte.titel} onSchliessen={onSchliessen}>
       <p className="mb-4 text-schrift-gedimmt">
-        Kasse, Ausgabe und der Fernseher laufen auf eigenen Geräten (Tablet, Handy,
-        Fernseher) und öffnen Cermes über das Netzwerk. Dafür brauchen sie die
-        Netzwerk-Adresse dieses Computers. Alle Geräte müssen im selben WLAN sein.
+        {texte.einleitung}
       </p>
       {adresse ? (
         <p className="mb-4 text-schrift-gedimmt">
-          Öffne auf dem anderen Gerät im Browser <strong>http://{adresse}</strong>{' '}
-          oder scanne den QR-Code neben diesem Hinweis.
+          {texte.mitAdresseVorspann} <strong>http://{adresse}</strong>{' '}
+          {texte.mitAdresseNachspann}
         </p>
       ) : (
         <>
           <p className="mb-4 text-schrift-gedimmt">
-            Die Adresse konnte diesmal nicht automatisch ermittelt werden. Du findest
-            sie so von Hand:
+            {texte.ohneAdresseHinweis}
           </p>
           <ul className="mb-4 list-disc space-y-2 pl-5 text-schrift-gedimmt">
             <li>
-              <strong>Windows:</strong> Einstellungen → Netzwerk und Internet →
-              Eigenschaften. Dort steht die „IPv4-Adresse“.
+              <strong>Windows:</strong> {texte.windowsAnleitung}
             </li>
             <li>
-              <strong>Mac:</strong> Systemeinstellungen → WLAN → bei der aktiven
-              Verbindung auf „Details“. Dort steht die IP-Adresse.
+              <strong>Mac:</strong> {texte.macAnleitung}
             </li>
           </ul>
           <p className="mb-4 text-schrift-gedimmt">
-            Öffne dann auf dem anderen Gerät im Browser die gefundene Adresse mit
-            <code>:8080</code> dahinter, z. B. <code>http://192.168.1.50:8080</code>.
+            {texte.abschlussVorspann}
+            <code>:8080</code> {texte.abschlussNachspann} <code>http://192.168.1.50:8080</code>.
           </p>
         </>
       )}
@@ -39,7 +36,7 @@ export default function NetzwerkHilfeDialog({ adresse, onSchliessen }) {
         onClick={onSchliessen}
         className="mt-2 w-full cursor-pointer rounded-full border border-linie py-2 text-sm text-schrift-gedimmt hover:bg-flaeche-hell"
       >
-        Verstanden
+        {texte.verstanden}
       </button>
     </Dialog>
   );
