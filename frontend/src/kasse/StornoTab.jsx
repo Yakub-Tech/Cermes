@@ -5,8 +5,11 @@ import Dialog from '../komponenten/Dialog.jsx';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { lesbareSchriftfarbe } from '../komponenten/farbe.js';
 import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
+import { de as eigeneDe, tr as eigeneTr } from '../sprache/stornoTab.js';
+import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function StornoTab({ sprache }) {
+  const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [kaertchenListe, setKaertchenListe] = useState([]);
   const [nummernFilter, setNummernFilter] = useState('');
   const [artikelFilter, setArtikelFilter] = useState('');
@@ -38,11 +41,11 @@ export default function StornoTab({ sprache }) {
     <div className="flex-1 overflow-y-auto p-4">
       <div className="mb-4 flex gap-3">
         <input value={nummernFilter} onChange={(e) => setNummernFilter(e.target.value)}
-          placeholder="Nummer suchen …" inputMode="numeric"
+          placeholder={texte.nummerSuchen} inputMode="numeric"
           className="w-48 rounded border border-linie bg-flaeche px-3 py-3 text-lg outline-none focus:border-blau-hell" />
         <Auswahlmenue wert={artikelFilter} onWahl={setArtikelFilter}
           optionen={[
-            { wert: '', text: 'Alle Artikel' },
+            { wert: '', text: texte.alleArtikel },
             ...artikelNamen.map((name) => ({ wert: name, text: name })),
           ]}
           klasse="text-lg" />
@@ -51,7 +54,7 @@ export default function StornoTab({ sprache }) {
       {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
 
       {gefiltert.length === 0 && (
-        <p className="text-schrift-gedimmt">Keine stornierbaren Kärtchen gefunden.</p>
+        <p className="text-schrift-gedimmt">{texte.keineKaertchen}</p>
       )}
 
       <ul className="grid grid-cols-2 gap-3 lg:grid-cols-3">
@@ -71,7 +74,7 @@ export default function StornoTab({ sprache }) {
                   {zweisprachigerName(kaertchen.artikel_name, kaertchen.artikel_name_tr, sprache)}
                 </span>
                 <span className="block truncate text-sm text-schrift-gedimmt">
-                  {kaertchen.erstellt_am.slice(11, 16)} Uhr
+                  {kaertchen.erstellt_am.slice(11, 16)}{texte.uhr ? ` ${texte.uhr}` : ''}
                   {kaertchen.beilagen.length > 0 &&
                     ` · ${kaertchen.beilagen.map((name, i) => zweisprachigerName(name, (kaertchen.beilagen_tr ?? [])[i], sprache)).join(', ')}`}
                 </span>
@@ -83,20 +86,20 @@ export default function StornoTab({ sprache }) {
       </ul>
 
       {auswahl && (
-        <Dialog titel="Stornieren?" onSchliessen={() => setAuswahl(null)}>
+        <Dialog titel={texte.stornieren} onSchliessen={() => setAuswahl(null)}>
           <p className="mb-6 text-lg">
-            {zweisprachigerName(auswahl.artikel_name, auswahl.artikel_name_tr, sprache)} Nr. {auswahl.nummer} stornieren,{' '}
-            <strong>{formatEuro(auswahl.preis_cent)} zurückgeben</strong> und
-            Kärtchen {auswahl.nummer} einziehen?
+            {zweisprachigerName(auswahl.artikel_name, auswahl.artikel_name_tr, sprache)} {texte.nrPraefix} {auswahl.nummer} {texte.stornierenVorspann}{' '}
+            <strong>{formatEuro(auswahl.preis_cent)} {texte.zurueckgeben}</strong> {texte.stornierenNachspann}{' '}
+            {auswahl.nummer} {texte.einziehenSuffix}
           </p>
           <div className="flex gap-3">
             <button onClick={() => setAuswahl(null)}
               className="flex-1 cursor-pointer rounded-full border border-linie py-3 text-schrift-gedimmt hover:bg-flaeche-hell">
-              Abbrechen
+              {texte.abbrechen}
             </button>
             <button onClick={stornieren}
               className="flex-1 cursor-pointer rounded-full bg-blau py-3 text-lg font-bold text-flaeche hover:bg-blau-hell">
-              Ja, stornieren
+              {texte.jaStornieren}
             </button>
           </div>
         </Dialog>
