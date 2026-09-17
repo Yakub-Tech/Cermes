@@ -3,8 +3,10 @@ import QRCode from 'qrcode';
 import { HelpCircle, Wifi } from 'lucide-react';
 import { apiGet } from '../api.js';
 import NetzwerkHilfeDialog from './NetzwerkHilfeDialog.jsx';
+import { de, tr } from '../sprache/netzwerkAdresse.js';
 
-export default function NetzwerkAdresse() {
+export default function NetzwerkAdresse({ sprache = 'de' }) {
+  const texte = sprache === 'tr' ? tr : de;
   const [adresse, setAdresse] = useState(null);
   const [geladen, setGeladen] = useState(false);
   const [qrCodeBild, setQrCodeBild] = useState(null);
@@ -35,24 +37,24 @@ export default function NetzwerkAdresse() {
     <>
       <div className="flex items-center gap-3 rounded-2xl border border-linie bg-flaeche p-4 shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
         {qrCodeBild && (
-          <img src={qrCodeBild} alt="QR-Code zur Netzwerk-Adresse" className="h-20 w-20" />
+          <img src={qrCodeBild} alt={texte.qrCodeAlt} className="h-20 w-20" />
         )}
         <div className="flex items-center gap-2">
           <Wifi className="h-5 w-5 shrink-0 text-schrift-gedimmt" strokeWidth={1.5} />
           <span className="text-sm text-schrift-gedimmt">
-            {adresse ? `Erreichbar im Netzwerk unter: ${adresse}` : 'Adresse nicht automatisch gefunden'}
+            {adresse ? `${texte.erreichbarUnter} ${adresse}` : texte.nichtGefunden}
           </span>
         </div>
         <button
           onClick={() => setZeigeHilfe(true)}
-          aria-label="Erklärung zur Netzwerk-Adresse anzeigen"
+          aria-label={texte.hilfeAriaLabel}
           className="cursor-pointer text-schrift-gedimmt hover:text-navy"
         >
           <HelpCircle className="h-5 w-5" strokeWidth={1.5} />
         </button>
       </div>
       {zeigeHilfe && (
-        <NetzwerkHilfeDialog adresse={adresse} onSchliessen={() => setZeigeHilfe(false)} />
+        <NetzwerkHilfeDialog adresse={adresse} sprache={sprache} onSchliessen={() => setZeigeHilfe(false)} />
       )}
     </>
   );

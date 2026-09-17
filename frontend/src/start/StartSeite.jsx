@@ -27,7 +27,7 @@ export default function StartSeite() {
         </div>
       </main>
       <footer className="flex justify-end p-6 pt-0">
-        <NetzwerkAdresse />
+        <NetzwerkAdresse sprache={sprache} />
       </footer>
       <Urheberrechtshinweis />
     </div>
