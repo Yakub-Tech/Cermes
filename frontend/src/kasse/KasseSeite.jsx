@@ -199,7 +199,7 @@ export default function KasseSeite() {
       )}
 
       {warenkorbVerlassenAktiv && (
-        <WarenkorbVerlassenDialog
+        <WarenkorbVerlassenDialog sprache={sprache}
           onZurueck={() => setWarenkorbVerlassenAktiv(false)}
           onVerlassen={() => navigiere('/')} />
       )}
