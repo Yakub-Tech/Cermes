@@ -1,17 +1,19 @@
 import { formatEuro } from '../api.js';
 import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
+import { de, tr } from '../sprache/warenkorb.js';
 
 export default function Warenkorb({ positionen, onMengeAendern, onKassieren, laeuft, fehler, sprache }) {
+  const texte = sprache === 'tr' ? tr : de;
   const summe = positionen.reduce((s, p) => s + p.artikel.preis_cent * p.menge, 0);
 
   return (
     <aside className="flex w-96 shrink-0 flex-col border-l border-linie bg-flaeche">
-      <h2 className="border-b border-linie px-4 py-3 font-display text-xl text-navy">Warenkorb</h2>
+      <h2 className="border-b border-linie px-4 py-3 font-display text-xl text-navy">{texte.titel}</h2>
 
       <ul className="flex-1 overflow-y-auto">
         {positionen.length === 0 && (
           <li className="px-4 py-6 text-schrift-gedimmt">
-            Noch leer, Artikel links antippen.
+            {texte.leer}
           </li>
         )}
         {positionen.map((position) => (
@@ -55,12 +57,12 @@ export default function Warenkorb({ positionen, onMengeAendern, onKassieren, lae
 
       <div className="border-t border-linie p-4">
         <div className="mb-3 flex items-baseline justify-between">
-          <span className="text-schrift-gedimmt">Gesamt</span>
+          <span className="text-schrift-gedimmt">{texte.gesamt}</span>
           <span className="nummer text-4xl text-navy">{formatEuro(summe)}</span>
         </div>
         <button onClick={onKassieren} disabled={laeuft || positionen.length === 0}
           className="w-full cursor-pointer rounded-full bg-blau py-5 text-2xl font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
-          {laeuft ? 'Wird gebucht …' : 'Kassieren'}
+          {laeuft ? texte.wirdGebucht : texte.kassieren}
         </button>
       </div>
     </aside>
