@@ -10,5 +10,5 @@ export const tr = {
   leer: 'Henüz boş, soldan ürün seç.',
   gesamt: 'Toplam',
   wirdGebucht: 'Kaydediliyor …',
-  kassieren: 'Öde',
+  kassieren: 'Tahsil et',
 };

@@ -14,7 +14,7 @@ export const tr = {
   titel: 'Diğer cihazları bağla',
   einleitung: "Kasa, teslim ve televizyon kendi cihazlarında (tablet, telefon, televizyon) çalışır ve Cermes'i ağ üzerinden açar. Bunun için bu bilgisayarın ağ adresine ihtiyaçları vardır. Tüm cihazlar aynı Wi-Fi ağında olmalıdır.",
   mitAdresseVorspann: 'Diğer cihazda tarayıcıda',
-  mitAdresseNachspann: 'adresini aç veya bu bilginin yanındaki QR kodu tara.',
+  mitAdresseNachspann: 'adresini aç veya bu bilginin yanındaki QR kodunu tara.',
   ohneAdresseHinweis: 'Adres bu sefer otomatik olarak bulunamadı. Onu şöyle elle bulabilirsin:',
   windowsAnleitung: 'Ayarlar → Ağ ve İnternet → Özellikler. Orada "IPv4 adresi" yazar.',
   macAnleitung: 'Sistem Ayarları → Wi-Fi → etkin bağlantıda "Detaylar"a tıkla. Orada IP adresi yazar.',

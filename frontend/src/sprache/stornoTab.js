@@ -19,4 +19,5 @@ export const tr = {
   stornierenNachspann: 've',
   einziehenSuffix: 'numaralı kart geri alınsın mı?',
   jaStornieren: 'Evet, iptal et',
+  abbrechen: 'Vazgeç',
 };
