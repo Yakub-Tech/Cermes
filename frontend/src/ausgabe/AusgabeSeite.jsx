@@ -9,10 +9,13 @@ import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { apiGet, apiPost } from '../api.js';
 import { minutenSeit, alterText } from '../zeitAnzeige.js';
+import { de as eigeneDe, tr as eigeneTr } from '../sprache/ausgabe.js';
+import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function AusgabeSeite() {
   const session = useSession('ausgabe');
   const [sprache, setSprache] = useStationsSprache();
+  const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [listen, setListen] = useState({ abholbereit: [], zuletzt_abgeholt: [] });
   const [warnminuten, setWarnminuten] = useState(15);
   const [snackbar, setSnackbar] = useState(null);
@@ -33,7 +36,7 @@ export default function AusgabeSeite() {
     try {
       await apiPost(`/api/ausgabe/status/${kaertchen.id}`, { status: neuerStatus });
       setSnackbar({
-        meldung: `Nr. ${kaertchen.nummer} ${meldung}`,
+        meldung: `${texte.nrPraefix} ${kaertchen.nummer} ${meldung}`,
         rueckgaengig: () =>
           apiPost(`/api/ausgabe/status/${kaertchen.id}`, { status: rueckStatus }).catch(() => {}),
       });
@@ -45,21 +48,24 @@ export default function AusgabeSeite() {
 
   const spalten = [
     {
-      titel: 'Abholbereit',
+      id: 'abholbereit',
       kopfstil: 'stark',
       kaertchen: listen.abholbereit,
       karte: (k) => {
         const wartet = minutenSeit(k.abholbereit_am, jetzt);
+        const wartetSeitPraefix = texte.wartetSeitVorspann ? `${texte.wartetSeitVorspann} ` : '';
         return (
           <KaertchenKarte key={k.id} kaertchen={k} sprache={sprache}
-            zeitText={wartet >= warnminuten ? `wartet seit ${wartet} min!` : alterText(k.abholbereit_am, jetzt)}
+            zeitText={wartet >= warnminuten
+              ? `${wartetSeitPraefix}${wartet} ${texte.wartetSeitNachspann}`
+              : alterText(k.abholbereit_am, jetzt, sprache)}
             warnung={wartet >= warnminuten}
-            onTippen={() => statusWechsel(k, 'abgeholt', 'abholbereit', 'wurde abgeholt')} />
+            onTippen={() => statusWechsel(k, 'abgeholt', 'abholbereit', texte.meldungAbgeholt)} />
         );
       },
     },
     {
-      titel: 'Zuletzt abgeholt',
+      id: 'zuletztAbgeholt',
       kopfstil: 'blass',
       kaertchen: listen.zuletzt_abgeholt,
       karte: (k) => (
@@ -70,7 +76,7 @@ export default function AusgabeSeite() {
           <button
             onClick={() => apiPost(`/api/ausgabe/status/${k.id}`, { status: 'abholbereit' }).catch(() => {})}
             className="cursor-pointer rounded-lg border border-linie px-3 py-6 text-schrift-gedimmt hover:bg-flaeche-hell">
-            Rückgängig
+            {texte.rueckgaengig}
           </button>
         </div>
       ),
@@ -79,17 +85,17 @@ export default function AusgabeSeite() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Kopfzeile titel="Ausgabe" benutzername={session.benutzername} sprache={sprache}
+      <Kopfzeile titel={texte.titel} benutzername={session.benutzername} sprache={sprache}
         rechts={<SprachSchalter sprache={sprache} onWahl={setSprache} />} />
 
       <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 bg-grund p-3">
         {spalten.map((spalte) => (
-          <section key={spalte.titel}
+          <section key={spalte.id}
             className="flex min-h-0 flex-col overflow-hidden rounded-lg bg-flaeche shadow-sm">
             <h2 className={`px-4 py-3 text-center font-display text-xl ${
               spalte.kopfstil === 'stark' ? 'bg-blau text-flaeche' : 'bg-blau-blass text-navy'
             }`}>
-              {spalte.titel} ({spalte.kaertchen.length})
+              {texte[spalte.id]} ({spalte.kaertchen.length})
             </h2>
             <div className="flex-1 space-y-3 overflow-y-auto px-4 pt-2 pb-4">
               {spalte.kaertchen.map(spalte.karte)}
