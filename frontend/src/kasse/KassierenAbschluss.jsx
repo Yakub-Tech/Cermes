@@ -1,6 +1,7 @@
 import { formatEuro } from '../api.js';
 import { lesbareSchriftfarbe, dunklereFarbe } from '../komponenten/farbe.js';
 import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
+import { de, tr } from '../sprache/kassierenAbschluss.js';
 
 function nachArtikelGruppiert(kaertchenListe) {
   const gruppenProArtikel = new Map();
@@ -20,11 +21,12 @@ function nachArtikelGruppiert(kaertchenListe) {
 }
 
 export default function KassierenAbschluss({ ergebnis, laeuft, fehler, onZurueck, onFertig, sprache }) {
+  const texte = sprache === 'tr' ? tr : de;
   const kaertchenGruppiert = nachArtikelGruppiert(ergebnis.kaertchen);
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-grund p-6">
       <h2 className="mb-4 text-center font-display text-3xl text-navy">
-        Diese Kärtchen ausgeben
+        {texte.titel}
       </h2>
 
       <div className="flex flex-1 flex-wrap content-start items-start justify-center gap-4 overflow-y-auto">
@@ -66,14 +68,14 @@ export default function KassierenAbschluss({ ergebnis, laeuft, fehler, onZurueck
       <div className="mt-4 flex items-center justify-between rounded-xl bg-flaeche px-6 py-4">
         <button onClick={onZurueck} disabled={laeuft}
           className="cursor-pointer rounded-full border border-linie px-8 py-4 text-xl font-bold text-navy hover:bg-flaeche-hell disabled:cursor-not-allowed disabled:opacity-40">
-          Zurück
+          {texte.zurueck}
         </button>
         <span className="text-xl text-schrift-gedimmt">
-          Zu zahlen: <span className="nummer text-3xl text-navy">{formatEuro(ergebnis.summe_cent)}</span>
+          {texte.zuZahlen} <span className="nummer text-3xl text-navy">{formatEuro(ergebnis.summe_cent)}</span>
         </span>
         <button onClick={onFertig} disabled={laeuft} autoFocus
           className="cursor-pointer rounded-full bg-blau px-12 py-4 text-2xl font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
-          Fertig
+          {texte.fertig}
         </button>
       </div>
     </div>
