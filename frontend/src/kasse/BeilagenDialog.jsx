@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import Dialog from '../komponenten/Dialog.jsx';
 import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
+import { de as eigeneDe, tr as eigeneTr } from '../sprache/beilagenDialog.js';
+import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen, onAuswahlAendern, sprache }) {
+  const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [gewaehlt, setGewaehlt] = useState([]);
 
   function umschalten(beilage) {
@@ -16,7 +19,7 @@ export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen, on
   const beilagenSortiert = [...artikel.beilagen].sort((a, b) => a.name.localeCompare(b.name, 'de'));
 
   return (
-    <Dialog titel={`${zweisprachigerName(artikel.name, artikel.name_tr, sprache)}: Beilagen wählen`} onSchliessen={onAbbrechen}>
+    <Dialog titel={`${zweisprachigerName(artikel.name, artikel.name_tr, sprache)}: ${texte.beilagenWaehlen}`} onSchliessen={onAbbrechen}>
       <div className="mb-6 grid grid-cols-2 gap-3">
         {beilagenSortiert.map((beilage) => {
           const aktivGewaehlt = gewaehlt.some((b) => b.id === beilage.id);
@@ -25,7 +28,7 @@ export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen, on
               <div key={beilage.id}
                 className="cursor-not-allowed rounded-full border border-linie px-4 py-4 text-center text-schrift-gedimmt opacity-40">
                 {zweisprachigerName(beilage.name, beilage.name_tr, sprache)}
-                <span className="block text-xs">gerade nicht verfügbar</span>
+                <span className="block text-xs">{texte.nichtVerfuegbar}</span>
               </div>
             );
           }
@@ -44,11 +47,11 @@ export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen, on
       <div className="flex gap-3">
         <button onClick={onAbbrechen}
           className="flex-1 cursor-pointer rounded-full border border-linie py-3 text-schrift-gedimmt hover:bg-flaeche-hell">
-          Abbrechen
+          {texte.abbrechen}
         </button>
         <button onClick={() => onBestaetigen(gewaehlt)}
           className="flex-1 cursor-pointer rounded-full bg-blau py-3 text-lg font-bold text-flaeche hover:bg-blau-hell">
-          In den Warenkorb
+          {texte.inDenWarenkorb}
         </button>
       </div>
     </Dialog>
