@@ -14,6 +14,7 @@ import KassierenAbschluss from './KassierenAbschluss.jsx';
 import StornoTab from './StornoTab.jsx';
 import WarenkorbVerlassenDialog from './WarenkorbVerlassenDialog.jsx';
 import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
+import { de, tr } from '../sprache/kasse.js';
 
 export default function KasseSeite() {
   const session = useSession('kasse');
@@ -28,6 +29,7 @@ export default function KasseSeite() {
   const [fehler, setFehler] = useState('');
   const [warenkorbVerlassenAktiv, setWarenkorbVerlassenAktiv] = useState(false);
   const [sprache, setSprache] = useState('de');
+  const texte = sprache === 'tr' ? tr : de;
   const naechsterSchluessel = useRef(1);
   const kundenMelden = useRef(erzeugeMeldungsFolge(
     (stand) => apiPut('/api/kasse/kundenanzeige', stand)
@@ -132,13 +134,13 @@ export default function KasseSeite() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Kopfzeile titel="Kasse" benutzername={session.benutzername} aufLogoKlick={logoGeklickt}
+      <Kopfzeile titel={texte.titel} benutzername={session.benutzername} aufLogoKlick={logoGeklickt}
         sprache={sprache}
         rechts={
           <>
             <SprachSchalter sprache={sprache} onWahl={setSprache} />
             <nav className="flex gap-1 rounded-full border border-linie p-1">
-              {[['verkauf', 'Verkauf'], ['storno', 'Storno']].map(([wert, beschriftung]) => (
+              {[['verkauf', texte.verkauf], ['storno', texte.storno]].map(([wert, beschriftung]) => (
                 <button key={wert} onClick={() => setTab(wert)}
                   className={`cursor-pointer rounded-full px-5 py-2 text-lg ${
                     tab === wert ? 'bg-blau font-bold text-flaeche' : 'text-schrift-gedimmt hover:bg-flaeche-hell'
@@ -162,13 +164,13 @@ export default function KasseSeite() {
                 </p>
                 <p className="nummer mt-2 text-xl text-navy">{formatEuro(artikel.preis_cent)}</p>
                 {artikel.beilagen.length > 0 && (
-                  <p className="mt-1 text-sm text-schrift-gedimmt">mit Beilagen-Auswahl</p>
+                  <p className="mt-1 text-sm text-schrift-gedimmt">{texte.mitBeilagenAuswahl}</p>
                 )}
               </button>
             ))}
             {artikelListe.length === 0 && (
               <p className="col-span-full p-4 text-schrift-gedimmt">
-                Keine Artikel verfügbar. Artikel werden in der Verwaltung angelegt.
+                {texte.keineArtikel}
               </p>
             )}
           </div>
