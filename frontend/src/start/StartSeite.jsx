@@ -6,10 +6,12 @@ import ZielKaertchen from './ZielKaertchen.jsx';
 import { ZIELE } from './ziele.js';
 import { useOptionaleSession } from '../anmeldung/useOptionaleSession.js';
 import NetzwerkAdresse from './NetzwerkAdresse.jsx';
+import { de, tr } from '../sprache/ziele.js';
 
 export default function StartSeite() {
   const { laedt, benutzername } = useOptionaleSession();
   const [sprache, setSprache] = useStationsSprache();
+  const texte = sprache === 'tr' ? tr : de;
 
   if (laedt) return null;
 
@@ -20,7 +22,7 @@ export default function StartSeite() {
       <main className="flex flex-1 items-center justify-center p-6">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {ZIELE.map((ziel) => (
-            <ZielKaertchen key={ziel.pfad} beschriftung={ziel.beschriftung} Icon={ziel.Icon} pfad={ziel.pfad} />
+            <ZielKaertchen key={ziel.pfad} beschriftung={texte[ziel.id]} Icon={ziel.Icon} pfad={ziel.pfad} />
           ))}
         </div>
       </main>
