@@ -1,0 +1,28 @@
+export const de = {
+  titel: 'Benutzer',
+  benutzerAnlegen: 'Benutzer anlegen',
+  passwortZuruecksetzen: 'Passwort zurücksetzen',
+  benutzername: 'Benutzername',
+  passwortLabel: 'Passwort (mindestens 8 Zeichen)',
+  rolle: 'Rolle',
+  anlegen: 'Anlegen',
+  neuesPasswortSuffix: 'Neues Passwort',
+  neuesPasswortPlatzhalter: 'Neues Passwort (mindestens 8 Zeichen)',
+  benutzerLoeschenTitel: 'Benutzer löschen?',
+  loeschenVorspann: 'Das Konto „',
+  loeschenNachspann: '“ wird dauerhaft gelöscht und kann sich nicht mehr anmelden.',
+};
+export const tr = {
+  titel: 'Kullanıcılar',
+  benutzerAnlegen: 'Kullanıcı oluştur',
+  passwortZuruecksetzen: 'Şifreyi sıfırla',
+  benutzername: 'Kullanıcı adı',
+  passwortLabel: 'Şifre (en az 8 karakter)',
+  rolle: 'Rol',
+  anlegen: 'Oluştur',
+  neuesPasswortSuffix: 'Yeni şifre',
+  neuesPasswortPlatzhalter: 'Yeni şifre (en az 8 karakter)',
+  benutzerLoeschenTitel: 'Kullanıcı silinsin mi?',
+  loeschenVorspann: '"',
+  loeschenNachspann: '" hesabı kalıcı olarak silinecek ve artık giriş yapamayacak.',
+};
