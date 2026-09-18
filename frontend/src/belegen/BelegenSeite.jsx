@@ -9,10 +9,13 @@ import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { apiGet, apiPost } from '../api.js';
 import { alterText } from '../zeitAnzeige.js';
+import { de as eigeneDe, tr as eigeneTr } from '../sprache/belegen.js';
+import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function BelegenSeite() {
   const session = useSession('belegen');
   const [sprache, setSprache] = useStationsSprache();
+  const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [listen, setListen] = useState({ in_bearbeitung: [], abholbereit: [] });
   const [snackbar, setSnackbar] = useState(null);
   const [jetzt, setJetzt] = useState(Date.now());
@@ -30,7 +33,7 @@ export default function BelegenSeite() {
     try {
       await apiPost(`/api/belegen/status/${kaertchen.id}`, { status: neuerStatus });
       setSnackbar({
-        meldung: `Nr. ${kaertchen.nummer} ${meldung}`,
+        meldung: `${texte.nrPraefix} ${kaertchen.nummer} ${meldung}`,
         rueckgaengig: () =>
           apiPost(`/api/belegen/status/${kaertchen.id}`, { status: rueckStatus }).catch(() => {}),
       });
@@ -42,16 +45,16 @@ export default function BelegenSeite() {
 
   const spalten = [
     {
-      titel: 'In Bearbeitung',
+      id: 'inBearbeitung',
       kopfstil: 'stark',
       kaertchen: listen.in_bearbeitung,
       karte: (k) => (
         <KaertchenKarte key={k.id} kaertchen={k} zeitText={alterText(k.erstellt_am, jetzt, sprache)} sprache={sprache}
-          onTippen={() => statusWechsel(k, 'abholbereit', 'in_bearbeitung', 'ist abholbereit')} />
+          onTippen={() => statusWechsel(k, 'abholbereit', 'in_bearbeitung', texte.meldungAbholbereit)} />
       ),
     },
     {
-      titel: 'Abholbereit',
+      id: 'abholbereit',
       kopfstil: 'blass',
       kaertchen: listen.abholbereit,
       karte: (k) => (
@@ -60,9 +63,9 @@ export default function BelegenSeite() {
             <KaertchenKarte kaertchen={k} zeitText={alterText(k.abholbereit_am, jetzt, sprache)} sprache={sprache} />
           </div>
           <button
-            onClick={() => statusWechsel(k, 'in_bearbeitung', 'abholbereit', 'zurück in Bearbeitung')}
+            onClick={() => statusWechsel(k, 'in_bearbeitung', 'abholbereit', texte.meldungZurueckInBearbeitung)}
             className="kaertchen-schatten cursor-pointer rounded-lg border border-linie px-3 py-6 text-schrift-gedimmt hover:bg-flaeche-hell">
-            Rückgängig
+            {texte.rueckgaengig}
           </button>
         </div>
       ),
@@ -71,17 +74,17 @@ export default function BelegenSeite() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Kopfzeile titel="Belegen" benutzername={session.benutzername} sprache={sprache}
+      <Kopfzeile titel={texte.titel} benutzername={session.benutzername} sprache={sprache}
         rechts={<SprachSchalter sprache={sprache} onWahl={setSprache} />} />
 
       <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 bg-grund p-3">
         {spalten.map((spalte) => (
-          <section key={spalte.titel}
+          <section key={spalte.id}
             className="flex min-h-0 flex-col overflow-hidden rounded-lg bg-flaeche shadow-sm">
             <h2 className={`px-4 py-3 text-center font-display text-xl ${
               spalte.kopfstil === 'stark' ? 'bg-blau text-flaeche' : 'bg-blau-blass text-navy'
             }`}>
-              {spalte.titel} ({spalte.kaertchen.length})
+              {texte[spalte.id]} ({spalte.kaertchen.length})
             </h2>
             <div className="flex-1 space-y-3 overflow-y-auto px-4 pt-2 pb-4">
               {spalte.kaertchen.map(spalte.karte)}
