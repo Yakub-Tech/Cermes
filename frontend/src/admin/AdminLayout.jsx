@@ -55,12 +55,12 @@ export default function AdminLayout() {
             <Route path="statistik" element={<StatistikSeite sprache={sprache} />} />
             <Route path="artikel" element={<ArtikelSeite rolle={session.rolle} />} />
             <Route path="beilagen" element={<BeilagenSeite />} />
-            <Route path="werbung" element={<WerbungSeite />} />
+            <Route path="werbung" element={<WerbungSeite sprache={sprache} />} />
             {session.rolle === 'admin' && (
               <>
-                <Route path="einstellungen" element={<EinstellungenSeite />} />
-                <Route path="benutzer" element={<BenutzerSeite />} />
-                <Route path="backup" element={<BackupSeite />} />
+                <Route path="einstellungen" element={<EinstellungenSeite sprache={sprache} />} />
+                <Route path="benutzer" element={<BenutzerSeite sprache={sprache} />} />
+                <Route path="backup" element={<BackupSeite sprache={sprache} />} />
               </>
             )}
             <Route path="*" element={<Navigate to="statistik" replace />} />
