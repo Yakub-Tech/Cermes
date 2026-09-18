@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { apiUpload } from '../api.js';
 import Kontrollkaestchen from '../komponenten/Kontrollkaestchen.jsx';
 import DateiAuswahl from '../komponenten/DateiAuswahl.jsx';
+import { de, tr } from '../sprache/backup.js';
 
-export default function BackupSeite() {
+export default function BackupSeite({ sprache = 'de' }) {
+  const texte = sprache === 'tr' ? tr : de;
   const [datei, setDatei] = useState(null);
   const [bestaetigt, setBestaetigt] = useState(false);
   const [hinweis, setHinweis] = useState('');
@@ -31,37 +33,36 @@ export default function BackupSeite() {
   return (
     <div className="space-y-5">
       <section>
-        <h2 className="mb-2.5 font-display text-base text-navy">Backup herunterladen</h2>
+        <h2 className="mb-2.5 font-display text-base text-navy">{texte.herunterladenTitel}</h2>
         <p className="mb-2.5 max-w-sm text-sm text-schrift-gedimmt">
-          Lädt eine ZIP-Datei mit der kompletten Datenbank und allen Werbebildern herunter.
-          Am besten nach jedem Verkaufstag einmal machen und die Datei sicher ablegen.
+          {texte.herunterladenErklaerung}
         </p>
         <button onClick={() => { location.href = '/api/backup'; }}
           className="kaertchen-schatten cursor-pointer rounded-full bg-blau px-5 py-2.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
-          Backup herunterladen
+          {texte.herunterladenTitel}
         </button>
       </section>
 
       <section>
-        <h2 className="mb-2.5 font-display text-base text-navy">Backup einspielen</h2>
+        <h2 className="mb-2.5 font-display text-base text-navy">{texte.einspielenTitel}</h2>
         <form onSubmit={einspielen} className="kaertchen-schatten max-w-sm rounded-lg border border-linie bg-flaeche p-4">
           <p className="mb-2.5 rounded-lg border border-blau bg-blau/20 px-2.5 py-2 text-sm text-blau">
-            Achtung: Das Einspielen <strong>ersetzt alle aktuellen Daten</strong>,
-            also Verkäufe, Artikel, Benutzer und Werbebilder, durch den Stand aus der Backup-Datei.
+            {texte.einspielenWarnungVorspann} <strong>{texte.einspielenWarnungFett}</strong>
+            {texte.einspielenWarnungNachspann}
           </p>
           <div className="mb-2.5">
             <DateiAuswahl akzeptiert=".zip" wert={datei} onWahl={setDatei}
-              typFehlerText="Bitte nur eine ZIP-Datei ablegen." />
+              typFehlerText={texte.zipTypFehler} sprache={sprache} />
           </div>
           <label className="mb-2.5 flex cursor-pointer items-center gap-1.5 text-sm">
             <Kontrollkaestchen markiert={bestaetigt} onWahl={setBestaetigt} />
-            <span>Ich habe verstanden, dass alle aktuellen Daten ersetzt werden.</span>
+            <span>{texte.bestaetigung}</span>
           </label>
           {hinweis && <p className="mb-2 rounded bg-akzent/10 px-2 py-1.5 text-sm text-akzent-text">{hinweis}</p>}
           {fehler && <p className="mb-2 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
           <button type="submit" disabled={!datei || !bestaetigt || laeuft}
             className="cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
-            {laeuft ? 'Wird eingespielt …' : 'Backup einspielen'}
+            {laeuft ? texte.wirdEingespielt : texte.einspielenTitel}
           </button>
         </form>
       </section>
