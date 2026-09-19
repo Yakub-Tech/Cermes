@@ -9,7 +9,7 @@ export const de = {
 };
 export const tr = {
   titel: 'Reklam',
-  erklaerung: "Aktif resimler televizyonda bir slayt gösterisi olarak akar. PNG, JPEG ve WebP, 10 MB'a kadar desteklenir. Değişiklikler hemen etkili olur.",
+  erklaerung: "Aktif resimler televizyonda bir slayt gösterisi olarak sırayla gösterilir. PNG, JPEG ve WebP, 10 MB'a kadar desteklenir. Değişiklikler hemen etkili olur.",
   keineBilder: 'Henüz reklam resmi yüklenmedi.',
   bildHochladenBeschriftung: 'Resim yükle',
   bildAlt: 'Reklam resmi',
