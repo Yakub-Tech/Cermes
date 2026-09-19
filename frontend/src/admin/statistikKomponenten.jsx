@@ -4,9 +4,11 @@ import {
 } from 'recharts';
 import { formatEuro } from '../api.js';
 import { datumAnzeigen } from './datum.js';
-import { artikelSortieren, SORTIER_OPTIONEN } from './artikelSortierung.js';
+import { artikelSortieren, sortierOptionen } from './artikelSortierung.js';
 import { gewinnmargeBerechnen } from './gewinnmarge.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
+import { de as eigeneDe, tr as eigeneTr } from '../sprache/statistikKomponenten.js';
+import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export const stueckFarbe = '#2563A6';
 export const umsatzFarbe = '#0F8B8D';
@@ -37,7 +39,7 @@ export function KennzahlZeile({ kennzahlen }) {
   return (
     <div className="flex gap-2.5">
       {kennzahlen.map((kennzahl) => (
-        <div key={kennzahl.beschriftung}
+        <div key={kennzahl.id}
           className="kaertchen-schatten flex-1 rounded-lg border border-linie bg-flaeche px-4 py-4 text-center">
           <p className="text-xs text-schrift-gedimmt">{kennzahl.beschriftung}</p>
           <p className="nummer mt-2 text-3xl" style={kennzahl.farbe ? { color: kennzahl.farbe } : undefined}>
@@ -51,7 +53,7 @@ export function KennzahlZeile({ kennzahlen }) {
 
 export function BalkenDiagramm({
   titel, daten, xSchluessel, ySchluessel, werteFormat, kinder, farbe = stueckFarbe, balkenFarbFunktion,
-  schraegeAchse = true, alleBeschriftungen = false, leerText = 'Keine Verkäufe an diesem Tag.',
+  schraegeAchse = true, alleBeschriftungen = false, leerText,
 }) {
   const laengsterName = daten.reduce(
     (max, zeile) => Math.max(max, String(zeile[xSchluessel]).length), 0,
@@ -96,40 +98,43 @@ export function BalkenDiagramm({
   );
 }
 
-export function FarbLegende() {
+export function FarbLegende({ sprache = 'de' }) {
+  const texte = sprache === 'tr' ? eigeneTr : eigeneDe;
   return (
     <div className="flex items-center gap-3 text-xs text-schrift-gedimmt">
       <span className="flex items-center gap-1">
         <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: gewinnFarbe }} />
-        mit hinterlegten Kosten
+        {texte.mitKosten}
       </span>
       <span className="flex items-center gap-1">
         <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: farbeOhneKosten }} />
-        ohne hinterlegte Kosten
+        {texte.ohneKosten}
       </span>
     </div>
   );
 }
 
-export function Kennzahlen({ gesamt, stosszeit }) {
+export function Kennzahlen({ gesamt, stosszeit, sprache = 'de' }) {
+  const texte = sprache === 'tr' ? eigeneTr : eigeneDe;
   const zeigtGeld = gesamt.umsatz_cent !== undefined;
   const kostenVollstaendig = !gesamt.stueck_ohne_kosten;
   const marge = zeigtGeld ? gewinnmargeBerechnen(gesamt) : null;
+  const margeAnzeige = marge === null ? '–' : (sprache === 'tr' ? `%${marge}` : `${marge} %`);
 
   const kennzahlen = [
-    { beschriftung: 'Verkaufte Portionen', wert: gesamt.stueck, farbe: stueckFarbe },
+    { id: 'portionen', beschriftung: texte.portionenLabel, wert: gesamt.stueck, farbe: stueckFarbe },
     ...(zeigtGeld ? [
-      { beschriftung: 'Umsatz', wert: formatEuro(gesamt.umsatz_cent), farbe: umsatzFarbe },
+      { id: 'umsatz', beschriftung: texte.umsatzLabel, wert: formatEuro(gesamt.umsatz_cent), farbe: umsatzFarbe },
       {
-        beschriftung: 'Gewinn', wert: formatEuro(gesamt.gewinn_cent),
+        id: 'gewinn', beschriftung: texte.gewinnLabel, wert: formatEuro(gesamt.gewinn_cent),
         farbe: kostenVollstaendig ? gewinnFarbe : gewinnNeutralFarbe,
       },
       {
-        beschriftung: 'Gewinnmarge', wert: marge === null ? '–' : `${marge} %`,
+        id: 'marge', beschriftung: texte.margeLabel, wert: margeAnzeige,
         farbe: kostenVollstaendig ? gewinnFarbe : gewinnNeutralFarbe,
       },
     ] : []),
-    { beschriftung: 'Stoßzeit', wert: stosszeit ?? '–' },
+    { id: 'stosszeit', beschriftung: texte.stosszeitLabel, wert: stosszeit ?? '–' },
   ];
 
   return (
@@ -138,7 +143,7 @@ export function Kennzahlen({ gesamt, stosszeit }) {
       {zeigtGeld && gesamt.stueck_ohne_kosten > 0 && (
         <div className="kaertchen-schatten rounded-lg border border-linie bg-flaeche px-4 py-2.5">
           <p className="text-xs italic text-weinrot">
-            {gesamt.stueck_ohne_kosten} Stück ohne Kostenangabe, Gewinn dort ohne Kostenabzug berechnet
+            {texte.stueckOhneKostenVorspann}{gesamt.stueck_ohne_kosten}{texte.stueckOhneKostenNachspann}
           </p>
         </div>
       )}
@@ -146,65 +151,67 @@ export function Kennzahlen({ gesamt, stosszeit }) {
   );
 }
 
-export function ArtikelDiagramme({ gesamt, artikel }) {
+export function ArtikelDiagramme({ gesamt, artikel, leerText, sprache = 'de' }) {
   const [sortierung, setSortierung] = useState('alphabetisch');
+  const texte = sprache === 'tr' ? eigeneTr : eigeneDe;
   const zeigtGeld = gesamt.umsatz_cent !== undefined;
 
   return (
     <div className="space-y-2.5">
       <div className="flex items-center justify-end gap-1.5">
-        <span className="text-xs text-schrift-gedimmt">Sortierung</span>
-        <Auswahlmenue wert={sortierung} onWahl={setSortierung} optionen={SORTIER_OPTIONEN}
+        <span className="text-xs text-schrift-gedimmt">{texte.sortierungLabel}</span>
+        <Auswahlmenue wert={sortierung} onWahl={setSortierung} optionen={sortierOptionen(sprache)}
           klasse="text-xs kaertchen-schatten" />
       </div>
 
-      <BalkenDiagramm titel="Verkaufte Stückzahl pro Artikel"
+      <BalkenDiagramm titel={texte.titelStueckzahl}
         daten={artikelSortieren(artikel, sortierung, 'stueck')}
         xSchluessel="artikel_name" ySchluessel="stueck" farbe={stueckFarbe}
-        alleBeschriftungen />
+        leerText={leerText} alleBeschriftungen />
 
       {zeigtGeld && (
         <>
-          <BalkenDiagramm titel="Umsatz pro Artikel"
+          <BalkenDiagramm titel={texte.titelUmsatz}
             daten={artikelSortieren(artikel, sortierung, 'umsatz_cent')}
             xSchluessel="artikel_name" ySchluessel="umsatz_cent" werteFormat={formatEuro}
-            farbe={umsatzFarbe} alleBeschriftungen />
+            farbe={umsatzFarbe} leerText={leerText} alleBeschriftungen />
 
-          <BalkenDiagramm titel="Gewinn pro Artikel"
+          <BalkenDiagramm titel={texte.titelGewinn}
             daten={artikelSortieren(artikel, sortierung, 'gewinn_cent')}
             xSchluessel="artikel_name" ySchluessel="gewinn_cent" werteFormat={formatEuro}
             farbe={gewinnFarbe}
             balkenFarbFunktion={(zeile) => (zeile.stueck_ohne_kosten > 0 ? farbeOhneKosten : gewinnFarbe)}
-            kinder={<FarbLegende />} alleBeschriftungen />
+            leerText={leerText} kinder={<FarbLegende sprache={sprache} />} alleBeschriftungen />
         </>
       )}
     </div>
   );
 }
 
-export function StornoTabelle({ stornos, mitDatum = false }) {
+export function StornoTabelle({ stornos, mitDatum = false, sprache = 'de' }) {
+  const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   return (
     <section className="kaertchen-schatten rounded-lg border border-linie bg-flaeche p-2.5">
-      <h3 className="mb-2 text-sm">{mitDatum ? 'Stornos in diesem Zeitraum' : 'Stornos an diesem Tag'}</h3>
+      <h3 className="mb-2 text-sm">{mitDatum ? texte.titelZeitraum : texte.titelTag}</h3>
       {stornos.length === 0 ? (
-        <p className="text-sm text-schrift-gedimmt">Keine Stornos.</p>
+        <p className="text-sm text-schrift-gedimmt">{texte.keineStornos}</p>
       ) : (
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-linie text-xs text-schrift-gedimmt">
-              {mitDatum && <th className="px-1.5 py-1.5">Datum</th>}
-              <th className="px-1.5 py-1.5">Uhrzeit</th>
-              <th className="px-1.5 py-1.5">Nummer</th>
-              <th className="px-1.5 py-1.5">Artikel</th>
-              <th className="px-1.5 py-1.5">Betrag</th>
-              <th className="px-1.5 py-1.5">Storniert von</th>
+              {mitDatum && <th className="px-1.5 py-1.5">{texte.spalteDatum}</th>}
+              <th className="px-1.5 py-1.5">{texte.spalteUhrzeit}</th>
+              <th className="px-1.5 py-1.5">{texte.spalteNummer}</th>
+              <th className="px-1.5 py-1.5">{texte.spalteArtikel}</th>
+              <th className="px-1.5 py-1.5">{texte.spalteBetrag}</th>
+              <th className="px-1.5 py-1.5">{texte.spalteStorniertVon}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-linie text-sm">
             {stornos.map((storno, index) => (
               <tr key={index}>
                 {mitDatum && <td className="px-1.5 py-1.5">{datumAnzeigen(storno.datum)}</td>}
-                <td className="px-1.5 py-1.5">{storno.zeit} Uhr</td>
+                <td className="px-1.5 py-1.5">{storno.zeit}{texte.uhr ? ` ${texte.uhr}` : ''}</td>
                 <td className="nummer px-1.5 py-1.5">{storno.nummer}</td>
                 <td className="px-1.5 py-1.5">{storno.artikel_name}</td>
                 <td className="nummer px-1.5 py-1.5">{formatEuro(storno.preis_cent)}</td>
