@@ -5,8 +5,11 @@ import Dialog from '../komponenten/Dialog.jsx';
 import ArtikelFormular from './ArtikelFormular.jsx';
 import StartnummerDialog from './StartnummerDialog.jsx';
 import { beideSprachenName } from '../sprache/zweisprachigerName.js';
+import { de as eigeneDe, tr as eigeneTr } from '../sprache/artikel.js';
+import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
-export default function ArtikelSeite({ rolle }) {
+export default function ArtikelSeite({ rolle, sprache = 'de' }) {
+  const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [artikelListe, setArtikelListe] = useState([]);
   const [beilagen, setBeilagen] = useState([]);
   const [formular, setFormular] = useState(null);
@@ -35,11 +38,11 @@ export default function ArtikelSeite({ rolle }) {
 
   return (
     <div>
-      <h2 className="mb-4 font-display text-base text-navy">Artikel</h2>
+      <h2 className="mb-4 font-display text-base text-navy">{texte.titel}</h2>
 
       <button onClick={() => setFormular({ artikel: null })}
         className="kaertchen-schatten mb-4 cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
-        Artikel anlegen
+        {texte.artikelAnlegen}
       </button>
 
       {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
@@ -48,19 +51,19 @@ export default function ArtikelSeite({ rolle }) {
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-linie text-xs text-schrift-gedimmt">
-              <th className="px-2.5 py-2">Artikel</th>
-              <th className="px-2.5 py-2">Preis</th>
-              {rolle === 'admin' && <th className="px-2.5 py-2">Kosten</th>}
-              <th className="px-2.5 py-2">Beilagen</th>
-              <th className="px-2.5 py-2">Weiter bei Nr.</th>
-              <th className="px-2.5 py-2">Aktiv</th>
+              <th className="px-2.5 py-2">{texte.spalteArtikel}</th>
+              <th className="px-2.5 py-2">{texte.spaltePreis}</th>
+              {rolle === 'admin' && <th className="px-2.5 py-2">{texte.spalteKosten}</th>}
+              <th className="px-2.5 py-2">{texte.spalteBeilagen}</th>
+              <th className="px-2.5 py-2">{texte.spalteWeiterBeiNr}</th>
+              <th className="px-2.5 py-2">{texte.spalteAktiv}</th>
               <th className="px-2.5 py-2"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-linie text-sm">
             {artikelListe.length === 0 && (
               <tr><td colSpan={rolle === 'admin' ? 7 : 6} className="px-2.5 py-4 text-schrift-gedimmt">
-                Noch keine Artikel angelegt.
+                {texte.keineArtikel}
               </td></tr>
             )}
             {artikelListe.map((artikel) => (
@@ -101,17 +104,17 @@ export default function ArtikelSeite({ rolle }) {
                     className={`cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold ${
                       artikel.aktiv ? 'bg-navy text-grund' : 'border border-linie text-schrift-gedimmt'
                     }`}>
-                    {artikel.aktiv ? 'aktiv' : 'inaktiv'}
+                    {artikel.aktiv ? texte.aktiv : texte.inaktiv}
                   </button>
                 </td>
                 <td className="px-2.5 py-2 text-right whitespace-nowrap">
                   <button onClick={() => setFormular({ artikel })}
                     className="mr-1.5 cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
-                    Bearbeiten
+                    {texte.bearbeiten}
                   </button>
                   <button onClick={() => setLoeschung(artikel)}
                     className="cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-weinrot hover:bg-flaeche-hell">
-                    Löschen
+                    {texte.loeschen}
                   </button>
                 </td>
               </tr>
@@ -122,32 +125,31 @@ export default function ArtikelSeite({ rolle }) {
 
       {formular && (
         <ArtikelFormular artikel={formular.artikel} beilagen={beilagen} rolle={rolle}
-          onSpeichern={speichern} onAbbrechen={() => setFormular(null)} />
+          onSpeichern={speichern} onAbbrechen={() => setFormular(null)} sprache={sprache} />
       )}
 
       {startnummer && (
         <StartnummerDialog artikel={startnummer}
           onFertig={() => setStartnummer(null)}
-          onAbbrechen={() => setStartnummer(null)} />
+          onAbbrechen={() => setStartnummer(null)} sprache={sprache} />
       )}
 
       {loeschung && (
-        <Dialog titel="Artikel löschen?" onSchliessen={() => setLoeschung(null)}>
+        <Dialog titel={texte.artikelLoeschenTitel} onSchliessen={() => setLoeschung(null)}>
           <p className="mb-4 text-sm">
-            „{loeschung.name}“ verschwindet aus Kasse und Verwaltung. Die Statistik
-            vergangener Tage bleibt unverändert.
+            {texte.loeschenVorspann}{beideSprachenName(loeschung.name, loeschung.name_tr)}{texte.loeschenNachspann}
           </p>
           <div className="flex gap-2">
             <button onClick={() => setLoeschung(null)}
               className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
-              Abbrechen
+              {texte.abbrechen}
             </button>
             <button
               onClick={() => apiDelete(`/api/artikel/${loeschung.id}`)
                 .then(() => setLoeschung(null))
                 .catch((f) => { setFehler(f.message); setLoeschung(null); })}
               className="flex-1 cursor-pointer rounded-full bg-weinrot py-1.5 text-sm font-bold text-flaeche hover:bg-weinrot-hell">
-              Ja, löschen
+              {texte.jaLoeschen}
             </button>
           </div>
         </Dialog>
