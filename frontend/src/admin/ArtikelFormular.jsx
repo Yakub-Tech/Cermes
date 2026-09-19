@@ -5,10 +5,13 @@ import Zahlenfeld from '../komponenten/Zahlenfeld.jsx';
 import DateiAuswahl from '../komponenten/DateiAuswahl.jsx';
 import Kontrollkaestchen from '../komponenten/Kontrollkaestchen.jsx';
 import { beideSprachenName } from '../sprache/zweisprachigerName.js';
+import { de as eigeneDe, tr as eigeneTr } from '../sprache/artikelFormular.js';
+import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 const NAME_MAX_LAENGE = 24;
 
-export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern, onAbbrechen }) {
+export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern, onAbbrechen, sprache = 'de' }) {
+  const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [name, setName] = useState(artikel?.name ?? '');
   const [nameTr, setNameTr] = useState(artikel?.name_tr ?? '');
   const [nurDeutsch, setNurDeutsch] = useState(artikel ? !artikel.name_tr : false);
@@ -68,19 +71,19 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
 
   function speichern() {
     if (!nurDeutsch && nameTr.trim() === '') {
-      setFehler('Bitte einen türkischen Namen angeben oder „Nur auf Deutsch“ ankreuzen.');
+      setFehler(`${texte.tuerkischerNameFehlerVorspann}${texte.nurAufDeutsch}${texte.tuerkischerNameFehlerNachspann}`);
       return;
     }
     const preisCent = euroZuCent(preisText);
     if (preisCent === null) {
-      setFehler('Bitte einen gültigen Verkaufspreis eingeben, z. B. 3,50');
+      setFehler(texte.fehlerPreis);
       return;
     }
     let kostenCent = null;
     if (kostenText.trim() !== '') {
       kostenCent = euroZuCent(kostenText);
       if (kostenCent === null) {
-        setFehler('Bitte gültige Einkaufskosten eingeben oder das Feld leer lassen.');
+        setFehler(texte.fehlerKosten);
         return;
       }
     }
@@ -91,7 +94,7 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
         const von = Number(block.von);
         const bis = Number(block.bis);
         if (!Number.isInteger(von) || von < 1 || !Number.isInteger(bis) || bis < von) {
-          setFehler('Bitte bei jedem Nummernblock eine gültige Von- und Bis-Nummer angeben (Bis mindestens Von).');
+          setFehler(texte.fehlerNummernblock);
           return;
         }
         bloeckeDaten.push({ von, bis });
@@ -114,22 +117,22 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
     'mb-2.5 w-full rounded border border-linie bg-grund px-2 py-1.5 text-sm outline-none focus:border-blau-hell';
 
   return (
-    <Dialog titel={artikel ? `${beideSprachenName(artikel.name, artikel.name_tr)} bearbeiten` : 'Artikel anlegen'}
+    <Dialog titel={artikel ? `${beideSprachenName(artikel.name, artikel.name_tr)} ${texte.bearbeitenSuffix}` : texte.titelNeu}
       onSchliessen={onAbbrechen}>
-      <label className="mb-1 block text-xs text-schrift-gedimmt">Name</label>
+      <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.name}</label>
       <input value={name} autoFocus maxLength={NAME_MAX_LAENGE} onChange={(e) => setName(e.target.value)}
         className={eingabeKlasse.replace('mb-2.5', 'mb-1')} />
       <p className="mb-2.5 text-right text-xs text-schrift-gedimmt">
-        {name.length}/{NAME_MAX_LAENGE} Zeichen
+        {name.length}/{NAME_MAX_LAENGE} {texte.zeichen}
       </p>
 
       <label className="mb-1 flex items-center gap-1.5 text-xs text-schrift-gedimmt">
         <Kontrollkaestchen markiert={nurDeutsch} onWahl={setNurDeutsch} />
-        Nur auf Deutsch
+        {texte.nurAufDeutsch}
       </label>
       {!nurDeutsch && (
         <>
-          <label className="mb-1 block text-xs text-schrift-gedimmt">Name (Türkisch)</label>
+          <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.nameTuerkisch}</label>
           <input value={nameTr} maxLength={NAME_MAX_LAENGE} onChange={(e) => setNameTr(e.target.value)}
             className={eingabeKlasse} />
         </>
@@ -137,14 +140,14 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
 
       <div className="flex gap-2.5">
         <div className="flex-1">
-          <label className="mb-1 block text-xs text-schrift-gedimmt">Verkaufspreis (€)</label>
+          <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.verkaufspreis}</label>
           <input value={preisText} inputMode="decimal" placeholder="3,50"
             onChange={(e) => setPreisText(e.target.value)} className={eingabeKlasse} />
         </div>
         {rolle === 'admin' && (
           <div className="flex-1">
-            <label className="mb-1 block text-xs text-schrift-gedimmt">Einkaufskosten (€, optional)</label>
-            <input value={kostenText} inputMode="decimal" placeholder="leer = ohne Angabe"
+            <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.einkaufskosten}</label>
+            <input value={kostenText} inputMode="decimal" placeholder={texte.einkaufskostenPlatzhalter}
               onChange={(e) => setKostenText(e.target.value)} className={eingabeKlasse} />
           </div>
         )}
@@ -152,21 +155,21 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
 
       <div className="mb-2.5 flex items-center gap-2.5">
         <div>
-          <label className="mb-1 block text-xs text-schrift-gedimmt">Kärtchenfarbe</label>
+          <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.kaertchenfarbe}</label>
           <input type="color" value={farbe} onChange={(e) => setFarbe(e.target.value)}
             className="h-8 w-14 cursor-pointer rounded border border-linie bg-grund" />
         </div>
         <div>
-          <label className="mb-1 block text-xs text-schrift-gedimmt">Sortierung in der Kasse</label>
+          <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.sortierung}</label>
           <Zahlenfeld wert={sortierung} onWahl={setSortierung} klasse="w-16" />
         </div>
       </div>
 
-      <label className="mb-1 block text-xs text-schrift-gedimmt">Beilagen</label>
+      <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.beilagenLabel}</label>
       <div className="mb-2.5 flex flex-wrap gap-1.5">
         {beilagen.length === 0 && (
           <p className="text-xs text-schrift-gedimmt">
-            Noch keine Beilagen angelegt (Bereich „Beilagen“).
+            {texte.keineBeilagen}
           </p>
         )}
         {beilagen.map((beilage) => (
@@ -182,39 +185,36 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
       </div>
 
       <label className="mb-1 block text-xs text-schrift-gedimmt">
-        Nummernblöcke (für Kärtchenrollen mit Lücken)
+        {texte.nummernbloecke}
       </label>
       <p className="mb-2 text-xs text-schrift-gedimmt">
-        Ohne Angabe zählt die Nummer einfach unbegrenzt hoch. Nur eintragen, wenn
-        bestimmte Nummernbereiche fehlen (z. B. Rolle 1 bis 100 vorhanden, 101 bis 160 fehlt,
-        ab 161 geht es weiter).
+        {texte.nummernbloeckeErklaerung}
       </p>
       {bloecke.map((block, index) => (
         <div key={index} className="mb-1.5 flex items-center gap-1.5">
           <Zahlenfeld min="1" wert={block.von} klasse="w-24"
             onWahl={(wert) => blockAendern(index, 'von', wert)} />
-          <span className="text-xs text-schrift-gedimmt">bis</span>
+          <span className="text-xs text-schrift-gedimmt">{texte.bis}</span>
           <Zahlenfeld min="1" wert={block.bis} klasse="w-24"
             onWahl={(wert) => blockAendern(index, 'bis', wert)} />
           <button type="button" onClick={() => blockEntfernen(index)}
             className="cursor-pointer rounded-full border border-linie px-2 py-1 text-xs text-weinrot hover:bg-flaeche-hell">
-            Entfernen
+            {texte.entfernen}
           </button>
         </div>
       ))}
       <button type="button" onClick={blockHinzufuegen}
         className="mb-2.5 cursor-pointer rounded-full border border-linie px-2.5 py-1 text-xs text-schrift-gedimmt hover:bg-flaeche-hell">
-        + Nummernblock hinzufügen
+        {texte.nummernblockHinzufuegen}
       </button>
 
-      <label className="mb-1 block text-xs text-schrift-gedimmt">Artikelbild</label>
+      <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.artikelbild}</label>
       <p className="mb-2 text-xs text-schrift-gedimmt">
-        Querformat empfohlen (z. B. 4:3), Motiv mittig platziert, mindestens 1200×900 Pixel.
-        PNG, JPEG oder WebP bis 10 MB.
+        {texte.artikelbildErklaerung}
       </p>
       {!artikel && (
         <p className="mb-2.5 text-xs text-schrift-gedimmt">
-          Kann nach dem Anlegen in der Bearbeiten-Ansicht ergänzt werden.
+          {texte.bildSpaeterErgaenzen}
         </p>
       )}
       {artikel && bildUrl && (
@@ -222,14 +222,14 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
           <img src={bildUrl} alt={artikel.name} className="h-20 w-20 rounded-lg border border-linie object-cover" />
           <button type="button" onClick={bildEntfernen}
             className="cursor-pointer rounded-full border border-linie px-2.5 py-1.5 text-sm text-weinrot hover:bg-flaeche-hell">
-            Bild entfernen
+            {texte.bildEntfernen}
           </button>
         </div>
       )}
       {artikel && !bildUrl && (
         <div className="mb-2.5">
-          <DateiAuswahl akzeptiert="image/png,image/jpeg,image/webp" beschriftung="Bild hochladen"
-            typFehlerText="Bitte nur PNG-, JPEG- oder WebP-Bilder ablegen." onWahl={bildHochladen} />
+          <DateiAuswahl akzeptiert="image/png,image/jpeg,image/webp" beschriftung={texte.bildHochladenBeschriftung}
+            typFehlerText={texte.dateiTypFehler} onWahl={bildHochladen} sprache={sprache} />
         </div>
       )}
 
@@ -238,11 +238,11 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
       <div className="flex gap-2">
         <button onClick={onAbbrechen}
           className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
-          Abbrechen
+          {texte.abbrechen}
         </button>
         <button onClick={speichern}
           className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
-          Speichern
+          {texte.speichern}
         </button>
       </div>
     </Dialog>
