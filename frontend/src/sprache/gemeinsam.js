@@ -12,6 +12,10 @@ export const de = {
   alleArtikel: 'Alle Artikel',
   dateiTypFehler: 'Bitte nur PNG-, JPEG- oder WebP-Bilder ablegen.',
   deineBestellung: 'Deine Bestellung',
+  nurAufDeutsch: 'Nur auf Deutsch',
+  nameTuerkisch: 'Name (Türkisch)',
+  tuerkischerNameFehlerVorspann: 'Bitte einen türkischen Namen angeben oder „',
+  tuerkischerNameFehlerNachspann: '“ ankreuzen.',
 };
 export const tr = {
   abbrechen: 'İptal',
@@ -27,4 +31,8 @@ export const tr = {
   alleArtikel: 'Tüm ürünler',
   dateiTypFehler: 'Lütfen sadece PNG, JPEG veya WebP resim dosyaları yükleyin.',
   deineBestellung: 'Siparişin',
+  nurAufDeutsch: 'Sadece Almanca',
+  nameTuerkisch: 'İsim (Türkçe)',
+  tuerkischerNameFehlerVorspann: 'Lütfen bir Türkçe isim girin veya "',
+  tuerkischerNameFehlerNachspann: '" kutucuğunu işaretleyin.',
 };
