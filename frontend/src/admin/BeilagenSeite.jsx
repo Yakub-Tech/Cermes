@@ -4,8 +4,11 @@ import { useLiveUpdate } from '../useLiveUpdate.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import Kontrollkaestchen from '../komponenten/Kontrollkaestchen.jsx';
 import { beideSprachenName } from '../sprache/zweisprachigerName.js';
+import { de as eigeneDe, tr as eigeneTr } from '../sprache/beilagen.js';
+import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
-export default function BeilagenSeite() {
+export default function BeilagenSeite({ sprache = 'de' }) {
+  const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [beilagen, setBeilagen] = useState([]);
   const [neuerName, setNeuerName] = useState('');
   const [neuerNameTr, setNeuerNameTr] = useState('');
@@ -21,7 +24,7 @@ export default function BeilagenSeite() {
   async function anlegen(ereignis) {
     ereignis.preventDefault();
     if (!neuerNurDeutsch && neuerNameTr.trim() === '') {
-      setFehler('Bitte einen türkischen Namen angeben oder „Nur auf Deutsch“ ankreuzen.');
+      setFehler(`${texte.tuerkischerNameFehlerVorspann}${texte.nurAufDeutsch}${texte.tuerkischerNameFehlerNachspann}`);
       return;
     }
     setFehler('');
@@ -37,7 +40,7 @@ export default function BeilagenSeite() {
 
   async function speichern() {
     if (!bearbeitung.nurDeutsch && (bearbeitung.name_tr ?? '').trim() === '') {
-      setFehler('Bitte einen türkischen Namen angeben oder „Nur auf Deutsch“ ankreuzen.');
+      setFehler(`${texte.tuerkischerNameFehlerVorspann}${texte.nurAufDeutsch}${texte.tuerkischerNameFehlerNachspann}`);
       return;
     }
     setFehler('');
@@ -54,24 +57,24 @@ export default function BeilagenSeite() {
 
   return (
     <div>
-      <h2 className="mb-4 font-display text-base text-navy">Beilagen</h2>
+      <h2 className="mb-4 font-display text-base text-navy">{texte.titel}</h2>
 
       <form onSubmit={anlegen} className="mb-4 flex max-w-md flex-wrap items-center gap-2">
         <input value={neuerName} onChange={(e) => setNeuerName(e.target.value)}
-          placeholder="Neue Beilage, z. B. Ketchup"
+          placeholder={texte.neuePlatzhalter}
           className="flex-1 rounded border border-linie bg-flaeche px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
         {!neuerNurDeutsch && (
           <input value={neuerNameTr} onChange={(e) => setNeuerNameTr(e.target.value)}
-            placeholder="Name (Türkisch)"
+            placeholder={texte.nameTuerkisch}
             className="flex-1 rounded border border-linie bg-flaeche px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
         )}
         <label className="flex items-center gap-1.5 text-xs text-schrift-gedimmt">
           <Kontrollkaestchen markiert={neuerNurDeutsch} onWahl={setNeuerNurDeutsch} />
-          Nur auf Deutsch
+          {texte.nurAufDeutsch}
         </label>
         <button type="submit" disabled={neuerName.trim() === ''}
           className="kaertchen-schatten cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
-          Anlegen
+          {texte.anlegen}
         </button>
       </form>
 
@@ -79,7 +82,7 @@ export default function BeilagenSeite() {
 
       <ul className="kaertchen-schatten max-w-md divide-y divide-linie rounded-lg border border-linie bg-flaeche text-sm">
         {beilagen.length === 0 && (
-          <li className="px-2.5 py-4 text-schrift-gedimmt">Noch keine Beilagen angelegt.</li>
+          <li className="px-2.5 py-4 text-schrift-gedimmt">{texte.keineBeilagen}</li>
         )}
         {beilagen.map((beilage) => (
           <li key={beilage.id} className="flex items-center gap-2.5 px-2.5 py-2">
@@ -93,65 +96,64 @@ export default function BeilagenSeite() {
               className={`cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold ${
                 beilage.aktiv ? 'bg-navy text-grund' : 'border border-linie text-schrift-gedimmt'
               }`}>
-              {beilage.aktiv ? 'aktiv' : 'inaktiv'}
+              {beilage.aktiv ? texte.aktiv : texte.inaktiv}
             </button>
             <button onClick={() => setBearbeitung({ ...beilage, nurDeutsch: !beilage.name_tr })}
               className="cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
-              Umbenennen
+              {texte.umbenennen}
             </button>
             <button onClick={() => setLoeschung(beilage)}
               className="cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-weinrot hover:bg-flaeche-hell">
-              Löschen
+              {texte.loeschen}
             </button>
           </li>
         ))}
       </ul>
 
       {bearbeitung && (
-        <Dialog titel="Beilage umbenennen" onSchliessen={() => setBearbeitung(null)}>
+        <Dialog titel={texte.umbenennenTitel} onSchliessen={() => setBearbeitung(null)}>
           <input value={bearbeitung.name} autoFocus
             onChange={(e) => setBearbeitung({ ...bearbeitung, name: e.target.value })}
             className="mb-2.5 w-full rounded border border-linie bg-grund px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
           <label className="mb-1 flex items-center gap-1.5 text-xs text-schrift-gedimmt">
             <Kontrollkaestchen markiert={bearbeitung.nurDeutsch}
               onWahl={(wert) => setBearbeitung({ ...bearbeitung, nurDeutsch: wert })} />
-            Nur auf Deutsch
+            {texte.nurAufDeutsch}
           </label>
           {!bearbeitung.nurDeutsch && (
-            <input value={bearbeitung.name_tr ?? ''} placeholder="Name (Türkisch)"
+            <input value={bearbeitung.name_tr ?? ''} placeholder={texte.nameTuerkisch}
               onChange={(e) => setBearbeitung({ ...bearbeitung, name_tr: e.target.value })}
               className="mb-2.5 w-full rounded border border-linie bg-grund px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
           )}
           <div className="flex gap-2">
             <button onClick={() => setBearbeitung(null)}
               className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
-              Abbrechen
+              {texte.abbrechen}
             </button>
             <button onClick={speichern}
               className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
-              Speichern
+              {texte.speichern}
             </button>
           </div>
         </Dialog>
       )}
 
       {loeschung && (
-        <Dialog titel="Beilage löschen?" onSchliessen={() => setLoeschung(null)}>
+        <Dialog titel={texte.beilageLoeschenTitel} onSchliessen={() => setLoeschung(null)}>
           <p className="mb-4 text-sm">
-            „{loeschung.name}“ wird dauerhaft aus jeder Auswahl entfernt.
-            Bereits verkaufte Kärtchen bleiben unverändert.
+            {texte.loeschenVorspann}{beideSprachenName(loeschung.name, loeschung.name_tr)}{texte.loeschenNachspann}
           </p>
           <div className="flex gap-2">
             <button onClick={() => setLoeschung(null)}
               className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
-              Abbrechen
+              {texte.abbrechen}
             </button>
             <button
               onClick={() => apiDelete(`/api/beilagen/${loeschung.id}`)
                 .then(() => setLoeschung(null))
                 .catch((f) => { setFehler(f.message); setLoeschung(null); })}
               className="flex-1 cursor-pointer rounded-full bg-weinrot py-1.5 text-sm font-bold text-flaeche hover:bg-weinrot-hell">
-              Ja, löschen
+              {texte.jaLoeschen}
             </button>
           </div>
         </Dialog>
