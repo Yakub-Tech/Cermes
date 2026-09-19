@@ -6,6 +6,8 @@ import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { Kennzahlen, ArtikelDiagramme, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
 import { staerkstesElement } from './staerkstesElement.js';
 import { beideSprachenName, zweisprachigerName } from '../sprache/zweisprachigerName.js';
+import { de as eigeneDe, tr as eigeneTr } from '../sprache/statistikZeitraum.js';
+import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 function vorauswahlBerechnen(verkaufstage) {
   if (verkaufstage.length === 0) return { von: null, bis: null };
@@ -23,7 +25,8 @@ function vorauswahlBerechnen(verkaufstage) {
   return { von: verkaufstage[0], bis: verkaufstage[0] };
 }
 
-export default function StatistikZeitraum({ sprache }) {
+export default function StatistikZeitraum({ sprache = 'de' }) {
+  const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [verkaufstage, setVerkaufstage] = useState([]);
   const [von, setVon] = useState(null);
   const [bis, setBis] = useState(null);
@@ -89,34 +92,34 @@ export default function StatistikZeitraum({ sprache }) {
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="w-[62px] text-right text-sm text-schrift-gedimmt">Von</span>
+        <span className="w-[62px] text-right text-sm text-schrift-gedimmt">{texte.von}</span>
         <Auswahlmenue wert={von} onWahl={vonWaehlen}
           optionen={vonOptionen.map((tag) => ({ wert: tag, text: datumAnzeigen(tag) }))}
           klasse="text-sm kaertchen-schatten" />
-        <span className="text-sm text-schrift-gedimmt">Bis</span>
+        <span className="text-sm text-schrift-gedimmt">{texte.bis}</span>
         <Auswahlmenue wert={bis} onWahl={bisWaehlen}
           optionen={bisOptionen.map((tag) => ({ wert: tag, text: datumAnzeigen(tag) }))}
           klasse="text-sm kaertchen-schatten" />
       </div>
 
-      <Kennzahlen gesamt={statistik.gesamt} stosszeit={stosszeit} />
+      <Kennzahlen gesamt={statistik.gesamt} stosszeit={stosszeit} sprache={sprache} />
 
       <div className="space-y-2.5">
-        <ArtikelDiagramme gesamt={statistik.gesamt} artikel={artikelAngezeigt} />
+        <ArtikelDiagramme gesamt={statistik.gesamt} artikel={artikelAngezeigt} leerText={texte.keineVerkaeufe} sprache={sprache} />
 
-        <BalkenDiagramm titel="Verkäufe pro Tag" daten={verlaufDaten}
+        <BalkenDiagramm titel={texte.titelProTag} daten={verlaufDaten}
           xSchluessel="tag" ySchluessel="stueck"
-          leerText="Keine Verkäufe in diesem Zeitraum."
+          leerText={texte.keineVerkaeufe}
           kinder={
             <Auswahlmenue wert={verlaufArtikel} onWahl={verlaufArtikelWaehlen}
               optionen={[
-                { wert: '', text: 'Alle Artikel' },
+                { wert: '', text: texte.alleArtikel },
                 ...artikelListe.map((a) => ({ wert: String(a.id), text: beideSprachenName(a.name, a.name_tr) })),
               ]}
               klasse="text-xs" />
           } />
 
-        <StornoTabelle stornos={stornosAngezeigt} mitDatum />
+        <StornoTabelle stornos={stornosAngezeigt} mitDatum sprache={sprache} />
       </div>
     </div>
   );
