@@ -6,8 +6,11 @@ import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { Kennzahlen, ArtikelDiagramme, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
 import { staerkstesElement } from './staerkstesElement.js';
 import { beideSprachenName, zweisprachigerName } from '../sprache/zweisprachigerName.js';
+import { de as eigeneDe, tr as eigeneTr } from '../sprache/statistikEinzeltag.js';
+import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
-export default function StatistikEinzeltag({ sprache }) {
+export default function StatistikEinzeltag({ sprache = 'de' }) {
+  const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [tage, setTage] = useState([]);
   const [datum, setDatum] = useState(heutigesDatum());
   const [statistik, setStatistik] = useState(null);
@@ -46,10 +49,12 @@ export default function StatistikEinzeltag({ sprache }) {
 
   if (!statistik) return null;
 
-  const stundenDaten = stunden.map((s) => ({ ...s, stunde: `${s.stunde} Uhr` }));
+  const stundenDaten = stunden.map((s) => ({ ...s, stunde: `${s.stunde}${texte.uhr ? ` ${texte.uhr}` : ''}` }));
 
   const stossStunde = staerkstesElement(statistik.stunden, 'stueck');
-  const stosszeit = stossStunde ? `${stossStunde.stunde}–${stossStunde.stunde + 1} Uhr` : null;
+  const stosszeit = stossStunde
+    ? `${stossStunde.stunde}–${stossStunde.stunde + 1}${texte.uhr ? ` ${texte.uhr}` : ''}`
+    : null;
 
   const artikelAngezeigt = statistik.artikel.map((a) => ({
     ...a, artikel_name: zweisprachigerName(a.artikel_name, a.artikel_name_tr, sprache),
@@ -65,7 +70,7 @@ export default function StatistikEinzeltag({ sprache }) {
           className={`kaertchen-schatten cursor-pointer rounded-full px-2.5 py-1.5 text-sm ${
             datum === heutigesDatum() ? 'bg-blau font-bold text-flaeche' : 'border border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
           }`}>
-          Heute
+          {texte.heute}
         </button>
         <Auswahlmenue wert={datum} onWahl={tagWaehlen}
           optionen={[
@@ -75,23 +80,24 @@ export default function StatistikEinzeltag({ sprache }) {
           klasse="text-sm kaertchen-schatten" />
       </div>
 
-      <Kennzahlen gesamt={statistik.gesamt} stosszeit={stosszeit} />
+      <Kennzahlen gesamt={statistik.gesamt} stosszeit={stosszeit} sprache={sprache} />
 
       <div className="space-y-2.5">
-        <ArtikelDiagramme gesamt={statistik.gesamt} artikel={artikelAngezeigt} />
+        <ArtikelDiagramme gesamt={statistik.gesamt} artikel={artikelAngezeigt} leerText={texte.keineVerkaeufe} sprache={sprache} />
 
-        <BalkenDiagramm titel="Verkäufe im Tagesverlauf" daten={stundenDaten}
+        <BalkenDiagramm titel={texte.titelTagesverlauf} daten={stundenDaten}
           xSchluessel="stunde" ySchluessel="stueck" schraegeAchse={false}
+          leerText={texte.keineVerkaeufe}
           kinder={
             <Auswahlmenue wert={stundenArtikel} onWahl={stundenArtikelWaehlen}
               optionen={[
-                { wert: '', text: 'Alle Artikel' },
+                { wert: '', text: texte.alleArtikel },
                 ...artikelListe.map((a) => ({ wert: String(a.id), text: beideSprachenName(a.name, a.name_tr) })),
               ]}
               klasse="text-xs" />
           } />
 
-        <StornoTabelle stornos={stornosAngezeigt} />
+        <StornoTabelle stornos={stornosAngezeigt} sprache={sprache} />
       </div>
     </div>
   );
