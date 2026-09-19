@@ -53,8 +53,8 @@ export default function AdminLayout() {
           <Routes>
             <Route index element={<Navigate to="statistik" replace />} />
             <Route path="statistik" element={<StatistikSeite sprache={sprache} />} />
-            <Route path="artikel" element={<ArtikelSeite rolle={session.rolle} />} />
-            <Route path="beilagen" element={<BeilagenSeite />} />
+            <Route path="artikel" element={<ArtikelSeite rolle={session.rolle} sprache={sprache} />} />
+            <Route path="beilagen" element={<BeilagenSeite sprache={sprache} />} />
             <Route path="werbung" element={<WerbungSeite sprache={sprache} />} />
             {session.rolle === 'admin' && (
               <>
