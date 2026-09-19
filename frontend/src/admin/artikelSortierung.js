@@ -1,8 +1,13 @@
-export const SORTIER_OPTIONEN = [
-  { wert: 'alphabetisch', text: 'Alphabetisch' },
-  { wert: 'aufsteigend', text: 'Aufsteigend' },
-  { wert: 'absteigend', text: 'Absteigend' },
-];
+import { de, tr } from '../sprache/artikelSortierung.js';
+
+export function sortierOptionen(sprache = 'de') {
+  const texte = sprache === 'tr' ? tr : de;
+  return [
+    { wert: 'alphabetisch', text: texte.alphabetisch },
+    { wert: 'aufsteigend', text: texte.aufsteigend },
+    { wert: 'absteigend', text: texte.absteigend },
+  ];
+}
 
 export function artikelSortieren(artikel, sortierung, wertSchluessel) {
   const sortiert = [...artikel];
