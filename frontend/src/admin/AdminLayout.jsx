@@ -11,15 +11,17 @@ import WerbungSeite from './WerbungSeite.jsx';
 import BenutzerSeite from './BenutzerSeite.jsx';
 import BackupSeite from './BackupSeite.jsx';
 import EinstellungenSeite from './EinstellungenSeite.jsx';
+import { de as eigeneDe, tr as eigeneTr } from '../sprache/bereiche.js';
+import { de as rollenDe, tr as rollenTr } from '../sprache/rollen.js';
 
 const bereiche = [
-  ['statistik', 'Statistik', ['admin', 'verwaltung']],
-  ['artikel', 'Artikel', ['admin', 'verwaltung']],
-  ['beilagen', 'Beilagen', ['admin', 'verwaltung']],
-  ['werbung', 'Werbung', ['admin', 'verwaltung']],
-  ['einstellungen', 'Einstellungen', ['admin']],
-  ['benutzer', 'Benutzer', ['admin']],
-  ['backup', 'Backup', ['admin']],
+  ['statistik', ['admin', 'verwaltung']],
+  ['artikel', ['admin', 'verwaltung']],
+  ['beilagen', ['admin', 'verwaltung']],
+  ['werbung', ['admin', 'verwaltung']],
+  ['einstellungen', ['admin']],
+  ['benutzer', ['admin']],
+  ['backup', ['admin']],
 ];
 
 export default function AdminLayout() {
@@ -27,16 +29,17 @@ export default function AdminLayout() {
   const [sprache, setSprache] = useStationsSprache();
   if (session.laedt) return null;
 
-  const sichtbareBereiche = bereiche.filter(([, , rollen]) => rollen.includes(session.rolle));
+  const texte = sprache === 'tr' ? { ...rollenTr, ...eigeneTr } : { ...rollenDe, ...eigeneDe };
+  const sichtbareBereiche = bereiche.filter(([, rollen]) => rollen.includes(session.rolle));
 
   return (
     <div className="flex h-screen flex-col">
-      <Kopfzeile titel="Verwaltung" benutzername={session.benutzername} sprache={sprache}
+      <Kopfzeile titel={texte.verwaltung} benutzername={session.benutzername} sprache={sprache}
         rechts={<SprachSchalter sprache={sprache} onWahl={setSprache} />} />
 
       <div className="verwaltung flex min-h-0 flex-1">
         <nav className="w-36 shrink-0 border-r border-linie bg-flaeche py-2.5">
-          {sichtbareBereiche.map(([pfad, beschriftung]) => (
+          {sichtbareBereiche.map(([pfad]) => (
             <NavLink key={pfad} to={pfad}
               className={({ isActive }) =>
                 `block px-4 py-2 text-sm ${
@@ -44,7 +47,7 @@ export default function AdminLayout() {
                     ? 'border-r-2 border-navy bg-flaeche-hell font-semibold text-navy'
                     : 'text-schrift-gedimmt hover:bg-flaeche-hell'
                 }`}>
-              {beschriftung}
+              {texte[pfad]}
             </NavLink>
           ))}
         </nav>
