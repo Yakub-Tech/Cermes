@@ -6,5 +6,5 @@ export const de = {
 export const tr = {
   heute: 'Bugün',
   titelTagesverlauf: 'Gün içindeki satışlar',
-  keineVerkaeufe: 'Bu gün satış yok.',
+  keineVerkaeufe: 'Bu günde satış yok.',
 };

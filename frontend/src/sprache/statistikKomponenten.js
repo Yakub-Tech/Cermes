@@ -31,7 +31,7 @@ export const tr = {
   margeLabel: 'Kâr marjı',
   stosszeitLabel: 'Yoğun dönem',
   stueckOhneKostenVorspann: '',
-  stueckOhneKostenNachspann: ' üründe maliyet girilmemiş, kâr maliyet düşülmeden hesaplandı',
+  stueckOhneKostenNachspann: ' adette maliyet girilmemiş, kâr maliyet düşülmeden hesaplandı',
   sortierungLabel: 'Sıralama',
   titelStueckzahl: 'Ürüne göre satılan adet',
   titelUmsatz: 'Ürüne göre ciro',

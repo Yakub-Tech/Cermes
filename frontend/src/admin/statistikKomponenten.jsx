@@ -119,7 +119,11 @@ export function Kennzahlen({ gesamt, stosszeit, sprache = 'de' }) {
   const zeigtGeld = gesamt.umsatz_cent !== undefined;
   const kostenVollstaendig = !gesamt.stueck_ohne_kosten;
   const marge = zeigtGeld ? gewinnmargeBerechnen(gesamt) : null;
-  const margeAnzeige = marge === null ? '–' : (sprache === 'tr' ? `%${marge}` : `${marge} %`);
+  const margeAnzeige = marge === null
+    ? '–'
+    : sprache === 'tr'
+      ? (marge < 0 ? `-%${Math.abs(marge)}` : `%${marge}`)
+      : `${marge} %`;
 
   const kennzahlen = [
     { id: 'portionen', beschriftung: texte.portionenLabel, wert: gesamt.stueck, farbe: stueckFarbe },
