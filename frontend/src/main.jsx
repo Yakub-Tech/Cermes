@@ -1,6 +1,6 @@
 import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import './design/theme.css';
 import { apiGet } from './api.js';
 import LoginSeite from './anmeldung/LoginSeite.jsx';
@@ -12,6 +12,7 @@ import TvSeite from './tv/TvSeite.jsx';
 import KundeSeite from './kunde/KundeSeite.jsx';
 import AdminLayout from './admin/AdminLayout.jsx';
 import StartSeite from './start/StartSeite.jsx';
+import NichtGefundenSeite from './komponenten/NichtGefundenSeite.jsx';
 
 function App() {
   const [laedt, setLaedt] = useState(true);
@@ -41,7 +42,7 @@ function App() {
         <Route path="/tv" element={<TvSeite />} />
         <Route path="/kunde" element={<KundeSeite />} />
         <Route path="/admin/*" element={<AdminLayout />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NichtGefundenSeite />} />
       </Routes>
     </>
   );

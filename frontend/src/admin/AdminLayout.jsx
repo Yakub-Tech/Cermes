@@ -3,6 +3,7 @@ import Kopfzeile from '../komponenten/Kopfzeile.jsx';
 import SprachSchalter from '../komponenten/SprachSchalter.jsx';
 import { useStationsSprache } from '../sprache/useStationsSprache.js';
 import Fusszeile from '../komponenten/Fusszeile.jsx';
+import NichtGefundenInhalt from '../komponenten/NichtGefundenInhalt.jsx';
 import { useSession } from '../anmeldung/useSession.js';
 import StatistikSeite from './StatistikSeite.jsx';
 import ArtikelSeite from './ArtikelSeite.jsx';
@@ -66,7 +67,7 @@ export default function AdminLayout() {
                 <Route path="backup" element={<BackupSeite sprache={sprache} />} />
               </>
             )}
-            <Route path="*" element={<Navigate to="statistik" replace />} />
+            <Route path="*" element={<NichtGefundenInhalt sprache={sprache} />} />
           </Routes>
         </main>
       </div>

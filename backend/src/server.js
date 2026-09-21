@@ -47,6 +47,9 @@ export function erstelleApp() {
   app.use('/logo', express.static(logoOrdner(), bilderCacheOptionen));
   app.use('/artikelbilder', express.static(artikelBilderOrdner(), bilderCacheOptionen));
   frontendAusliefern(app);
+  app.use((_anfrage, antwort) => {
+    antwort.status(404).json({ fehler: 'Diese Adresse gibt es nicht.' });
+  });
   return app;
 }
 

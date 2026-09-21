@@ -4,6 +4,7 @@ import { apiPost } from '../api.js';
 import { sollEnterAbsenden } from './enterAbsenden.js';
 import Urheberrechtshinweis from '../komponenten/Urheberrechtshinweis.jsx';
 import SprachSchalter from '../komponenten/SprachSchalter.jsx';
+import NichtGefundenSeite from '../komponenten/NichtGefundenSeite.jsx';
 import { useStationsSprache } from '../sprache/useStationsSprache.js';
 import { de, tr, inaktivHinweisDe, inaktivHinweisTr } from '../sprache/login.js';
 
@@ -26,7 +27,8 @@ export default function LoginSeite() {
     setAbgemeldetNachMinuten(minuten);
   }, []);
 
-  const titel = texte.rollenTitel[ansicht] || texte.anmeldung;
+  const ansichtBekannt = Object.hasOwn(texte.rollenTitel, ansicht);
+  const titel = texte.rollenTitel[ansicht];
 
   function beiEnterAbsenden(ereignis) {
     if (!sollEnterAbsenden({ taste: ereignis.key, wiederholt: ereignis.repeat, laeuft })) return;
@@ -48,6 +50,8 @@ export default function LoginSeite() {
       setLaeuft(false);
     }
   }
+
+  if (!ansichtBekannt) return <NichtGefundenSeite />;
 
   return (
     <>
