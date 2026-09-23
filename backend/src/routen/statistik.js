@@ -32,9 +32,10 @@ function stornosLaden(db, whereKlausel, werte, mitDatum) {
   const datumSpalte = mitDatum ? 'substr(k.storniert_am, 1, 10) AS datum,' : '';
   return db.prepare(
     `SELECT ${datumSpalte} substr(k.storniert_am, 12, 5) AS zeit,
-            k.nummer, k.artikel_name, k.artikel_name_tr, k.preis_cent, b.benutzername AS storniert_von
+            k.nummer, k.artikel_name, k.artikel_name_tr, k.preis_cent,
+            COALESCE(b.benutzername, '(gelöschtes Konto)') AS storniert_von
      FROM kaertchen k
-     JOIN benutzer b ON b.id = k.storniert_von
+     LEFT JOIN benutzer b ON b.id = k.storniert_von
      WHERE k.status = 'storniert' AND ${whereKlausel}
      ORDER BY k.storniert_am`
   ).all(...werte);

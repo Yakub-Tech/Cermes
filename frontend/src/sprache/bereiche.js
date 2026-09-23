@@ -6,6 +6,7 @@ export const de = {
   einstellungen: 'Einstellungen',
   benutzer: 'Benutzer',
   backup: 'Backup',
+  audit: 'Audit',
 };
 export const tr = {
   statistik: 'İstatistik',
@@ -15,4 +16,5 @@ export const tr = {
   einstellungen: 'Ayarlar',
   benutzer: 'Kullanıcılar',
   backup: 'Yedek',
+  audit: 'Denetim',
 };

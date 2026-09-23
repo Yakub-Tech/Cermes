@@ -5,6 +5,18 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { oeffneDatenbank, datenVerzeichnis } from './db.js';
 import { jetztIso } from './zeit.js';
+import { protokolliere } from './audit.js';
+
+function gekuerzterName(text) {
+  return String(text ?? '').slice(0, 100);
+}
+
+function protokolliereOhneAbsturz(db, benutzer, bereich, aktion) {
+  try {
+    protokolliere(db, benutzer, bereich, aktion);
+  } catch {
+  }
+}
 
 function sessionGeheimnis() {
   const datei = path.join(datenVerzeichnis(), 'session-geheimnis');
@@ -15,7 +27,6 @@ function sessionGeheimnis() {
 }
 
 export function authEinbinden(app) {
-  const db = oeffneDatenbank();
   app.use(cookieSession({
     name: 'cermes-session',
     secret: sessionGeheimnis(),
@@ -25,11 +36,13 @@ export function authEinbinden(app) {
   }));
 
   app.get('/api/ersteinrichtung', (_anfrage, antwort) => {
+    const db = oeffneDatenbank();
     const anzahl = db.prepare('SELECT COUNT(*) AS n FROM benutzer').get().n;
     antwort.json({ noetig: anzahl === 0 });
   });
 
   app.post('/api/ersteinrichtung', (anfrage, antwort) => {
+    const db = oeffneDatenbank();
     const anzahl = db.prepare('SELECT COUNT(*) AS n FROM benutzer').get().n;
     if (anzahl > 0) {
       return antwort.status(409).json({ fehler: 'Die Ersteinrichtung wurde bereits durchgeführt.' });
@@ -38,24 +51,43 @@ export function authEinbinden(app) {
     if (!benutzername || !passwort || passwort.length < 8) {
       return antwort.status(400).json({ fehler: 'Benutzername und ein Passwort mit mindestens 8 Zeichen sind nötig.' });
     }
-    const ergebnis = db.prepare(
-      'INSERT INTO benutzer (benutzername, passwort_hash, rolle, erstellt_am) VALUES (?, ?, ?, ?)'
-    ).run(benutzername, bcrypt.hashSync(passwort, 10), 'admin', jetztIso());
+    let ergebnis;
+    try {
+      ergebnis = db.transaction(() => {
+        const eingefuegt = db.prepare(
+          'INSERT INTO benutzer (benutzername, passwort_hash, rolle, erstellt_am) VALUES (?, ?, ?, ?)'
+        ).run(benutzername, bcrypt.hashSync(passwort, 10), 'admin', jetztIso());
+        protokolliere(db, { benutzername, rolle: 'admin' }, 'benutzer', 'ersteinrichtung');
+        return eingefuegt;
+      })();
+    } catch {
+      return antwort.status(500).json({
+        fehler: 'Die Ersteinrichtung konnte nicht gespeichert werden. Bitte noch einmal versuchen.',
+      });
+    }
     anfrage.session.benutzerId = ergebnis.lastInsertRowid;
     antwort.json({ rolle: 'admin' });
   });
 
   app.post('/api/login', (anfrage, antwort) => {
+    const db = oeffneDatenbank();
     const { benutzername, passwort } = anfrage.body;
     const benutzer = db.prepare('SELECT * FROM benutzer WHERE benutzername = ?').get(benutzername);
     if (!benutzer || !bcrypt.compareSync(passwort || '', benutzer.passwort_hash)) {
+      protokolliereOhneAbsturz(db, { benutzername: gekuerzterName(benutzername) }, 'anmeldung', 'login_fehlgeschlagen');
       return antwort.status(401).json({ fehler: 'Benutzername oder Passwort ist falsch.' });
     }
     anfrage.session.benutzerId = benutzer.id;
+    protokolliereOhneAbsturz(db, benutzer, 'anmeldung', 'login');
     antwort.json({ rolle: benutzer.rolle });
   });
 
   app.post('/api/logout', (anfrage, antwort) => {
+    const benutzer = aktuellerBenutzer(anfrage);
+    if (benutzer) {
+      const aktion = anfrage.body?.grund === 'inaktivitaet' ? 'logout_inaktivitaet' : 'logout';
+      protokolliereOhneAbsturz(oeffneDatenbank(), benutzer, 'anmeldung', aktion);
+    }
     anfrage.session = null;
     antwort.status(204).end();
   });

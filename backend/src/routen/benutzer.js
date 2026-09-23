@@ -3,8 +3,11 @@ import bcrypt from 'bcryptjs';
 import { oeffneDatenbank } from '../db.js';
 import { jetztIso } from '../zeit.js';
 import { brauchtRolle } from '../auth.js';
+import { protokolliere } from '../audit.js';
 
 const router = express.Router();
+
+const UNERWARTETER_FEHLER = 'Es ist ein unerwarteter Fehler aufgetreten. Bitte noch einmal versuchen.';
 
 router.get('/api/benutzer', brauchtRolle('admin'), (_anfrage, antwort) => {
   const db = oeffneDatenbank();
@@ -30,12 +33,22 @@ router.post('/api/benutzer', brauchtRolle('admin'), (anfrage, antwort) => {
   if (vorhanden) {
     return antwort.status(409).json({ fehler: 'Diesen Benutzernamen gibt es schon.' });
   }
-  const ergebnis = db.prepare(
-    'INSERT INTO benutzer (benutzername, passwort_hash, rolle, erstellt_am) VALUES (?, ?, ?, ?)'
-  ).run(benutzername.trim(), bcrypt.hashSync(passwort, 10), rolle, jetztIso());
-  antwort.json(db.prepare(
-    'SELECT id, benutzername, rolle, erstellt_am FROM benutzer WHERE id = ?'
-  ).get(ergebnis.lastInsertRowid));
+  try {
+    const anlegen = db.transaction(() => {
+      const ergebnis = db.prepare(
+        'INSERT INTO benutzer (benutzername, passwort_hash, rolle, erstellt_am) VALUES (?, ?, ?, ?)'
+      ).run(benutzername.trim(), bcrypt.hashSync(passwort, 10), rolle, jetztIso());
+      protokolliere(db, anfrage.benutzer, 'benutzer', 'benutzer_angelegt', {
+        werte: { konto: benutzername.trim(), rolle },
+      });
+      return ergebnis.lastInsertRowid;
+    });
+    antwort.json(db.prepare(
+      'SELECT id, benutzername, rolle, erstellt_am FROM benutzer WHERE id = ?'
+    ).get(anlegen()));
+  } catch {
+    antwort.status(500).json({ fehler: UNERWARTETER_FEHLER });
+  }
 });
 
 router.post('/api/benutzer/:id/passwort', brauchtRolle('admin'), (anfrage, antwort) => {
@@ -44,12 +57,24 @@ router.post('/api/benutzer/:id/passwort', brauchtRolle('admin'), (anfrage, antwo
   if (!passwort || passwort.length < 8) {
     return antwort.status(400).json({ fehler: 'Das Passwort muss mindestens 8 Zeichen haben.' });
   }
-  const ergebnis = db.prepare('UPDATE benutzer SET passwort_hash = ? WHERE id = ?')
-    .run(bcrypt.hashSync(passwort, 10), anfrage.params.id);
-  if (ergebnis.changes === 0) {
-    return antwort.status(404).json({ fehler: 'Diesen Benutzer gibt es nicht.' });
+  try {
+    const setzen = db.transaction(() => {
+      const benutzer = db.prepare('SELECT * FROM benutzer WHERE id = ?').get(anfrage.params.id);
+      if (!benutzer) return false;
+      db.prepare('UPDATE benutzer SET passwort_hash = ? WHERE id = ?')
+        .run(bcrypt.hashSync(passwort, 10), benutzer.id);
+      protokolliere(db, anfrage.benutzer, 'benutzer', 'passwort_geaendert', {
+        werte: { konto: benutzer.benutzername },
+      });
+      return true;
+    });
+    if (!setzen()) {
+      return antwort.status(404).json({ fehler: 'Diesen Benutzer gibt es nicht.' });
+    }
+    antwort.json({ ok: true });
+  } catch {
+    antwort.status(500).json({ fehler: UNERWARTETER_FEHLER });
   }
-  antwort.json({ ok: true });
 });
 
 router.delete('/api/benutzer/:id', brauchtRolle('admin'), (anfrage, antwort) => {
@@ -64,8 +89,18 @@ router.delete('/api/benutzer/:id', brauchtRolle('admin'), (anfrage, antwort) => 
       return antwort.status(409).json({ fehler: 'Der letzte Admin kann nicht gelöscht werden.' });
     }
   }
-  db.prepare('DELETE FROM benutzer WHERE id = ?').run(benutzer.id);
-  antwort.json({ ok: true });
+  try {
+    const loeschen = db.transaction(() => {
+      db.prepare('DELETE FROM benutzer WHERE id = ?').run(benutzer.id);
+      protokolliere(db, anfrage.benutzer, 'benutzer', 'benutzer_geloescht', {
+        werte: { konto: benutzer.benutzername, rolle: benutzer.rolle },
+      });
+    });
+    loeschen();
+    antwort.json({ ok: true });
+  } catch {
+    antwort.status(500).json({ fehler: UNERWARTETER_FEHLER });
+  }
 });
 
 export default router;

@@ -22,6 +22,13 @@ export function oeffneDatenbank() {
   return db;
 }
 
+export function schliesseDatenbank() {
+  if (db) {
+    db.close();
+    db = null;
+  }
+}
+
 function migrationenAusfuehren(db) {
   const stand = db.pragma('user_version', { simple: true });
   const dateien = fs.readdirSync(migrationsOrdner).filter((d) => d.endsWith('.sql')).sort();

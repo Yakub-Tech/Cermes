@@ -1,35 +1,16 @@
 import express from 'express';
-import multer from 'multer';
-import crypto from 'node:crypto';
-import fs from 'node:fs';
-import path from 'node:path';
-import { oeffneDatenbank, datenVerzeichnis } from '../db.js';
+import { oeffneDatenbank } from '../db.js';
 import { heutigesDatum } from '../zeit.js';
 import { brauchtRolle } from '../auth.js';
 import { sendeEreignis } from '../broadcast.js';
-import { komprimiereBild } from '../bildkompression.js';
 import { pruefeBloecke, sortiereNachVon, ermittleStatus, hinweisText } from '../nummernbloecke.js';
+import { protokolliere, protokolliereAenderung, unterschiede } from '../audit.js';
 
 const router = express.Router();
 
 const DEFAULT_NUMMERNBLOCK = [{ von: 1, bis: 999999999 }];
 
-const erlaubteBildTypen = {
-  'image/png': 'png',
-  'image/jpeg': 'jpg',
-  'image/webp': 'webp',
-};
-
-function artikelBilderOrdner() {
-  const ordner = path.join(datenVerzeichnis(), 'artikelbilder');
-  fs.mkdirSync(ordner, { recursive: true });
-  return ordner;
-}
-
-const bildUpload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 },
-});
+const UNERWARTETER_FEHLER = 'Es ist ein unerwarteter Fehler aufgetreten. Bitte noch einmal versuchen.';
 
 function pruefeArtikelDaten(daten) {
   if (!daten.name || String(daten.name).trim() === '') {
@@ -60,6 +41,17 @@ function beilagenZuordnen(db, artikelId, beilagenIds) {
     db.prepare('INSERT INTO artikel_beilage (artikel_id, beilage_id) VALUES (?, ?)')
       .run(artikelId, beilageId);
   }
+}
+
+function beilagenNamenFuerArtikel(db, artikelId) {
+  return db.prepare(
+    `SELECT b.name FROM artikel_beilage ab JOIN beilage b ON b.id = ab.beilage_id
+     WHERE ab.artikel_id = ? ORDER BY ab.beilage_id`
+  ).all(artikelId).map((zeile) => zeile.name);
+}
+
+function bloeckeAlsText(bloecke) {
+  return sortiereNachVon(bloecke).map((block) => `${block.von}-${block.bis}`);
 }
 
 function ohneKosten({ einkaufskosten_cent, ...rest }) {
@@ -116,17 +108,31 @@ router.post('/api/artikel', brauchtRolle(['admin', 'verwaltung']), (anfrage, ant
   if (bloeckeFehler) return antwort.status(400).json({ fehler: bloeckeFehler });
   const istVerwaltung = anfrage.benutzer.rolle === 'verwaltung';
   const einkaufskostenCent = istVerwaltung ? null : (daten.einkaufskosten_cent ?? null);
-  const ergebnis = db.prepare(
-    `INSERT INTO artikel (name, name_tr, farbe, preis_cent, einkaufskosten_cent, aktiv, sortierung)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`
-  ).run(daten.name.trim(), normalisiereNameTr(daten.name_tr), daten.farbe, daten.preis_cent,
-    einkaufskostenCent, daten.aktiv ?? 1, daten.sortierung ?? 0);
-  beilagenZuordnen(db, ergebnis.lastInsertRowid, daten.beilagen_ids);
-  bloeckeSpeichern(db, ergebnis.lastInsertRowid, bloecke);
-  const neu = db.prepare('SELECT * FROM artikel WHERE id = ?').get(ergebnis.lastInsertRowid);
-  sendeEreignis('artikel');
-  const antwortDaten = artikelMitDetails(db, neu);
-  antwort.json(istVerwaltung ? ohneKosten(antwortDaten) : antwortDaten);
+  try {
+    const anlegen = db.transaction(() => {
+      const ergebnis = db.prepare(
+        `INSERT INTO artikel (name, name_tr, farbe, preis_cent, einkaufskosten_cent, aktiv, sortierung)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`
+      ).run(daten.name.trim(), normalisiereNameTr(daten.name_tr), daten.farbe, daten.preis_cent,
+        einkaufskostenCent, daten.aktiv ?? 1, daten.sortierung ?? 0);
+      beilagenZuordnen(db, ergebnis.lastInsertRowid, daten.beilagen_ids);
+      bloeckeSpeichern(db, ergebnis.lastInsertRowid, bloecke);
+      protokolliere(db, anfrage.benutzer, 'artikel', 'artikel_angelegt', {
+        werte: {
+          artikel: daten.name.trim(), preis_cent: daten.preis_cent, einkaufskosten_cent: einkaufskostenCent,
+          farbe: daten.farbe, beilagen: beilagenNamenFuerArtikel(db, ergebnis.lastInsertRowid),
+        },
+      });
+      return ergebnis.lastInsertRowid;
+    });
+    const neuId = anlegen();
+    const neu = db.prepare('SELECT * FROM artikel WHERE id = ?').get(neuId);
+    sendeEreignis('artikel');
+    const antwortDaten = artikelMitDetails(db, neu);
+    antwort.json(istVerwaltung ? ohneKosten(antwortDaten) : antwortDaten);
+  } catch {
+    antwort.status(500).json({ fehler: UNERWARTETER_FEHLER });
+  }
 });
 
 router.put('/api/artikel/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
@@ -148,24 +154,50 @@ router.put('/api/artikel/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, 
     ? vorhanden.einkaufskosten_cent
     : (daten.einkaufskosten_cent ?? null);
   const nameTr = 'name_tr' in daten ? normalisiereNameTr(daten.name_tr) : vorhanden.name_tr;
-  db.prepare(
-    `UPDATE artikel SET name = ?, name_tr = ?, farbe = ?, preis_cent = ?, einkaufskosten_cent = ?,
-       aktiv = ?, sortierung = ? WHERE id = ?`
-  ).run(daten.name.trim(), nameTr, daten.farbe, daten.preis_cent,
-    einkaufskostenCent, daten.aktiv ?? 1, daten.sortierung ?? 0, vorhanden.id);
-  beilagenZuordnen(db, vorhanden.id, daten.beilagen_ids);
-  if (daten.bloecke !== undefined) {
-    bloeckeSpeichern(db, vorhanden.id, daten.bloecke);
+  try {
+    const aendern = db.transaction(() => {
+      const vorherWerte = {
+        name: vorhanden.name, name_tr: vorhanden.name_tr, farbe: vorhanden.farbe,
+        preis_cent: vorhanden.preis_cent, einkaufskosten_cent: vorhanden.einkaufskosten_cent,
+        aktiv: vorhanden.aktiv, beilagen: beilagenNamenFuerArtikel(db, vorhanden.id),
+        bloecke: bloeckeAlsText(bloeckeLaden(db, vorhanden.id)),
+      };
+      db.prepare(
+        `UPDATE artikel SET name = ?, name_tr = ?, farbe = ?, preis_cent = ?, einkaufskosten_cent = ?,
+           aktiv = ?, sortierung = ? WHERE id = ?`
+      ).run(daten.name.trim(), nameTr, daten.farbe, daten.preis_cent,
+        einkaufskostenCent, daten.aktiv ?? 1, daten.sortierung ?? 0, vorhanden.id);
+      beilagenZuordnen(db, vorhanden.id, daten.beilagen_ids);
+      if (daten.bloecke !== undefined) {
+        bloeckeSpeichern(db, vorhanden.id, daten.bloecke);
+      }
+      const nachherWerte = {
+        name: daten.name.trim(), name_tr: nameTr, farbe: daten.farbe,
+        preis_cent: daten.preis_cent, einkaufskosten_cent: einkaufskostenCent,
+        aktiv: daten.aktiv ?? 1, beilagen: beilagenNamenFuerArtikel(db, vorhanden.id),
+        bloecke: bloeckeAlsText(bloeckeLaden(db, vorhanden.id)),
+      };
+      protokolliereAenderung(db, anfrage.benutzer, 'artikel', 'artikel', { artikel: nachherWerte.name },
+        unterschiede(vorherWerte, nachherWerte,
+          ['name', 'name_tr', 'farbe', 'preis_cent', 'einkaufskosten_cent', 'aktiv', 'beilagen', 'bloecke']));
+    });
+    aendern();
+    const neu = db.prepare('SELECT * FROM artikel WHERE id = ?').get(vorhanden.id);
+    sendeEreignis('artikel');
+    const antwortDaten = artikelMitDetails(db, neu);
+    antwort.json(istVerwaltung ? ohneKosten(antwortDaten) : antwortDaten);
+  } catch {
+    antwort.status(500).json({ fehler: UNERWARTETER_FEHLER });
   }
-  const neu = db.prepare('SELECT * FROM artikel WHERE id = ?').get(vorhanden.id);
-  sendeEreignis('artikel');
-  const antwortDaten = artikelMitDetails(db, neu);
-  antwort.json(istVerwaltung ? ohneKosten(antwortDaten) : antwortDaten);
 });
 
 router.post('/api/artikel/:id/startnummer', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   const artikelId = Number(anfrage.params.id);
+  const artikel = db.prepare('SELECT * FROM artikel WHERE id = ?').get(artikelId);
+  if (!artikel) {
+    return antwort.status(404).json({ fehler: 'Dieser Artikel existiert nicht mehr.' });
+  }
   const neueNummer = Number(anfrage.body.naechste_nummer);
   if (!Number.isInteger(neueNummer) || neueNummer < 1) {
     return antwort.status(400).json({ fehler: 'Die Startnummer muss eine ganze Zahl ab 1 sein.' });
@@ -184,74 +216,41 @@ router.post('/api/artikel/:id/startnummer', brauchtRolle(['admin', 'verwaltung']
       warnung: { hoechste_nummer_heute: hoechsteHeute, aktive_kollisionen: aktiveKollision },
     });
   }
-  db.prepare('UPDATE artikel SET naechste_nummer = ? WHERE id = ?').run(neueNummer, artikelId);
-  sendeEreignis('artikel');
-  antwort.json({ ok: true });
+  try {
+    const setzen = db.transaction(() => {
+      db.prepare('UPDATE artikel SET naechste_nummer = ? WHERE id = ?').run(neueNummer, artikelId);
+      const aenderungen = unterschiede(
+        { naechste_nummer: artikel.naechste_nummer }, { naechste_nummer: neueNummer }, ['naechste_nummer']
+      );
+      if (Object.keys(aenderungen).length > 0) {
+        const werte = { artikel: artikel.name };
+        if (anfrage.body.warnung_bestaetigt) werte.warnung_bestaetigt = 1;
+        protokolliere(db, anfrage.benutzer, 'artikel', 'startnummer_gesetzt', { werte, aenderungen });
+      }
+    });
+    setzen();
+    sendeEreignis('artikel');
+    antwort.json({ ok: true });
+  } catch {
+    antwort.status(500).json({ fehler: UNERWARTETER_FEHLER });
+  }
 });
 
 router.delete('/api/artikel/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
   const db = oeffneDatenbank();
-  db.prepare('UPDATE artikel SET geloescht = 1, aktiv = 0 WHERE id = ?').run(anfrage.params.id);
-  sendeEreignis('artikel');
-  antwort.json({ ok: true });
-});
-
-router.post('/api/artikel/:id/bild', brauchtRolle(['admin', 'verwaltung']),
-  bildUpload.single('bild'), async (anfrage, antwort) => {
-    const db = oeffneDatenbank();
-    const vorhanden = db.prepare('SELECT * FROM artikel WHERE id = ? AND geloescht = 0')
-      .get(anfrage.params.id);
-    if (!vorhanden) {
-      return antwort.status(404).json({ fehler: 'Dieser Artikel existiert nicht mehr.' });
-    }
-    if (!anfrage.file) {
-      return antwort.status(400).json({ fehler: 'Bitte eine Bilddatei auswählen.' });
-    }
-    if (!erlaubteBildTypen[anfrage.file.mimetype]) {
-      return antwort.status(400).json({ fehler: 'Nur Bilder im Format PNG, JPEG oder WebP sind erlaubt.' });
-    }
-    let ergebnis;
-    try {
-      ergebnis = await komprimiereBild(anfrage.file.buffer, anfrage.file.mimetype);
-    } catch {
-      return antwort.status(400).json({ fehler: 'Diese Datei scheint kein gültiges Bild zu sein.' });
-    }
-    const dateiname = `${Date.now()}-${crypto.randomBytes(4).toString('hex')}.${ergebnis.endung}`;
-    try {
-      fs.writeFileSync(path.join(artikelBilderOrdner(), dateiname), ergebnis.puffer);
-      db.prepare('UPDATE artikel SET bild_dateiname = ? WHERE id = ?').run(dateiname, vorhanden.id);
-    } catch {
-      return antwort.status(500).json({
-        fehler: 'Das Bild konnte nicht gespeichert werden. Bitte prüfen, ob genug Speicherplatz frei ist.',
-      });
-    }
-    if (vorhanden.bild_dateiname) {
-      const alteDatei = path.join(artikelBilderOrdner(), vorhanden.bild_dateiname);
-      try {
-        if (fs.existsSync(alteDatei)) fs.unlinkSync(alteDatei);
-      } catch {
-      }
-    }
-    const neu = db.prepare('SELECT * FROM artikel WHERE id = ?').get(vorhanden.id);
+  try {
+    const loeschen = db.transaction(() => {
+      const artikel = db.prepare('SELECT * FROM artikel WHERE id = ? AND geloescht = 0').get(anfrage.params.id);
+      if (!artikel) return;
+      db.prepare('UPDATE artikel SET geloescht = 1, aktiv = 0 WHERE id = ?').run(artikel.id);
+      protokolliere(db, anfrage.benutzer, 'artikel', 'artikel_geloescht', { werte: { artikel: artikel.name } });
+    });
+    loeschen();
     sendeEreignis('artikel');
-    antwort.json(artikelMitDetails(db, neu));
-  });
-
-router.delete('/api/artikel/:id/bild', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
-  const db = oeffneDatenbank();
-  const vorhanden = db.prepare('SELECT * FROM artikel WHERE id = ? AND geloescht = 0')
-    .get(anfrage.params.id);
-  if (!vorhanden) {
-    return antwort.status(404).json({ fehler: 'Dieser Artikel existiert nicht mehr.' });
+    antwort.json({ ok: true });
+  } catch {
+    antwort.status(500).json({ fehler: UNERWARTETER_FEHLER });
   }
-  if (vorhanden.bild_dateiname) {
-    const datei = path.join(artikelBilderOrdner(), vorhanden.bild_dateiname);
-    if (fs.existsSync(datei)) fs.unlinkSync(datei);
-  }
-  db.prepare('UPDATE artikel SET bild_dateiname = NULL WHERE id = ?').run(vorhanden.id);
-  sendeEreignis('artikel');
-  antwort.json({ ok: true });
 });
 
-export { artikelBilderOrdner };
 export default router;

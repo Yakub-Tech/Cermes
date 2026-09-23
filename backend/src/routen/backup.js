@@ -4,9 +4,10 @@ import multer from 'multer';
 import unzipper from 'unzipper';
 import fs from 'node:fs';
 import path from 'node:path';
-import { oeffneDatenbank, datenVerzeichnis } from '../db.js';
+import { oeffneDatenbank, schliesseDatenbank, datenVerzeichnis } from '../db.js';
 import { heutigesDatum } from '../zeit.js';
 import { brauchtRolle } from '../auth.js';
+import { protokolliere } from '../audit.js';
 
 const router = express.Router();
 
@@ -15,9 +16,24 @@ const upload = multer({
   limits: { fileSize: 200 * 1024 * 1024 },
 });
 
-router.get('/api/backup', brauchtRolle('admin'), (_anfrage, antwort) => {
+let einspielenLaeuft = false;
+
+export function backupWirdEingespielt() {
+  return einspielenLaeuft;
+}
+
+export function testSperreSetzen(wert) {
+  einspielenLaeuft = wert;
+}
+
+router.get('/api/backup', brauchtRolle('admin'), (anfrage, antwort) => {
   const db = oeffneDatenbank();
-  db.pragma('wal_checkpoint(TRUNCATE)');
+  try {
+    db.pragma('wal_checkpoint(TRUNCATE)');
+    protokolliere(db, anfrage.benutzer, 'backup', 'backup_heruntergeladen');
+  } catch {
+    return antwort.status(500).json({ fehler: 'Das Backup konnte nicht erstellt werden. Bitte noch einmal versuchen.' });
+  }
 
   antwort.setHeader('Content-Type', 'application/zip');
   antwort.setHeader('Content-Disposition',
@@ -35,33 +51,62 @@ router.get('/api/backup', brauchtRolle('admin'), (_anfrage, antwort) => {
 
 router.post('/api/backup/einspielen', brauchtRolle('admin'), upload.single('backup'),
   async (anfrage, antwort) => {
-    if (!anfrage.file) {
-      return antwort.status(400).json({ fehler: 'Bitte eine Backup-Datei (ZIP) auswählen.' });
+    if (einspielenLaeuft) {
+      return antwort.status(503).json({
+        fehler: 'Gerade wird ein Backup eingespielt. Bitte kurz warten und es dann noch einmal versuchen.',
+      });
     }
-    let zip;
+    einspielenLaeuft = true;
     try {
-      zip = await unzipper.Open.buffer(anfrage.file.buffer);
+      if (!anfrage.file) {
+        return antwort.status(400).json({ fehler: 'Bitte eine Backup-Datei (ZIP) auswählen.' });
+      }
+      let zip;
+      try {
+        zip = await unzipper.Open.buffer(anfrage.file.buffer);
+      } catch {
+        return antwort.status(400).json({ fehler: 'Diese Datei ist kein lesbares ZIP-Backup.' });
+      }
+      if (!zip.files.some((eintrag) => eintrag.path === 'cermes.sqlite')) {
+        return antwort.status(400).json({ fehler: 'In diesem ZIP fehlt die Datenbankdatei cermes.sqlite. Das ist kein Cermes-Backup.' });
+      }
+
+      const db = oeffneDatenbank();
+      protokolliere(db, anfrage.benutzer, 'backup', 'backup_eingespielt');
+
+      db.pragma('wal_checkpoint(TRUNCATE)');
+      schliesseDatenbank();
+
+      const dbDatei = path.join(datenVerzeichnis(), 'cermes.sqlite');
+      if (fs.existsSync(dbDatei)) {
+        fs.copyFileSync(dbDatei, `${dbDatei}.vor-einspielen`);
+      }
+
+      try {
+        for (const eintrag of zip.files) {
+          if (eintrag.type !== 'File') continue;
+          const ziel = path.join(datenVerzeichnis(), eintrag.path);
+          if (!ziel.startsWith(path.resolve(datenVerzeichnis()) + path.sep)) continue;
+          fs.mkdirSync(path.dirname(ziel), { recursive: true });
+          fs.writeFileSync(ziel, await eintrag.buffer());
+        }
+      } catch {
+        if (fs.existsSync(`${dbDatei}.vor-einspielen`)) {
+          fs.copyFileSync(`${dbDatei}.vor-einspielen`, dbDatei);
+        }
+        return antwort.status(500).json({
+          fehler: 'Das Backup konnte nicht vollständig eingespielt werden. Der bisherige Stand wurde wiederhergestellt. Bitte Cermes neu starten und es noch einmal versuchen.',
+        });
+      }
+
+      antwort.json({ hinweis: 'Backup eingespielt. Bitte Cermes neu starten (docker compose restart).' });
     } catch {
-      return antwort.status(400).json({ fehler: 'Diese Datei ist kein lesbares ZIP-Backup.' });
+      antwort.status(500).json({
+        fehler: 'Das Backup konnte nicht eingespielt werden. Der bisherige Stand ist unverändert. Bitte Cermes neu starten und es noch einmal versuchen.',
+      });
+    } finally {
+      einspielenLaeuft = false;
     }
-    if (!zip.files.some((eintrag) => eintrag.path === 'cermes.sqlite')) {
-      return antwort.status(400).json({ fehler: 'In diesem ZIP fehlt die Datenbankdatei cermes.sqlite. Das ist kein Cermes-Backup.' });
-    }
-
-    const dbDatei = path.join(datenVerzeichnis(), 'cermes.sqlite');
-    if (fs.existsSync(dbDatei)) {
-      fs.copyFileSync(dbDatei, `${dbDatei}.vor-einspielen`);
-    }
-
-    for (const eintrag of zip.files) {
-      if (eintrag.type !== 'File') continue;
-      const ziel = path.join(datenVerzeichnis(), eintrag.path);
-      if (!ziel.startsWith(path.resolve(datenVerzeichnis()) + path.sep)) continue;
-      fs.mkdirSync(path.dirname(ziel), { recursive: true });
-      fs.writeFileSync(ziel, await eintrag.buffer());
-    }
-
-    antwort.json({ hinweis: 'Backup eingespielt. Bitte Cermes neu starten (docker compose restart).' });
   });
 
 export default router;

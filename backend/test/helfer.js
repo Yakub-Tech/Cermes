@@ -25,3 +25,12 @@ export async function angemeldeterAgent(app, db, rolle) {
   await agent.post('/api/login').send({ benutzername: name, passwort: 'geheim' });
   return agent;
 }
+
+export function auditStand(db) {
+  return db.prepare('SELECT COALESCE(MAX(id), 0) AS id FROM audit_eintrag').get().id;
+}
+
+export function auditSeit(db, stand) {
+  return db.prepare('SELECT * FROM audit_eintrag WHERE id > ? ORDER BY id').all(stand)
+    .map((zeile) => ({ ...zeile, details: JSON.parse(zeile.details) }));
+}

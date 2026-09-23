@@ -27,8 +27,12 @@ router.post('/api/belegen/status/:id', brauchtRolle('belegen'), (anfrage, antwor
   if (!kaertchen) {
     return antwort.status(404).json({ fehler: 'Dieses Kärtchen gibt es nicht.' });
   }
-  if (!versucheStatusWechsel(db, kaertchen, neuerStatus, erlaubteWechsel)) {
-    return antwort.status(409).json({ fehler: 'Das Kärtchen wurde inzwischen anderweitig geändert.' });
+  try {
+    if (!versucheStatusWechsel(db, anfrage.benutzer, kaertchen, neuerStatus, erlaubteWechsel)) {
+      return antwort.status(409).json({ fehler: 'Das Kärtchen wurde inzwischen anderweitig geändert.' });
+    }
+  } catch {
+    return antwort.status(500).json({ fehler: 'Es ist ein unerwarteter Fehler aufgetreten. Bitte noch einmal versuchen.' });
   }
   sendeEreignis('kaertchen');
   antwort.json({ ok: true });

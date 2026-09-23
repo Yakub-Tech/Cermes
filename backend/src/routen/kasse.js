@@ -5,8 +5,16 @@ import { brauchtRolle } from '../auth.js';
 import { sendeEreignis } from '../broadcast.js';
 import { kundenzustandSchreiben } from '../kundenzustand.js';
 import { sortiereNachVon, ermittleVergabeUndNeuePosition, ermittleStatus, hinweisText } from '../nummernbloecke.js';
+import { protokolliere, unterschiede } from '../audit.js';
 
 const router = express.Router();
+
+const UNERWARTETER_FEHLER = 'Es ist ein unerwarteter Fehler aufgetreten. Bitte noch einmal versuchen.';
+
+function alsAntwort(antwort, fehler) {
+  if (fehler.status) return antwort.status(fehler.status).json({ fehler: fehler.message });
+  return antwort.status(500).json({ fehler: UNERWARTETER_FEHLER });
+}
 
 function bloeckeLaden(db, artikelId) {
   return sortiereNachVon(
@@ -92,13 +100,13 @@ export function kassierenVorschau(db, positionen) {
   return { summe_cent: summe, kaertchen: ermittleVorschauKaertchen(db, vorbereitet) };
 }
 
-export function kassieren(db, benutzerId, positionen, erwarteteNummern, erwartetePreiseCent) {
+export function kassieren(db, benutzer, positionen, erwarteteNummern, erwartetePreiseCent) {
   const transaktion = db.transaction(() => {
     const { vorbereitet, summe } = bereitePositionenVor(db, positionen);
 
     const vorgang = db.prepare(
       'INSERT INTO kassiervorgang (zeitpunkt, summe_cent, benutzer_id) VALUES (?, ?, ?)'
-    ).run(jetztIso(), summe, benutzerId);
+    ).run(jetztIso(), summe, benutzer.id);
 
     const kaertchen = [];
     const dringendsterZustandProArtikel = new Map();
@@ -144,6 +152,15 @@ export function kassieren(db, benutzerId, positionen, erwarteteNummern, erwartet
     for (const { kaertchenIndex, statusInfo } of dringendsterZustandProArtikel.values()) {
       kaertchen[kaertchenIndex].hinweis = hinweisText(statusInfo.status, statusInfo);
     }
+    protokolliere(db, benutzer, 'kasse', 'kassiert', {
+      werte: {
+        kassiervorgang: vorgang.lastInsertRowid,
+        summe_cent: summe,
+        positionen: kaertchen.map((k) => ({
+          nummer: k.nummer, artikel_name: k.artikel_name, beilagen: k.beilagen, preis_cent: k.preis_cent,
+        })),
+      },
+    });
     return { kassiervorgang_id: vorgang.lastInsertRowid, summe_cent: summe, kaertchen };
   });
   return transaktion();
@@ -178,13 +195,13 @@ router.post('/api/kasse/kassieren', brauchtRolle('kasse'), (anfrage, antwort) =>
   const db = oeffneDatenbank();
   try {
     const ergebnis = kassieren(
-      db, anfrage.benutzer.id, anfrage.body.positionen,
+      db, anfrage.benutzer, anfrage.body.positionen,
       anfrage.body.erwartete_nummern, anfrage.body.erwartete_preise_cent
     );
     sendeEreignis('kaertchen');
     antwort.json(ergebnis);
   } catch (fehler) {
-    antwort.status(fehler.status || 500).json({ fehler: fehler.message });
+    alsAntwort(antwort, fehler);
   }
 });
 
@@ -194,7 +211,7 @@ router.post('/api/kasse/kassieren-vorschau', brauchtRolle('kasse'), (anfrage, an
     const ergebnis = kassierenVorschau(db, anfrage.body.positionen);
     antwort.json(ergebnis);
   } catch (fehler) {
-    antwort.status(fehler.status || 500).json({ fehler: fehler.message });
+    alsAntwort(antwort, fehler);
   }
 });
 
@@ -214,12 +231,26 @@ router.get('/api/kasse/stornierbar', brauchtRolle('kasse'), (_anfrage, antwort) 
 
 router.post('/api/kasse/storno/:id', brauchtRolle('kasse'), (anfrage, antwort) => {
   const db = oeffneDatenbank();
-  const ergebnis = db.prepare(
-    `UPDATE kaertchen SET status = 'storniert', storniert_am = ?, storniert_von = ?
-     WHERE id = ? AND status IN ('in_bearbeitung', 'abholbereit')`
-  ).run(jetztIso(), anfrage.benutzer.id, anfrage.params.id);
-  if (ergebnis.changes === 0) {
-    return antwort.status(409).json({ fehler: 'Dieses Kärtchen kann nicht mehr storniert werden.' });
+  try {
+    const stornieren = db.transaction(() => {
+      const kaertchen = db.prepare('SELECT * FROM kaertchen WHERE id = ?').get(anfrage.params.id);
+      const ergebnis = db.prepare(
+        `UPDATE kaertchen SET status = 'storniert', storniert_am = ?, storniert_von = ?
+         WHERE id = ? AND status IN ('in_bearbeitung', 'abholbereit')`
+      ).run(jetztIso(), anfrage.benutzer.id, anfrage.params.id);
+      if (ergebnis.changes === 0) return false;
+      protokolliere(db, anfrage.benutzer, 'storno', 'storniert', {
+        werte: { nummer: kaertchen.nummer, artikel: kaertchen.artikel_name, preis_cent: kaertchen.preis_cent,
+          beilagen: JSON.parse(kaertchen.beilagen) },
+        aenderungen: unterschiede(kaertchen, { status: 'storniert' }, ['status']),
+      });
+      return true;
+    });
+    if (!stornieren()) {
+      return antwort.status(409).json({ fehler: 'Dieses Kärtchen kann nicht mehr storniert werden.' });
+    }
+  } catch {
+    return antwort.status(500).json({ fehler: UNERWARTETER_FEHLER });
   }
   sendeEreignis('kaertchen');
   antwort.json({ ok: true });

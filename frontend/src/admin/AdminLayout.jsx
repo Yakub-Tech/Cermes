@@ -12,6 +12,7 @@ import WerbungSeite from './WerbungSeite.jsx';
 import BenutzerSeite from './BenutzerSeite.jsx';
 import BackupSeite from './BackupSeite.jsx';
 import EinstellungenSeite from './EinstellungenSeite.jsx';
+import AuditSeite from './AuditSeite.jsx';
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/bereiche.js';
 import { de as rollenDe, tr as rollenTr } from '../sprache/rollen.js';
 
@@ -23,6 +24,7 @@ const bereiche = [
   ['einstellungen', ['admin']],
   ['benutzer', ['admin']],
   ['backup', ['admin']],
+  ['audit', ['admin']],
 ];
 
 export default function AdminLayout() {
@@ -65,6 +67,7 @@ export default function AdminLayout() {
                 <Route path="einstellungen" element={<EinstellungenSeite sprache={sprache} />} />
                 <Route path="benutzer" element={<BenutzerSeite sprache={sprache} />} />
                 <Route path="backup" element={<BackupSeite sprache={sprache} />} />
+                <Route path="audit" element={<AuditSeite sprache={sprache} />} />
               </>
             )}
             <Route path="*" element={<NichtGefundenInhalt sprache={sprache} />} />
