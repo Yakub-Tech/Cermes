@@ -5,7 +5,9 @@ import path from 'node:path';
 import request from 'supertest';
 import { frischeApp, angemeldeterAgent } from './helfer.js';
 import { oeffneDatenbank, schliesseDatenbank, datenVerzeichnis } from '../src/db.js';
-import { backupWirdEingespielt, testSperreSetzen } from '../src/routen/backup.js';
+import { backupWirdEingespielt, testSperreSetzen, testNeustartFunktionSetzen } from '../src/routen/backup.js';
+
+testNeustartFunktionSetzen(() => {});
 
 test('Backup einspielen: WAL wird geleert und die Verbindung geschlossen, keine alten Seiten überschreiben die neue Datei', async () => {
   const { app, db } = frischeApp();

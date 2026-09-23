@@ -26,6 +26,27 @@ export function testSperreSetzen(wert) {
   einspielenLaeuft = wert;
 }
 
+let prozessNeustart = () => process.exit(0);
+
+export function testNeustartFunktionSetzen(funktion) {
+  prozessNeustart = funktion;
+}
+
+export function neustartRegistrieren(antwort) {
+  let ausgeloest = false;
+  function einmalig() {
+    if (ausgeloest) return;
+    ausgeloest = true;
+    prozessNeustart();
+  }
+  if (antwort.destroyed) {
+    einmalig();
+  } else {
+    antwort.on('finish', einmalig);
+    antwort.on('close', einmalig);
+  }
+}
+
 router.get('/api/backup', brauchtRolle('admin'), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   try {
@@ -99,7 +120,8 @@ router.post('/api/backup/einspielen', brauchtRolle('admin'), upload.single('back
         });
       }
 
-      antwort.json({ hinweis: 'Backup eingespielt. Bitte Cermes neu starten (docker compose restart).' });
+      neustartRegistrieren(antwort);
+      antwort.json({ hinweis: 'Backup eingespielt. Cermes startet jetzt automatisch neu, das dauert ein paar Sekunden.' });
     } catch {
       antwort.status(500).json({
         fehler: 'Das Backup konnte nicht eingespielt werden. Der bisherige Stand ist unverändert. Bitte Cermes neu starten und es noch einmal versuchen.',

@@ -5,6 +5,9 @@ import path from 'node:path';
 import unzipper from 'unzipper';
 import { frischeApp, angemeldeterAgent } from './helfer.js';
 import { oeffneDatenbank, schliesseDatenbank, datenVerzeichnis } from '../src/db.js';
+import { testNeustartFunktionSetzen } from '../src/routen/backup.js';
+
+testNeustartFunktionSetzen(() => {});
 
 function backupHolen(agent) {
   return agent.get('/api/backup').buffer().parse((antwort, weiter) => {
