@@ -11,7 +11,9 @@ export default function Auswahlmenue({ wert, onWahl, optionen, klasse = 'text-sm
 
   function triggerRefGesetzt(knoten) {
     triggerRef.current = knoten;
-    if (knoten) setPortalContainer(knoten.closest('.verwaltung') ?? undefined);
+    if (knoten) {
+      setPortalContainer(knoten.closest('dialog') ?? knoten.closest('.verwaltung') ?? undefined);
+    }
   }
 
   function wahlGeaendert(neuerWert) {
