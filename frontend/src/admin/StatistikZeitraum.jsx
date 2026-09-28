@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { apiGet } from '../api.js';
+import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { heutigesDatum, datumAnzeigen } from './datum.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
@@ -26,6 +27,7 @@ function vorauswahlBerechnen(verkaufstage) {
 }
 
 export default function StatistikZeitraum({ sprache = 'de' }) {
+  const neueste = useNeuesteAntwort();
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [verkaufstage, setVerkaufstage] = useState([]);
   const [von, setVon] = useState(null);
@@ -33,32 +35,30 @@ export default function StatistikZeitraum({ sprache = 'de' }) {
   const [statistik, setStatistik] = useState(null);
   const [artikelListe, setArtikelListe] = useState([]);
   const [verlaufArtikel, setVerlaufArtikel] = useState('');
-  const [verlauf, setVerlauf] = useState([]);
+  const [gefilterterVerlauf, setGefilterterVerlauf] = useState(null);
 
   function statistikLaden(vonWert, bisWert, artikelId) {
     const grundUrl = `/api/statistik/zeitraum?von=${vonWert}&bis=${bisWert}`;
-    apiGet(grundUrl).then((s) => {
-      setStatistik(s);
-      if (!artikelId) setVerlauf(s.tage);
-    }).catch(() => {});
+    neueste('zeitraum', apiGet(grundUrl), setStatistik).catch(() => {});
     if (artikelId) {
-      apiGet(`${grundUrl}&artikel_id=${artikelId}`).then((s) => setVerlauf(s.tage)).catch(() => {});
+      neueste('verlauf', apiGet(`${grundUrl}&artikel_id=${artikelId}`).then((s) => s.tage),
+        setGefilterterVerlauf).catch(() => {});
+    } else {
+      neueste('verlauf', Promise.resolve(null), setGefilterterVerlauf);
     }
   }
 
   useLiveUpdate(['kaertchen'], () => {
-    apiGet('/api/statistik/verkaufstage').then((neueTage) => {
+    if (von !== null) statistikLaden(von, bis, verlaufArtikel);
+    neueste('verkaufstage', apiGet('/api/statistik/verkaufstage'), (neueTage) => {
       setVerkaufstage(neueTage);
-      if (von === null) {
-        const vorauswahl = vorauswahlBerechnen(neueTage);
-        setVon(vorauswahl.von);
-        setBis(vorauswahl.bis);
-        if (vorauswahl.von !== null) statistikLaden(vorauswahl.von, vorauswahl.bis, verlaufArtikel);
-      } else {
-        statistikLaden(von, bis, verlaufArtikel);
-      }
+      if (von !== null) return;
+      const vorauswahl = vorauswahlBerechnen(neueTage);
+      setVon(vorauswahl.von);
+      setBis(vorauswahl.bis);
+      if (vorauswahl.von !== null) statistikLaden(vorauswahl.von, vorauswahl.bis, verlaufArtikel);
     }).catch(() => {});
-    apiGet('/api/statistik/artikel').then(setArtikelListe).catch(() => {});
+    neueste('artikel', apiGet('/api/statistik/artikel'), setArtikelListe).catch(() => {});
   });
 
   function vonWaehlen(neuesVon) {
@@ -78,7 +78,7 @@ export default function StatistikZeitraum({ sprache = 'de' }) {
 
   if (!statistik) return null;
 
-  const verlaufDaten = verlauf.map((v) => ({ ...v, tag: datumAnzeigen(v.tag) }));
+  const verlaufDaten = (gefilterterVerlauf ?? statistik.tage).map((v) => ({ ...v, tag: datumAnzeigen(v.tag) }));
   const vonOptionen = verkaufstage.filter((tag) => tag <= bis);
   const bisOptionen = verkaufstage.filter((tag) => tag >= von);
 

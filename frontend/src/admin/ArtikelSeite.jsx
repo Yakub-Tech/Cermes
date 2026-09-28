@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { apiGet, apiPost, apiPut, apiDelete, formatEuro } from '../api.js';
+import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import ArtikelFormular from './ArtikelFormular.jsx';
@@ -9,6 +10,7 @@ import { de as eigeneDe, tr as eigeneTr } from '../sprache/artikel.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function ArtikelSeite({ rolle, sprache = 'de' }) {
+  const neueste = useNeuesteAntwort();
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [artikelListe, setArtikelListe] = useState([]);
   const [beilagen, setBeilagen] = useState([]);
@@ -18,8 +20,8 @@ export default function ArtikelSeite({ rolle, sprache = 'de' }) {
   const [fehler, setFehler] = useState('');
 
   useLiveUpdate(['artikel', 'beilagen', 'kaertchen'], () => {
-    apiGet('/api/artikel').then(setArtikelListe).catch(() => {});
-    apiGet('/api/beilagen').then(setBeilagen).catch(() => {});
+    neueste('/api/artikel', apiGet('/api/artikel'), setArtikelListe).catch(() => {});
+    neueste('/api/beilagen', apiGet('/api/beilagen'), setBeilagen).catch(() => {});
   });
 
   function beilagenNamen(ids) {

@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { apiGet } from '../api.js';
+import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import Urheberrechtshinweis from '../komponenten/Urheberrechtshinweis.jsx';
 import ArtikelKarte from './ArtikelKarte.jsx';
@@ -9,21 +10,17 @@ import BestellUebersicht from './BestellUebersicht.jsx';
 import { de, tr } from '../sprache/kunde.js';
 
 export default function KundeSeite() {
+  const neueste = useNeuesteAntwort();
   const [artikelListe, setArtikelListe] = useState([]);
   const [zustand, setZustand] = useState({ warenkorb: [], fokus: null, summe_cent: null, sprache: 'de' });
-  const letzteAbfrage = useRef(0);
   const texte = zustand.sprache === 'tr' ? tr : de;
 
   useLiveUpdate(['artikel', 'beilagen'], () => {
-    apiGet('/api/kunde/artikel').then(setArtikelListe).catch(() => {});
+    neueste('/api/kunde/artikel', apiGet('/api/kunde/artikel'), setArtikelListe).catch(() => {});
   });
 
   useLiveUpdate(['kunden_anzeige'], () => {
-    letzteAbfrage.current += 1;
-    const eigeneAbfrage = letzteAbfrage.current;
-    apiGet('/api/kunde/zustand').then((neu) => {
-      if (eigeneAbfrage === letzteAbfrage.current) setZustand(neu);
-    }).catch(() => {});
+    neueste('zustand', apiGet('/api/kunde/zustand'), setZustand).catch(() => {});
   });
 
   if (zustand.summe_cent !== null) {

@@ -8,11 +8,13 @@ import KaertchenKarte from '../komponenten/KaertchenKarte.jsx';
 import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { apiGet, apiPost } from '../api.js';
+import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import { alterText } from '../zeitAnzeige.js';
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/belegen.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function BelegenSeite() {
+  const neueste = useNeuesteAntwort();
   const session = useSession('belegen');
   const [sprache, setSprache] = useStationsSprache();
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
@@ -21,7 +23,7 @@ export default function BelegenSeite() {
   const [jetzt, setJetzt] = useState(Date.now());
 
   useLiveUpdate(['kaertchen'], () => {
-    apiGet('/api/belegen/kaertchen').then(setListen).catch(() => {});
+    neueste('/api/belegen/kaertchen', apiGet('/api/belegen/kaertchen'), setListen).catch(() => {});
   });
 
   useEffect(() => {

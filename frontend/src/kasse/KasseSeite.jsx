@@ -6,6 +6,7 @@ import SprachSchalter from '../komponenten/SprachSchalter.jsx';
 import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { apiGet, apiPost, apiPut, formatEuro } from '../api.js';
+import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import { erzeugeMeldungsFolge } from './meldungsFolge.js';
 import { positionHinzufuegen as positionZumWarenkorbHinzufuegen, mengeAendern, positionenFuerApi } from './warenkorb.js';
 import BeilagenDialog from './BeilagenDialog.jsx';
@@ -17,6 +18,7 @@ import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 import { de, tr } from '../sprache/kasse.js';
 
 export default function KasseSeite() {
+  const neueste = useNeuesteAntwort();
   const session = useSession('kasse');
   const navigiere = useNavigate();
   const [tab, setTab] = useState('verkauf');
@@ -45,7 +47,7 @@ export default function KasseSeite() {
   }
 
   useLiveUpdate(['artikel', 'beilagen'], () => {
-    apiGet('/api/kasse/artikel').then(setArtikelListe).catch(() => {});
+    neueste('/api/kasse/artikel', apiGet('/api/kasse/artikel'), setArtikelListe).catch(() => {});
   });
 
   function artikelTippen(artikel) {

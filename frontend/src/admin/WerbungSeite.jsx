@@ -1,19 +1,21 @@
 import { useState } from 'react';
 import DateiAuswahl from '../komponenten/DateiAuswahl.jsx';
 import { apiGet, apiPut, apiDelete, apiUpload } from '../api.js';
+import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/werbung.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function WerbungSeite({ sprache = 'de' }) {
+  const neueste = useNeuesteAntwort();
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [bilder, setBilder] = useState([]);
   const [loeschung, setLoeschung] = useState(null);
   const [fehler, setFehler] = useState('');
 
   useLiveUpdate(['werbung'], () => {
-    apiGet('/api/werbung').then(setBilder).catch(() => {});
+    neueste('/api/werbung', apiGet('/api/werbung'), setBilder).catch(() => {});
   });
 
   async function hochladen(datei) {

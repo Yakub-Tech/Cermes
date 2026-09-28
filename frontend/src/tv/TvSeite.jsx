@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiGet } from '../api.js';
+import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import StatusSpalte from './StatusSpalte.jsx';
 import WerbeLeiste from './WerbeLeiste.jsx';
@@ -15,15 +16,16 @@ function berechneVirtuelleGroesse() {
 }
 
 export default function TvSeite() {
+  const neueste = useNeuesteAntwort();
   const [kaertchen, setKaertchen] = useState({ in_bearbeitung: [], abholbereit: [] });
   const [werbung, setWerbung] = useState([]);
   const [virtuelleGroesse, setVirtuelleGroesse] = useState(berechneVirtuelleGroesse);
 
   useLiveUpdate(['kaertchen'], () => {
-    apiGet('/api/tv/kaertchen').then(setKaertchen).catch(() => {});
+    neueste('/api/tv/kaertchen', apiGet('/api/tv/kaertchen'), setKaertchen).catch(() => {});
   });
   useLiveUpdate(['werbung'], () => {
-    apiGet('/api/tv/werbung').then(setWerbung).catch(() => {});
+    neueste('/api/tv/werbung', apiGet('/api/tv/werbung'), setWerbung).catch(() => {});
   });
 
   useEffect(() => {

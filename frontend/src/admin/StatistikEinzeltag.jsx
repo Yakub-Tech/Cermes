@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { apiGet } from '../api.js';
+import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { heutigesDatum, datumAnzeigen } from './datum.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
@@ -10,46 +11,46 @@ import { de as eigeneDe, tr as eigeneTr } from '../sprache/statistikEinzeltag.js
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function StatistikEinzeltag({ sprache = 'de' }) {
+  const neueste = useNeuesteAntwort();
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [tage, setTage] = useState([]);
   const [datum, setDatum] = useState(heutigesDatum());
   const [statistik, setStatistik] = useState(null);
   const [artikelListe, setArtikelListe] = useState([]);
   const [stundenArtikel, setStundenArtikel] = useState('');
-  const [stunden, setStunden] = useState([]);
+  const [gefilterteStunden, setGefilterteStunden] = useState(null);
+
+  function stundenLaden(tagesDatum, artikelId) {
+    if (artikelId === '') {
+      neueste('stunden', Promise.resolve(null), setGefilterteStunden);
+      return;
+    }
+    neueste('stunden', apiGet(`/api/statistik/tag/${tagesDatum}?artikel_id=${artikelId}`)
+      .then((s) => s.stunden), setGefilterteStunden).catch(() => {});
+  }
 
   useLiveUpdate(['kaertchen'], () => {
-    apiGet('/api/statistik/verkaufstage').then(setTage).catch(() => {});
-    apiGet('/api/statistik/artikel').then(setArtikelListe).catch(() => {});
-    apiGet(`/api/statistik/tag/${datum}`).then((s) => {
-      setStatistik(s);
-      if (stundenArtikel === '') setStunden(s.stunden);
-    }).catch(() => {});
-    if (stundenArtikel !== '') {
-      apiGet(`/api/statistik/tag/${datum}?artikel_id=${stundenArtikel}`)
-        .then((s) => setStunden(s.stunden)).catch(() => {});
-    }
+    neueste('tage', apiGet('/api/statistik/verkaufstage'), setTage).catch(() => {});
+    neueste('artikel', apiGet('/api/statistik/artikel'), setArtikelListe).catch(() => {});
+    neueste('tag', apiGet(`/api/statistik/tag/${datum}`), setStatistik).catch(() => {});
+    stundenLaden(datum, stundenArtikel);
   });
 
   function tagWaehlen(neuesDatum) {
     setDatum(neuesDatum);
     setStundenArtikel('');
-    apiGet(`/api/statistik/tag/${neuesDatum}`).then((s) => {
-      setStatistik(s);
-      setStunden(s.stunden);
-    }).catch(() => {});
+    stundenLaden(neuesDatum, '');
+    neueste('tag', apiGet(`/api/statistik/tag/${neuesDatum}`), setStatistik).catch(() => {});
   }
 
   function stundenArtikelWaehlen(artikelId) {
     setStundenArtikel(artikelId);
-    const anhang = artikelId === '' ? '' : `?artikel_id=${artikelId}`;
-    apiGet(`/api/statistik/tag/${datum}${anhang}`)
-      .then((s) => setStunden(s.stunden)).catch(() => {});
+    stundenLaden(datum, artikelId);
   }
 
   if (!statistik) return null;
 
-  const stundenDaten = stunden.map((s) => ({ ...s, stunde: `${s.stunde}${texte.uhr ? ` ${texte.uhr}` : ''}` }));
+  const stundenDaten = (gefilterteStunden ?? statistik.stunden).map((s) => ({ ...s, stunde: `${s.stunde}${texte.uhr ? ` ${texte.uhr}` : ''}` }));
 
   const stossStunde = staerkstesElement(statistik.stunden, 'stueck');
   const stosszeit = stossStunde

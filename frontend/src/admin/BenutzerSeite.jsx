@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiGet, apiPost, apiDelete } from '../api.js';
+import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/benutzer.js';
@@ -7,6 +8,7 @@ import { de as rollenDe, tr as rollenTr } from '../sprache/rollen.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function BenutzerSeite({ sprache = 'de' }) {
+  const neueste = useNeuesteAntwort();
   const texte = sprache === 'tr'
     ? { ...gemeinsamTr, ...rollenTr, ...eigeneTr }
     : { ...gemeinsamDe, ...rollenDe, ...eigeneDe };
@@ -17,7 +19,7 @@ export default function BenutzerSeite({ sprache = 'de' }) {
   const [fehler, setFehler] = useState('');
 
   function nachladen() {
-    apiGet('/api/benutzer').then(setBenutzer).catch(() => {});
+    neueste('/api/benutzer', apiGet('/api/benutzer'), setBenutzer).catch(() => {});
   }
   useEffect(nachladen, []);
 

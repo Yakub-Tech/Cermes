@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { apiGet, apiPost, apiPut, apiDelete } from '../api.js';
+import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import Kontrollkaestchen from '../komponenten/Kontrollkaestchen.jsx';
@@ -8,6 +9,7 @@ import { de as eigeneDe, tr as eigeneTr } from '../sprache/beilagen.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function BeilagenSeite({ sprache = 'de' }) {
+  const neueste = useNeuesteAntwort();
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [beilagen, setBeilagen] = useState([]);
   const [neuerName, setNeuerName] = useState('');
@@ -18,7 +20,7 @@ export default function BeilagenSeite({ sprache = 'de' }) {
   const [fehler, setFehler] = useState('');
 
   useLiveUpdate(['beilagen'], () => {
-    apiGet('/api/beilagen').then(setBeilagen).catch(() => {});
+    neueste('/api/beilagen', apiGet('/api/beilagen'), setBeilagen).catch(() => {});
   });
 
   async function anlegen(ereignis) {

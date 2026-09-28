@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiGet } from '../api.js';
+import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import AuditReiter from './AuditReiter.jsx';
 import AuditFilter from './AuditFilter.jsx';
 import AuditTabelle from './AuditTabelle.jsx';
@@ -20,6 +21,7 @@ function abfrageParameter(bereich, filter, seite) {
 }
 
 export default function AuditSeite({ sprache = 'de' }) {
+  const neueste = useNeuesteAntwort();
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const rollenTexte = sprache === 'tr' ? rollenTr : rollenDe;
 
@@ -32,13 +34,13 @@ export default function AuditSeite({ sprache = 'de' }) {
   const [neuLadenZaehler, setNeuLadenZaehler] = useState(0);
 
   function laden(neuerBereich, neuerFilter, neueSeite) {
-    apiGet(`/api/audit?${abfrageParameter(neuerBereich, neuerFilter, neueSeite)}`)
-      .then(setDaten).catch(() => {});
+    const adresse = `/api/audit?${abfrageParameter(neuerBereich, neuerFilter, neueSeite)}`;
+    neueste('eintraege', apiGet(adresse), setDaten).catch(() => {});
   }
 
   useEffect(() => laden(bereich, filter, seite), [bereich, filter, seite, neuLadenZaehler]);
   useEffect(() => {
-    apiGet('/api/audit/benutzer').then(setBenutzerOptionen).catch(() => {});
+    neueste('/api/audit/benutzer', apiGet('/api/audit/benutzer'), setBenutzerOptionen).catch(() => {});
   }, []);
 
   function bereichWaehlen(neuerBereich) {

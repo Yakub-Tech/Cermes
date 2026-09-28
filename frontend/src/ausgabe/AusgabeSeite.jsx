@@ -8,11 +8,13 @@ import KaertchenKarte from '../komponenten/KaertchenKarte.jsx';
 import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { apiGet, apiPost } from '../api.js';
+import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import { minutenSeit, alterText } from '../zeitAnzeige.js';
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/ausgabe.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function AusgabeSeite() {
+  const neueste = useNeuesteAntwort();
   const session = useSession('ausgabe');
   const [sprache, setSprache] = useStationsSprache();
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
@@ -22,9 +24,9 @@ export default function AusgabeSeite() {
   const [jetzt, setJetzt] = useState(Date.now());
 
   useLiveUpdate(['kaertchen', 'einstellungen'], () => {
-    apiGet('/api/ausgabe/kaertchen').then(setListen).catch(() => {});
-    apiGet('/api/einstellungen')
-      .then((e) => setWarnminuten(e.abholbereit_warnminuten)).catch(() => {});
+    neueste('/api/ausgabe/kaertchen', apiGet('/api/ausgabe/kaertchen'), setListen).catch(() => {});
+    neueste('/api/einstellungen', apiGet('/api/einstellungen'),
+      (e) => setWarnminuten(e.abholbereit_warnminuten)).catch(() => {});
   });
 
   useEffect(() => {

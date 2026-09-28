@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { apiGet, apiPost, formatEuro } from '../api.js';
+import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
@@ -9,6 +10,7 @@ import { de as eigeneDe, tr as eigeneTr } from '../sprache/stornoTab.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function StornoTab({ sprache }) {
+  const neueste = useNeuesteAntwort();
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [kaertchenListe, setKaertchenListe] = useState([]);
   const [nummernFilter, setNummernFilter] = useState('');
@@ -17,7 +19,7 @@ export default function StornoTab({ sprache }) {
   const [fehler, setFehler] = useState('');
 
   useLiveUpdate(['kaertchen'], () => {
-    apiGet('/api/kasse/stornierbar').then(setKaertchenListe).catch(() => {});
+    neueste('/api/kasse/stornierbar', apiGet('/api/kasse/stornierbar'), setKaertchenListe).catch(() => {});
   });
 
   const artikelNamen = [...new Set(kaertchenListe.map((k) => k.artikel_name))];

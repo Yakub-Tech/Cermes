@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiGet, apiPut, apiDelete, apiUpload } from '../api.js';
+import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import Zahlenfeld from '../komponenten/Zahlenfeld.jsx';
 import DateiAuswahl from '../komponenten/DateiAuswahl.jsx';
@@ -8,6 +9,7 @@ import { de as eigeneDe, tr as eigeneTr } from '../sprache/einstellungen.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function EinstellungenSeite({ sprache = 'de' }) {
+  const neueste = useNeuesteAntwort();
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [warnminuten, setWarnminuten] = useState('');
   const [meldung, setMeldung] = useState('');
@@ -31,7 +33,7 @@ export default function EinstellungenSeite({ sprache = 'de' }) {
   }, []);
 
   useLiveUpdate(['logo'], () => {
-    apiGet('/api/logo').then(setLogos).catch(() => {});
+    neueste('/api/logo', apiGet('/api/logo'), setLogos).catch(() => {});
   });
 
   async function speichern(ereignis) {
