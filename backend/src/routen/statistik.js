@@ -47,6 +47,15 @@ function fuerRolleFiltern(ergebnis, rolle) {
   return { ...ergebnis, artikel: ergebnis.artikel.map(ohneGeld), gesamt: ohneGeld(ergebnis.gesamt) };
 }
 
+router.get('/api/statistik/artikel', brauchtRolle(['admin', 'verwaltung']), (_anfrage, antwort) => {
+  const db = oeffneDatenbank();
+  const artikel = db.prepare(
+    `SELECT artikel_id AS id, artikel_name AS name, artikel_name_tr AS name_tr, MAX(id)
+     FROM kaertchen GROUP BY artikel_id ORDER BY artikel_name COLLATE NOCASE`
+  ).all().map(({ id, name, name_tr }) => ({ id, name, name_tr }));
+  antwort.json(artikel);
+});
+
 router.get('/api/statistik/verkaufstage', brauchtRolle(['admin', 'verwaltung']), (_anfrage, antwort) => {
   const db = oeffneDatenbank();
   const tage = db.prepare(

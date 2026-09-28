@@ -20,7 +20,7 @@ export default function StatistikEinzeltag({ sprache = 'de' }) {
 
   useLiveUpdate(['kaertchen'], () => {
     apiGet('/api/statistik/verkaufstage').then(setTage).catch(() => {});
-    apiGet('/api/artikel').then(setArtikelListe).catch(() => {});
+    apiGet('/api/statistik/artikel').then(setArtikelListe).catch(() => {});
     apiGet(`/api/statistik/tag/${datum}`).then((s) => {
       setStatistik(s);
       if (stundenArtikel === '') setStunden(s.stunden);

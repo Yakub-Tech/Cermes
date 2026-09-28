@@ -227,3 +227,24 @@ test('Tag mit ausschließlich stornierten Verkäufen ist auswählbar, Umsatz nul
   assert.equal(tag.gesamt.umsatz_cent, 0);
   assert.equal(tag.stornos.length, 1);
 });
+
+test('Statistik-Artikelliste enthält auch gelöschte Artikel mit dem Namen vom Verkauf', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const kasse = await angemeldeterAgent(app, db, 'kasse');
+  const verwaltung = await angemeldeterAgent(app, db, 'verwaltung');
+  const alt = (await admin.post('/api/artikel').send({
+    name: 'Adana', name_tr: 'Adana TR', farbe: '#2255cc', preis_cent: 700, beilagen_ids: [], sortierung: 1,
+  })).body;
+  await admin.post('/api/artikel').send({
+    name: 'Nie verkauft', farbe: '#2255cc', preis_cent: 100, beilagen_ids: [], sortierung: 2,
+  });
+  await kasse.post('/api/kasse/kassieren').send({
+    positionen: [{ artikel_id: alt.id, beilagen_ids: [] }],
+  });
+  await admin.delete(`/api/artikel/${alt.id}`);
+
+  const liste = (await verwaltung.get('/api/statistik/artikel')).body;
+  assert.deepEqual(liste, [{ id: alt.id, name: 'Adana', name_tr: 'Adana TR' }]);
+  assert.equal((await kasse.get('/api/statistik/artikel')).status, 403);
+});

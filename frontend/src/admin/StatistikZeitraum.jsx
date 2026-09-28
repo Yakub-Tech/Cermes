@@ -58,7 +58,7 @@ export default function StatistikZeitraum({ sprache = 'de' }) {
         statistikLaden(von, bis, verlaufArtikel);
       }
     }).catch(() => {});
-    apiGet('/api/artikel').then(setArtikelListe).catch(() => {});
+    apiGet('/api/statistik/artikel').then(setArtikelListe).catch(() => {});
   });
 
   function vonWaehlen(neuesVon) {
