@@ -3,6 +3,7 @@ import { apiGet } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
 import { useLiveUpdate } from '../useLiveUpdate.js';
+import { useNurAktivLaden } from '../useNurAktivLaden.js';
 import { heutigesDatum, datumAnzeigen } from './datum.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { Kennzahlen, ArtikelDiagramme, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
@@ -11,7 +12,7 @@ import { beideSprachenName, zweisprachigerName } from '../sprache/zweisprachiger
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/statistikEinzeltag.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
-export default function StatistikEinzeltag({ sprache = 'de' }) {
+export default function StatistikEinzeltag({ sprache = 'de', aktiv = true }) {
   const { neueste, ladefehler } = useNeuesteAntwort(laden);
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [tage, setTage] = useState([]);
@@ -36,7 +37,7 @@ export default function StatistikEinzeltag({ sprache = 'de' }) {
     neueste('tag', apiGet(`/api/statistik/tag/${datum}`), setStatistik).catch(() => {});
     stundenLaden(datum, stundenArtikel);
   }
-  useLiveUpdate(['kaertchen'], laden);
+  useLiveUpdate(['kaertchen'], useNurAktivLaden(aktiv, laden));
 
   function tagWaehlen(neuesDatum) {
     setDatum(neuesDatum);

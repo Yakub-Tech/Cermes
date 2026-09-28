@@ -20,11 +20,18 @@ export default function ArtikelSeite({ rolle, sprache = 'de' }) {
   const [loeschung, setLoeschung] = useState(null);
   const [fehler, setFehler] = useState('');
 
-  function laden() {
+  function artikelLaden() {
     neueste('/api/artikel', apiGet('/api/artikel'), setArtikelListe).catch(() => {});
+  }
+  function beilagenLaden() {
     neueste('/api/beilagen', apiGet('/api/beilagen'), setBeilagen).catch(() => {});
   }
-  useLiveUpdate(['artikel', 'beilagen', 'kaertchen'], laden);
+  function laden() {
+    artikelLaden();
+    beilagenLaden();
+  }
+  useLiveUpdate(['artikel', 'beilagen', 'kaertchen'], artikelLaden);
+  useLiveUpdate(['beilagen'], beilagenLaden);
 
   function beilagenNamen(ids) {
     return beilagen.filter((b) => ids.includes(b.id))

@@ -27,10 +27,10 @@ export default function StatistikSeite({ sprache = 'de' }) {
       </div>
 
       <div className={reiter === 'einzeltag' ? 'block' : 'hidden'}>
-        <StatistikEinzeltag sprache={sprache} />
+        <StatistikEinzeltag sprache={sprache} aktiv={reiter === 'einzeltag'} />
       </div>
       <div className={reiter === 'zeitraum' ? 'block' : 'hidden'}>
-        <StatistikZeitraum sprache={sprache} />
+        <StatistikZeitraum sprache={sprache} aktiv={reiter === 'zeitraum'} />
       </div>
     </div>
   );

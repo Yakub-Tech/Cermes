@@ -3,6 +3,7 @@ import { apiGet } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
 import { useLiveUpdate } from '../useLiveUpdate.js';
+import { useNurAktivLaden } from '../useNurAktivLaden.js';
 import { heutigesDatum, datumAnzeigen } from './datum.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { Kennzahlen, ArtikelDiagramme, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
@@ -27,7 +28,7 @@ function vorauswahlBerechnen(verkaufstage) {
   return { von: verkaufstage[0], bis: verkaufstage[0] };
 }
 
-export default function StatistikZeitraum({ sprache = 'de' }) {
+export default function StatistikZeitraum({ sprache = 'de', aktiv = true }) {
   const { neueste, ladefehler } = useNeuesteAntwort(laden);
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [verkaufstage, setVerkaufstage] = useState([]);
@@ -61,7 +62,7 @@ export default function StatistikZeitraum({ sprache = 'de' }) {
     }).catch(() => {});
     neueste('artikel', apiGet('/api/statistik/artikel'), setArtikelListe).catch(() => {});
   }
-  useLiveUpdate(['kaertchen'], laden);
+  useLiveUpdate(['kaertchen'], useNurAktivLaden(aktiv, laden));
 
   function vonWaehlen(neuesVon) {
     setVon(neuesVon);

@@ -25,12 +25,19 @@ export default function AusgabeSeite() {
   const [aktionsfehler, setAktionsfehler] = useState('');
   const [jetzt, setJetzt] = useState(Date.now());
 
-  function laden() {
+  function listeLaden() {
     neueste('/api/ausgabe/kaertchen', apiGet('/api/ausgabe/kaertchen'), setListen).catch(() => {});
+  }
+  function einstellungenLaden() {
     neueste('/api/einstellungen', apiGet('/api/einstellungen'),
       (e) => setWarnminuten(e.abholbereit_warnminuten)).catch(() => {});
   }
-  useLiveUpdate(['kaertchen', 'einstellungen'], laden);
+  function laden() {
+    listeLaden();
+    einstellungenLaden();
+  }
+  useLiveUpdate(['kaertchen'], listeLaden);
+  useLiveUpdate(['einstellungen'], einstellungenLaden);
 
   useEffect(() => {
     const timer = setInterval(() => setJetzt(Date.now()), 30000);
