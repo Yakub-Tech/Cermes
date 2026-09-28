@@ -16,17 +16,23 @@ function berechneVirtuelleGroesse() {
 }
 
 export default function TvSeite() {
-  const neueste = useNeuesteAntwort();
+  const { neueste } = useNeuesteAntwort(alleLaden);
   const [kaertchen, setKaertchen] = useState({ in_bearbeitung: [], abholbereit: [] });
   const [werbung, setWerbung] = useState([]);
   const [virtuelleGroesse, setVirtuelleGroesse] = useState(berechneVirtuelleGroesse);
 
-  useLiveUpdate(['kaertchen'], () => {
+  function kaertchenLaden() {
     neueste('/api/tv/kaertchen', apiGet('/api/tv/kaertchen'), setKaertchen).catch(() => {});
-  });
-  useLiveUpdate(['werbung'], () => {
+  }
+  function werbungLaden() {
     neueste('/api/tv/werbung', apiGet('/api/tv/werbung'), setWerbung).catch(() => {});
-  });
+  }
+  function alleLaden() {
+    kaertchenLaden();
+    werbungLaden();
+  }
+  useLiveUpdate(['kaertchen'], kaertchenLaden);
+  useLiveUpdate(['werbung'], werbungLaden);
 
   useEffect(() => {
     function aktualisieren() {

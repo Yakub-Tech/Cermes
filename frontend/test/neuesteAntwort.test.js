@@ -4,8 +4,9 @@ import { erzeugeNeuesteAntwort } from '../src/neuesteAntwort.js';
 
 function offenerAbruf() {
   let liefern;
-  const abruf = new Promise((resolve) => { liefern = resolve; });
-  return { abruf, liefern };
+  let abweisen;
+  const abruf = new Promise((resolve, reject) => { liefern = resolve; abweisen = reject; });
+  return { abruf, liefern, abweisen };
 }
 
 test('eine später eintreffende ältere Antwort überschreibt die neuere nicht', async () => {
@@ -53,4 +54,39 @@ test('ein Fehlschlag wird an den Aufrufer weitergegeben', async () => {
     neueste('liste', Promise.reject(new Error('kaputt')), () => {}),
     /kaputt/
   );
+});
+
+test('der Fehlerzustand meldet einen Fehlschlag und danach den Erfolg des neuesten Abrufs', async () => {
+  const meldungen = [];
+  const neueste = erzeugeNeuesteAntwort((fehlgeschlagen) => meldungen.push(fehlgeschlagen));
+
+  await neueste('liste', Promise.reject(new Error('kaputt')), () => {}).catch(() => {});
+  await neueste('liste', Promise.resolve(1), () => {});
+
+  assert.deepEqual(meldungen, [true, false]);
+});
+
+test('ein überholter Fehlschlag zählt nicht als Fehler', async () => {
+  const meldungen = [];
+  const neueste = erzeugeNeuesteAntwort((fehlgeschlagen) => meldungen.push(fehlgeschlagen));
+  const alt = offenerAbruf();
+
+  const wartenAlt = neueste('liste', alt.abruf, () => {}).catch(() => {});
+  await neueste('liste', Promise.resolve(1), () => {});
+  alt.abruf.catch(() => {});
+  alt.abweisen(new Error('zu spät'));
+  await wartenAlt;
+
+  assert.deepEqual(meldungen, []);
+});
+
+test('der Fehlerzustand bleibt, solange irgendeine Datenquelle fehlgeschlagen ist', async () => {
+  const meldungen = [];
+  const neueste = erzeugeNeuesteAntwort((fehlgeschlagen) => meldungen.push(fehlgeschlagen));
+
+  await neueste('a', Promise.reject(new Error('x')), () => {}).catch(() => {});
+  await neueste('b', Promise.resolve(1), () => {});
+  await neueste('a', Promise.resolve(1), () => {});
+
+  assert.deepEqual(meldungen, [true, false]);
 });

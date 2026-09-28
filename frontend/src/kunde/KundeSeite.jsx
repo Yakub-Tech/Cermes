@@ -10,18 +10,23 @@ import BestellUebersicht from './BestellUebersicht.jsx';
 import { de, tr } from '../sprache/kunde.js';
 
 export default function KundeSeite() {
-  const neueste = useNeuesteAntwort();
+  const { neueste } = useNeuesteAntwort(alleLaden);
   const [artikelListe, setArtikelListe] = useState([]);
   const [zustand, setZustand] = useState({ warenkorb: [], fokus: null, summe_cent: null, sprache: 'de' });
   const texte = zustand.sprache === 'tr' ? tr : de;
 
-  useLiveUpdate(['artikel', 'beilagen'], () => {
+  function artikelLaden() {
     neueste('/api/kunde/artikel', apiGet('/api/kunde/artikel'), setArtikelListe).catch(() => {});
-  });
-
-  useLiveUpdate(['kunden_anzeige'], () => {
+  }
+  function zustandLaden() {
     neueste('zustand', apiGet('/api/kunde/zustand'), setZustand).catch(() => {});
-  });
+  }
+  function alleLaden() {
+    artikelLaden();
+    zustandLaden();
+  }
+  useLiveUpdate(['artikel', 'beilagen'], artikelLaden);
+  useLiveUpdate(['kunden_anzeige'], zustandLaden);
 
   if (zustand.summe_cent !== null) {
     return (

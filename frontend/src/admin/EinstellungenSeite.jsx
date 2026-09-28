@@ -9,7 +9,7 @@ import { de as eigeneDe, tr as eigeneTr } from '../sprache/einstellungen.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function EinstellungenSeite({ sprache = 'de' }) {
-  const neueste = useNeuesteAntwort();
+  const { neueste } = useNeuesteAntwort(logosLaden);
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [warnminuten, setWarnminuten] = useState('');
   const [meldung, setMeldung] = useState('');
@@ -32,9 +32,10 @@ export default function EinstellungenSeite({ sprache = 'de' }) {
       .catch((f) => setFehler(f.message));
   }, []);
 
-  useLiveUpdate(['logo'], () => {
+  function logosLaden() {
     neueste('/api/logo', apiGet('/api/logo'), setLogos).catch(() => {});
-  });
+  }
+  useLiveUpdate(['logo'], logosLaden);
 
   async function speichern(ereignis) {
     ereignis.preventDefault();

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { apiGet, apiPost, formatEuro } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
+import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
@@ -10,7 +11,7 @@ import { de as eigeneDe, tr as eigeneTr } from '../sprache/stornoTab.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function StornoTab({ sprache }) {
-  const neueste = useNeuesteAntwort();
+  const { neueste, ladefehler } = useNeuesteAntwort(laden);
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [kaertchenListe, setKaertchenListe] = useState([]);
   const [nummernFilter, setNummernFilter] = useState('');
@@ -18,9 +19,10 @@ export default function StornoTab({ sprache }) {
   const [auswahl, setAuswahl] = useState(null);
   const [fehler, setFehler] = useState('');
 
-  useLiveUpdate(['kaertchen'], () => {
+  function laden() {
     neueste('/api/kasse/stornierbar', apiGet('/api/kasse/stornierbar'), setKaertchenListe).catch(() => {});
-  });
+  }
+  useLiveUpdate(['kaertchen'], laden);
 
   const artikelNamen = [...new Set(kaertchenListe.map((k) => k.artikel_name))];
   const gefiltert = kaertchenListe.filter((k) =>
@@ -41,6 +43,7 @@ export default function StornoTab({ sprache }) {
 
   return (
     <div className="flex-1 overflow-y-auto p-4">
+      {ladefehler && <LadefehlerHinweis sprache={sprache} onErneut={laden} />}
       <div className="mb-4 flex gap-3">
         <input value={nummernFilter} onChange={(e) => setNummernFilter(e.target.value)}
           placeholder={texte.nummerSuchen} inputMode="numeric"

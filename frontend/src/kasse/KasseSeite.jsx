@@ -7,6 +7,7 @@ import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { apiGet, apiPost, apiPut, formatEuro } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
+import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
 import { erzeugeMeldungsFolge } from './meldungsFolge.js';
 import { positionHinzufuegen as positionZumWarenkorbHinzufuegen, mengeAendern, positionenFuerApi } from './warenkorb.js';
 import BeilagenDialog from './BeilagenDialog.jsx';
@@ -18,7 +19,7 @@ import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 import { de, tr } from '../sprache/kasse.js';
 
 export default function KasseSeite() {
-  const neueste = useNeuesteAntwort();
+  const { neueste, ladefehler } = useNeuesteAntwort(laden);
   const session = useSession('kasse');
   const navigiere = useNavigate();
   const [tab, setTab] = useState('verkauf');
@@ -46,9 +47,10 @@ export default function KasseSeite() {
     }
   }
 
-  useLiveUpdate(['artikel', 'beilagen'], () => {
+  function laden() {
     neueste('/api/kasse/artikel', apiGet('/api/kasse/artikel'), setArtikelListe).catch(() => {});
-  });
+  }
+  useLiveUpdate(['artikel', 'beilagen'], laden);
 
   function artikelTippen(artikel) {
     if (artikel.beilagen.length > 0) {
@@ -166,6 +168,12 @@ export default function KasseSeite() {
             </nav>
           </>
         } />
+
+      {ladefehler && (
+        <div className="px-4 pt-2">
+          <LadefehlerHinweis sprache={sprache} onErneut={laden} />
+        </div>
+      )}
 
       {tab === 'verkauf' ? (
         <div className="flex min-h-0 flex-1">

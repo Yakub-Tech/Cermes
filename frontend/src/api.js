@@ -1,35 +1,61 @@
+const WARTEZEIT_MS = 15000;
+const WARTEZEIT_UPLOAD_MS = 120000;
+
+function wartefristFehler(schreibend) {
+  return new Error(schreibend
+    ? 'Der Server antwortet nicht. Bitte zuerst prüfen, ob die Aktion angekommen ist, bevor sie wiederholt wird.'
+    : 'Der Server antwortet nicht. Bitte kurz warten und noch einmal versuchen.');
+}
+
 async function anfrage(pfad, optionen = {}) {
-  let antwort;
+  const { wartezeitMs = WARTEZEIT_MS, ...fetchOptionen } = optionen;
+  const schreibend = fetchOptionen.method !== undefined;
+  const abbruch = new AbortController();
+  const timer = setTimeout(() => abbruch.abort(), wartezeitMs);
   try {
-    antwort = await fetch(pfad, optionen);
-  } catch {
-    throw new Error('Der Server ist gerade nicht erreichbar. Bitte kurz warten.');
+    let antwort;
+    try {
+      antwort = await fetch(pfad, { ...fetchOptionen, signal: abbruch.signal });
+    } catch (f) {
+      if (f.name === 'AbortError') throw wartefristFehler(schreibend);
+      throw new Error('Der Server ist gerade nicht erreichbar. Bitte kurz warten.');
+    }
+    if (antwort.status === 204) return null;
+    let daten;
+    try {
+      daten = await antwort.json();
+    } catch (f) {
+      if (f.name === 'AbortError') throw wartefristFehler(schreibend);
+      daten = {};
+    }
+    if (!antwort.ok) {
+      const fehler = new Error(daten.fehler || 'Es ist ein unbekannter Fehler aufgetreten.');
+      fehler.status = antwort.status;
+      fehler.daten = daten;
+      throw fehler;
+    }
+    return daten;
+  } finally {
+    clearTimeout(timer);
   }
-  if (antwort.status === 204) return null;
-  const daten = await antwort.json().catch(() => ({}));
-  if (!antwort.ok) {
-    const fehler = new Error(daten.fehler || 'Es ist ein unbekannter Fehler aufgetreten.');
-    fehler.status = antwort.status;
-    fehler.daten = daten;
-    throw fehler;
-  }
-  return daten;
 }
 
-export function apiGet(pfad) {
-  return anfrage(pfad);
+export function apiGet(pfad, optionen) {
+  return anfrage(pfad, optionen);
 }
 
-export function apiPost(pfad, daten) {
+export function apiPost(pfad, daten, optionen) {
   return anfrage(pfad, {
+    ...optionen,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(daten ?? {}),
   });
 }
 
-export function apiPut(pfad, daten) {
+export function apiPut(pfad, daten, optionen) {
   return anfrage(pfad, {
+    ...optionen,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(daten ?? {}),
@@ -41,7 +67,7 @@ export function apiDelete(pfad) {
 }
 
 export function apiUpload(pfad, formData) {
-  return anfrage(pfad, { method: 'POST', body: formData });
+  return anfrage(pfad, { method: 'POST', body: formData, wartezeitMs: WARTEZEIT_UPLOAD_MS });
 }
 
 export function formatEuro(cent) {

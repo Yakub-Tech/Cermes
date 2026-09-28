@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiGet } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
+import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
 import AuditReiter from './AuditReiter.jsx';
 import AuditFilter from './AuditFilter.jsx';
 import AuditTabelle from './AuditTabelle.jsx';
@@ -21,7 +22,7 @@ function abfrageParameter(bereich, filter, seite) {
 }
 
 export default function AuditSeite({ sprache = 'de' }) {
-  const neueste = useNeuesteAntwort();
+  const { neueste, ladefehler } = useNeuesteAntwort(neuLaden);
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const rollenTexte = sprache === 'tr' ? rollenTr : rollenDe;
 
@@ -38,9 +39,14 @@ export default function AuditSeite({ sprache = 'de' }) {
     neueste('eintraege', apiGet(adresse), setDaten).catch(() => {});
   }
 
+  function neuLaden() {
+    laden(bereich, filter, seite);
+    neueste('benutzer', apiGet('/api/audit/benutzer'), setBenutzerOptionen).catch(() => {});
+  }
+
   useEffect(() => laden(bereich, filter, seite), [bereich, filter, seite, neuLadenZaehler]);
   useEffect(() => {
-    neueste('/api/audit/benutzer', apiGet('/api/audit/benutzer'), setBenutzerOptionen).catch(() => {});
+    neueste('benutzer', apiGet('/api/audit/benutzer'), setBenutzerOptionen).catch(() => {});
   }, []);
 
   function bereichWaehlen(neuerBereich) {
@@ -63,6 +69,8 @@ export default function AuditSeite({ sprache = 'de' }) {
   return (
     <div>
       <h2 className="mb-4 font-display text-base text-navy">{texte.titel}</h2>
+
+      {ladefehler && <LadefehlerHinweis sprache={sprache} onErneut={neuLaden} />}
 
       <AuditReiter bereich={bereich} onWahl={bereichWaehlen} texte={texte} />
       <AuditFilter entwurf={entwurf} onEntwurfAendern={setEntwurf}

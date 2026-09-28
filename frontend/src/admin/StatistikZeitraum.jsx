@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { apiGet } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
+import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { heutigesDatum, datumAnzeigen } from './datum.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
@@ -27,7 +28,7 @@ function vorauswahlBerechnen(verkaufstage) {
 }
 
 export default function StatistikZeitraum({ sprache = 'de' }) {
-  const neueste = useNeuesteAntwort();
+  const { neueste, ladefehler } = useNeuesteAntwort(laden);
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [verkaufstage, setVerkaufstage] = useState([]);
   const [von, setVon] = useState(null);
@@ -48,7 +49,7 @@ export default function StatistikZeitraum({ sprache = 'de' }) {
     }
   }
 
-  useLiveUpdate(['kaertchen'], () => {
+  function laden() {
     if (von !== null) statistikLaden(von, bis, verlaufArtikel);
     neueste('verkaufstage', apiGet('/api/statistik/verkaufstage'), (neueTage) => {
       setVerkaufstage(neueTage);
@@ -59,7 +60,8 @@ export default function StatistikZeitraum({ sprache = 'de' }) {
       if (vorauswahl.von !== null) statistikLaden(vorauswahl.von, vorauswahl.bis, verlaufArtikel);
     }).catch(() => {});
     neueste('artikel', apiGet('/api/statistik/artikel'), setArtikelListe).catch(() => {});
-  });
+  }
+  useLiveUpdate(['kaertchen'], laden);
 
   function vonWaehlen(neuesVon) {
     setVon(neuesVon);
@@ -94,6 +96,7 @@ export default function StatistikZeitraum({ sprache = 'de' }) {
 
   return (
     <div className="space-y-8">
+      {ladefehler && <LadefehlerHinweis sprache={sprache} onErneut={laden} />}
       <div className="flex flex-wrap items-center gap-2">
         <span className="w-[62px] text-right text-sm text-schrift-gedimmt">{texte.von}</span>
         <Auswahlmenue wert={von} onWahl={vonWaehlen}

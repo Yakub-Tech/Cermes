@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { apiGet } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
+import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { heutigesDatum, datumAnzeigen } from './datum.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
@@ -11,7 +12,7 @@ import { de as eigeneDe, tr as eigeneTr } from '../sprache/statistikEinzeltag.js
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function StatistikEinzeltag({ sprache = 'de' }) {
-  const neueste = useNeuesteAntwort();
+  const { neueste, ladefehler } = useNeuesteAntwort(laden);
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [tage, setTage] = useState([]);
   const [datum, setDatum] = useState(heutigesDatum());
@@ -29,12 +30,13 @@ export default function StatistikEinzeltag({ sprache = 'de' }) {
       .then((s) => s.stunden), setGefilterteStunden).catch(() => {});
   }
 
-  useLiveUpdate(['kaertchen'], () => {
+  function laden() {
     neueste('tage', apiGet('/api/statistik/verkaufstage'), setTage).catch(() => {});
     neueste('artikel', apiGet('/api/statistik/artikel'), setArtikelListe).catch(() => {});
     neueste('tag', apiGet(`/api/statistik/tag/${datum}`), setStatistik).catch(() => {});
     stundenLaden(datum, stundenArtikel);
-  });
+  }
+  useLiveUpdate(['kaertchen'], laden);
 
   function tagWaehlen(neuesDatum) {
     setDatum(neuesDatum);
@@ -66,6 +68,7 @@ export default function StatistikEinzeltag({ sprache = 'de' }) {
 
   return (
     <div className="space-y-8">
+      {ladefehler && <LadefehlerHinweis sprache={sprache} onErneut={laden} />}
       <div className="flex flex-wrap items-center gap-2">
         <button onClick={() => tagWaehlen(heutigesDatum())}
           className={`kaertchen-schatten cursor-pointer rounded-full px-2.5 py-1.5 text-sm ${

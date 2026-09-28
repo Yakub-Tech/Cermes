@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { apiGet, apiPost, apiPut, apiDelete, formatEuro } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
+import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import ArtikelFormular from './ArtikelFormular.jsx';
@@ -10,7 +11,7 @@ import { de as eigeneDe, tr as eigeneTr } from '../sprache/artikel.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function ArtikelSeite({ rolle, sprache = 'de' }) {
-  const neueste = useNeuesteAntwort();
+  const { neueste, ladefehler } = useNeuesteAntwort(laden);
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [artikelListe, setArtikelListe] = useState([]);
   const [beilagen, setBeilagen] = useState([]);
@@ -19,10 +20,11 @@ export default function ArtikelSeite({ rolle, sprache = 'de' }) {
   const [loeschung, setLoeschung] = useState(null);
   const [fehler, setFehler] = useState('');
 
-  useLiveUpdate(['artikel', 'beilagen', 'kaertchen'], () => {
+  function laden() {
     neueste('/api/artikel', apiGet('/api/artikel'), setArtikelListe).catch(() => {});
     neueste('/api/beilagen', apiGet('/api/beilagen'), setBeilagen).catch(() => {});
-  });
+  }
+  useLiveUpdate(['artikel', 'beilagen', 'kaertchen'], laden);
 
   function beilagenNamen(ids) {
     return beilagen.filter((b) => ids.includes(b.id))
@@ -30,10 +32,15 @@ export default function ArtikelSeite({ rolle, sprache = 'de' }) {
   }
 
   async function speichern(daten) {
-    if (formular.artikel) {
-      await apiPut(`/api/artikel/${formular.artikel.id}`, daten);
-    } else {
-      await apiPost('/api/artikel', daten);
+    try {
+      if (formular.artikel) {
+        await apiPut(`/api/artikel/${formular.artikel.id}`, daten);
+      } else {
+        await apiPost('/api/artikel', daten);
+      }
+    } catch (f) {
+      laden();
+      throw f;
     }
     setFormular(null);
   }
@@ -46,6 +53,8 @@ export default function ArtikelSeite({ rolle, sprache = 'de' }) {
         className="kaertchen-schatten mb-4 cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
         {texte.artikelAnlegen}
       </button>
+
+      {ladefehler && <LadefehlerHinweis sprache={sprache} onErneut={laden} />}
 
       {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
 

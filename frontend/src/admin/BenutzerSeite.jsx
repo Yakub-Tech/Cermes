@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiGet, apiPost, apiDelete } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
+import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
 import Dialog from '../komponenten/Dialog.jsx';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/benutzer.js';
@@ -8,7 +9,7 @@ import { de as rollenDe, tr as rollenTr } from '../sprache/rollen.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function BenutzerSeite({ sprache = 'de' }) {
-  const neueste = useNeuesteAntwort();
+  const { neueste, ladefehler } = useNeuesteAntwort(nachladen);
   const texte = sprache === 'tr'
     ? { ...gemeinsamTr, ...rollenTr, ...eigeneTr }
     : { ...gemeinsamDe, ...rollenDe, ...eigeneDe };
@@ -69,6 +70,8 @@ export default function BenutzerSeite({ sprache = 'de' }) {
         className="kaertchen-schatten mb-4 cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
         {texte.benutzerAnlegen}
       </button>
+
+      {ladefehler && <LadefehlerHinweis sprache={sprache} onErneut={nachladen} />}
 
       {fehler && <p className="mb-2.5 max-w-md rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
 

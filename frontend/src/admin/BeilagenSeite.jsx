@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { apiGet, apiPost, apiPut, apiDelete } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
+import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import Kontrollkaestchen from '../komponenten/Kontrollkaestchen.jsx';
@@ -9,7 +10,7 @@ import { de as eigeneDe, tr as eigeneTr } from '../sprache/beilagen.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function BeilagenSeite({ sprache = 'de' }) {
-  const neueste = useNeuesteAntwort();
+  const { neueste, ladefehler } = useNeuesteAntwort(laden);
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [beilagen, setBeilagen] = useState([]);
   const [neuerName, setNeuerName] = useState('');
@@ -19,9 +20,10 @@ export default function BeilagenSeite({ sprache = 'de' }) {
   const [loeschung, setLoeschung] = useState(null);
   const [fehler, setFehler] = useState('');
 
-  useLiveUpdate(['beilagen'], () => {
+  function laden() {
     neueste('/api/beilagen', apiGet('/api/beilagen'), setBeilagen).catch(() => {});
-  });
+  }
+  useLiveUpdate(['beilagen'], laden);
 
   async function anlegen(ereignis) {
     ereignis.preventDefault();
@@ -79,6 +81,8 @@ export default function BeilagenSeite({ sprache = 'de' }) {
           {texte.anlegen}
         </button>
       </form>
+
+      {ladefehler && <LadefehlerHinweis sprache={sprache} onErneut={laden} />}
 
       {fehler && <p className="mb-2.5 max-w-md rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
 

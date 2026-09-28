@@ -9,37 +9,47 @@ import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { apiGet, apiPost } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
+import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
 import { alterText } from '../zeitAnzeige.js';
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/belegen.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 export default function BelegenSeite() {
-  const neueste = useNeuesteAntwort();
+  const { neueste, ladefehler } = useNeuesteAntwort(laden);
   const session = useSession('belegen');
   const [sprache, setSprache] = useStationsSprache();
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [listen, setListen] = useState({ in_bearbeitung: [], abholbereit: [] });
   const [snackbar, setSnackbar] = useState(null);
+  const [aktionsfehler, setAktionsfehler] = useState('');
   const [jetzt, setJetzt] = useState(Date.now());
 
-  useLiveUpdate(['kaertchen'], () => {
+  function laden() {
     neueste('/api/belegen/kaertchen', apiGet('/api/belegen/kaertchen'), setListen).catch(() => {});
-  });
+  }
+  useLiveUpdate(['kaertchen'], laden);
 
   useEffect(() => {
     const timer = setInterval(() => setJetzt(Date.now()), 30000);
     return () => clearInterval(timer);
   }, []);
 
+  function aktionAbgelehnt(fehler) {
+    setAktionsfehler(fehler.message);
+    laden();
+  }
+
   async function statusWechsel(kaertchen, neuerStatus, rueckStatus, meldung) {
+    setAktionsfehler('');
     try {
       await apiPost(`/api/belegen/status/${kaertchen.id}`, { status: neuerStatus });
       setSnackbar({
         meldung: `${texte.nrPraefix} ${kaertchen.nummer} ${meldung}`,
         rueckgaengig: () =>
-          apiPost(`/api/belegen/status/${kaertchen.id}`, { status: rueckStatus }).catch(() => {}),
+          apiPost(`/api/belegen/status/${kaertchen.id}`, { status: rueckStatus }).catch(aktionAbgelehnt),
       });
-    } catch {
+    } catch (f) {
+      aktionAbgelehnt(f);
     }
   }
 
@@ -78,6 +88,13 @@ export default function BelegenSeite() {
     <div className="flex h-screen flex-col">
       <Kopfzeile titel={texte.titel} benutzername={session.benutzername} sprache={sprache}
         rechts={<SprachSchalter sprache={sprache} onWahl={setSprache} />} />
+
+      {(ladefehler || aktionsfehler) && (
+        <div className="bg-grund px-3 pt-3">
+          <LadefehlerHinweis sprache={sprache} aktionsfehler={aktionsfehler}
+            onErneut={() => { setAktionsfehler(''); laden(); }} />
+        </div>
+      )}
 
       <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 bg-grund p-3">
         {spalten.map((spalte) => (
