@@ -116,3 +116,74 @@ test('ein leerer Stand wird ebenfalls erneut gemeldet', async () => {
   erneutMelden();
   assert.deepEqual(gesendet, [null, null]);
 });
+
+function versprechenAbarbeiten() {
+  return new Promise((resolve) => setImmediate(resolve));
+}
+
+test('ein fehlgeschlagener Stand wird ohne weitere Bedienung nach kurzer Wartezeit erneut gesendet', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const gesendet = [];
+  let fehlschlaege = 2;
+  const { melden } = erzeugeMeldungsFolge((stand) => {
+    gesendet.push(stand);
+    if (fehlschlaege > 0) {
+      fehlschlaege -= 1;
+      return Promise.reject(new Error('Netzwerkfehler'));
+    }
+    return Promise.resolve();
+  });
+
+  melden('A');
+  await versprechenAbarbeiten();
+  assert.deepEqual(gesendet, ['A']);
+
+  t.mock.timers.tick(3000);
+  await versprechenAbarbeiten();
+  assert.deepEqual(gesendet, ['A', 'A']);
+
+  t.mock.timers.tick(10000);
+  await versprechenAbarbeiten();
+  assert.deepEqual(gesendet, ['A', 'A', 'A']);
+
+  t.mock.timers.tick(60000);
+  await versprechenAbarbeiten();
+  assert.deepEqual(gesendet, ['A', 'A', 'A']);
+});
+
+test('die automatische Wiederholung ist begrenzt', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const gesendet = [];
+  const { melden } = erzeugeMeldungsFolge((stand) => {
+    gesendet.push(stand);
+    return Promise.reject(new Error('Netzwerkfehler'));
+  });
+
+  melden('A');
+  for (let i = 0; i < 10; i++) {
+    await versprechenAbarbeiten();
+    t.mock.timers.tick(60000);
+  }
+  await versprechenAbarbeiten();
+  assert.deepEqual(gesendet, ['A', 'A', 'A', 'A']);
+});
+
+test('ein neuerer Stand während der Wartezeit ersetzt die Wiederholung des alten', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const gesendet = [];
+  const { melden } = erzeugeMeldungsFolge((stand) => {
+    gesendet.push(stand);
+    if (stand === 'A') return Promise.reject(new Error('Netzwerkfehler'));
+    return Promise.resolve();
+  });
+
+  melden('A');
+  await versprechenAbarbeiten();
+  melden('B');
+  await versprechenAbarbeiten();
+  assert.deepEqual(gesendet, ['A', 'B']);
+
+  t.mock.timers.tick(60000);
+  await versprechenAbarbeiten();
+  assert.deepEqual(gesendet, ['A', 'B']);
+});

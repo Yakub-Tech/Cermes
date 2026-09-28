@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { apiGet } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
+import { useVerbindungsStatus } from '../komponenten/useVerbindungsStatus.js';
 import StatusSpalte from './StatusSpalte.jsx';
 import WerbeLeiste from './WerbeLeiste.jsx';
 import Urheberrechtshinweis from '../komponenten/Urheberrechtshinweis.jsx';
 
 const SKALIERUNG = 0.67;
+const NACHLADEN_BEI_FEHLER_MS = 30000;
 
 function berechneVirtuelleGroesse() {
   return {
@@ -16,7 +18,8 @@ function berechneVirtuelleGroesse() {
 }
 
 export default function TvSeite() {
-  const { neueste } = useNeuesteAntwort(alleLaden);
+  const { neueste, ladefehler } = useNeuesteAntwort(alleLaden);
+  const verbunden = useVerbindungsStatus();
   const [kaertchen, setKaertchen] = useState({ in_bearbeitung: [], abholbereit: [] });
   const [werbung, setWerbung] = useState([]);
   const [virtuelleGroesse, setVirtuelleGroesse] = useState(berechneVirtuelleGroesse);
@@ -33,6 +36,12 @@ export default function TvSeite() {
   }
   useLiveUpdate(['kaertchen'], kaertchenLaden);
   useLiveUpdate(['werbung'], werbungLaden);
+
+  useEffect(() => {
+    if (!ladefehler) return undefined;
+    const timer = setInterval(alleLaden, NACHLADEN_BEI_FEHLER_MS);
+    return () => clearInterval(timer);
+  }, [ladefehler]);
 
   useEffect(() => {
     function aktualisieren() {
@@ -73,6 +82,11 @@ export default function TvSeite() {
           )}
         </main>
       </div>
+      {(ladefehler || !verbunden) && (
+        <span className="fixed bottom-1 left-1.5 z-50 rounded bg-flaeche/80 px-2 py-0.5 text-xs text-weinrot pointer-events-none select-none">
+          Verbindung gestört, Anzeige möglicherweise nicht aktuell · Bağlantı sorunu, bilgiler güncel olmayabilir
+        </span>
+      )}
       <Urheberrechtshinweis />
     </>
   );
