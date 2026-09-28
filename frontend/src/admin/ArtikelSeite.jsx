@@ -98,8 +98,8 @@ export default function ArtikelSeite({ rolle, sprache = 'de' }) {
                 </td>
                 <td className="px-2.5 py-2">
                   <button
-                    onClick={() => apiPut(`/api/artikel/${artikel.id}`, {
-                      ...artikel, aktiv: artikel.aktiv ? 0 : 1,
+                    onClick={() => apiPut(`/api/artikel/${artikel.id}/aktiv`, {
+                      aktiv: artikel.aktiv ? 0 : 1,
                     }).catch((f) => setFehler(f.message))}
                     className={`cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold ${
                       artikel.aktiv ? 'bg-navy text-grund' : 'border border-linie text-schrift-gedimmt'

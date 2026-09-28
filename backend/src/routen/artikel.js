@@ -1,4 +1,5 @@
 import express from 'express';
+import crypto from 'node:crypto';
 import { oeffneDatenbank } from '../db.js';
 import { heutigesDatum } from '../zeit.js';
 import { brauchtRolle } from '../auth.js';
@@ -79,6 +80,16 @@ function hoechsteNummerHeute(db, artikelId) {
   ).get(artikelId, heutigesDatum()).n;
 }
 
+const STAND_SCHLUESSEL = crypto.randomBytes(32);
+
+function artikelStand(zeile, beilagenIds, bloecke) {
+  const werte = JSON.stringify([
+    zeile.name, zeile.name_tr, zeile.farbe, zeile.preis_cent, zeile.einkaufskosten_cent,
+    zeile.aktiv, zeile.sortierung, beilagenIds, bloecke.map((block) => [block.von, block.bis]),
+  ]);
+  return crypto.createHmac('sha256', STAND_SCHLUESSEL).update(werte).digest('hex');
+}
+
 export function artikelMitDetails(db, zeile) {
   const beilagenIds = db.prepare(
     'SELECT beilage_id FROM artikel_beilage WHERE artikel_id = ? ORDER BY beilage_id'
@@ -88,6 +99,7 @@ export function artikelMitDetails(db, zeile) {
   const statusInfo = ermittleStatus(bloecke, zeile.naechste_nummer);
   return {
     ...zeile, beilagen_ids: beilagenIds, hoechste_nummer_heute: hoechsteHeute,
+    stand: artikelStand(zeile, beilagenIds, bloecke),
     bild_url: zeile.bild_dateiname ? `/artikelbilder/${zeile.bild_dateiname}` : null,
     bloecke, hinweis: hinweisText(statusInfo.status, statusInfo),
   };
@@ -149,6 +161,12 @@ router.put('/api/artikel/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, 
   const daten = anfrage.body;
   const fehler = pruefeArtikelDaten(daten);
   if (fehler) return antwort.status(400).json({ fehler });
+  if (daten.erwarteter_stand !== undefined
+      && daten.erwarteter_stand !== artikelMitDetails(db, vorhanden).stand) {
+    return antwort.status(409).json({
+      fehler: 'Dieser Artikel wurde inzwischen geändert. Bitte das Fenster schließen und den Artikel neu öffnen.',
+    });
+  }
   if (daten.bloecke !== undefined) {
     const bloeckeFehler = pruefeBloecke(daten.bloecke);
     if (bloeckeFehler) return antwort.status(400).json({ fehler: bloeckeFehler });
@@ -190,6 +208,33 @@ router.put('/api/artikel/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, 
     sendeEreignis('artikel');
     const antwortDaten = artikelMitDetails(db, neu);
     antwort.json(istVerwaltung ? ohneKosten(antwortDaten) : antwortDaten);
+  } catch {
+    antwort.status(500).json({ fehler: UNERWARTETER_FEHLER });
+  }
+});
+
+router.put('/api/artikel/:id/aktiv', brauchtRolle(['admin', 'verwaltung']), (anfrage, antwort) => {
+  const db = oeffneDatenbank();
+  const aktiv = anfrage.body.aktiv;
+  if (aktiv !== 0 && aktiv !== 1) {
+    return antwort.status(400).json({ fehler: 'Bitte aktiv oder inaktiv angeben.' });
+  }
+  try {
+    const umschalten = db.transaction(() => {
+      const artikel = db.prepare('SELECT * FROM artikel WHERE id = ? AND geloescht = 0').get(anfrage.params.id);
+      if (!artikel) return null;
+      db.prepare('UPDATE artikel SET aktiv = ? WHERE id = ?').run(aktiv, artikel.id);
+      protokolliereAenderung(db, anfrage.benutzer, 'artikel', 'artikel', { artikel: artikel.name },
+        unterschiede({ aktiv: artikel.aktiv }, { aktiv }, ['aktiv']));
+      return artikel.id;
+    });
+    const artikelId = umschalten();
+    if (artikelId === null) {
+      return antwort.status(404).json({ fehler: 'Dieser Artikel existiert nicht mehr.' });
+    }
+    sendeEreignis('artikel');
+    const neu = artikelMitDetails(db, db.prepare('SELECT * FROM artikel WHERE id = ?').get(artikelId));
+    antwort.json(anfrage.benutzer.rolle === 'verwaltung' ? ohneKosten(neu) : neu);
   } catch {
     antwort.status(500).json({ fehler: UNERWARTETER_FEHLER });
   }

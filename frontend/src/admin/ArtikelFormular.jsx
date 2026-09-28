@@ -108,6 +108,7 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
       einkaufskosten_cent: kostenCent,
       sortierung: Number(sortierung) || 0,
       aktiv: artikel?.aktiv ?? 1,
+      erwarteter_stand: artikel?.stand,
       beilagen_ids: beilagenIds,
       ...(bloeckeDaten ? { bloecke: bloeckeDaten } : {}),
     }).catch((f) => setFehler(f.message));

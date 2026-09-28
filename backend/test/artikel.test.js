@@ -230,3 +230,86 @@ test('Bildupload: Verwaltung bekommt keine Einkaufskosten, Admin schon', async (
     .attach('bild', GUELTIGES_MINI_PNG, 'test.png');
   assert.equal(alsAdmin.body.einkaufskosten_cent, 100);
 });
+
+test('Artikel: Aktiv-Schalter ändert nur die Aktivität und lässt einen zwischenzeitlich geänderten Preis stehen', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const artikel = (await admin.post('/api/artikel').send({
+    name: 'Döner', farbe: '#f5c211', preis_cent: 500, beilagen_ids: [], sortierung: 1,
+  })).body;
+
+  await admin.put(`/api/artikel/${artikel.id}`).send({ ...artikel, preis_cent: 650 });
+  const antwort = await admin.put(`/api/artikel/${artikel.id}/aktiv`).send({ aktiv: 0 });
+
+  assert.equal(antwort.status, 200);
+  assert.equal(antwort.body.aktiv, 0);
+  assert.equal(antwort.body.preis_cent, 650);
+  const gespeichert = db.prepare('SELECT preis_cent, aktiv FROM artikel WHERE id = ?').get(artikel.id);
+  assert.equal(gespeichert.preis_cent, 650);
+  assert.equal(gespeichert.aktiv, 0);
+});
+
+test('Artikel: Aktiv-Schalter lehnt ungültige Werte und fehlende Artikel ab', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const artikel = (await admin.post('/api/artikel').send({
+    name: 'Döner', farbe: '#f5c211', preis_cent: 500, beilagen_ids: [],
+  })).body;
+
+  assert.equal((await admin.put(`/api/artikel/${artikel.id}/aktiv`).send({ aktiv: 'vielleicht' })).status, 400);
+  assert.equal((await admin.put('/api/artikel/99999/aktiv').send({ aktiv: 0 })).status, 404);
+});
+
+test('Artikel: Bearbeiten mit veraltetem Stand wird mit Konflikt abgelehnt und ändert nichts', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const artikel = (await admin.post('/api/artikel').send({
+    name: 'Döner', farbe: '#f5c211', preis_cent: 500, beilagen_ids: [],
+  })).body;
+
+  await admin.put(`/api/artikel/${artikel.id}`).send({ ...artikel, preis_cent: 650, erwarteter_stand: artikel.stand });
+  const veraltet = await admin.put(`/api/artikel/${artikel.id}`).send({
+    ...artikel, name: 'Falafel', erwarteter_stand: artikel.stand,
+  });
+
+  assert.equal(veraltet.status, 409);
+  assert.match(veraltet.body.fehler, /inzwischen geändert/);
+  const gespeichert = db.prepare('SELECT name, preis_cent FROM artikel WHERE id = ?').get(artikel.id);
+  assert.equal(gespeichert.name, 'Döner');
+  assert.equal(gespeichert.preis_cent, 650);
+});
+
+test('Artikel: geänderte Einkaufskosten lassen ein veraltetes Formular mit Konflikt scheitern', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const artikel = (await admin.post('/api/artikel').send({
+    name: 'Döner', farbe: '#f5c211', preis_cent: 500, einkaufskosten_cent: 200, beilagen_ids: [],
+  })).body;
+
+  await admin.put(`/api/artikel/${artikel.id}`).send({
+    ...artikel, einkaufskosten_cent: 300, erwarteter_stand: artikel.stand,
+  });
+  const veraltet = await admin.put(`/api/artikel/${artikel.id}`).send({
+    ...artikel, erwarteter_stand: artikel.stand,
+  });
+
+  assert.equal(veraltet.status, 409);
+  assert.equal(db.prepare('SELECT einkaufskosten_cent AS k FROM artikel WHERE id = ?').get(artikel.id).k, 300);
+});
+
+test('Artikel: der Stand verrät der Verwaltung die Einkaufskosten nicht', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const verwaltung = await angemeldeterAgent(app, db, 'verwaltung');
+  const artikel = (await admin.post('/api/artikel').send({
+    name: 'Döner', farbe: '#f5c211', preis_cent: 500, einkaufskosten_cent: 200, beilagen_ids: [],
+  })).body;
+
+  const klartextVariante = JSON.stringify(
+    [artikel.name, artikel.name_tr, artikel.farbe, artikel.preis_cent, 200, artikel.aktiv, artikel.sortierung, [], [[1, 999999999]]]
+  );
+  const stand = (await verwaltung.get('/api/artikel')).body[0].stand;
+  assert.match(stand, /^[0-9a-f]{64}$/);
+  const sha = (await import('node:crypto')).createHash('sha256').update(klartextVariante).digest('hex');
+  assert.notEqual(stand, sha);
+});
