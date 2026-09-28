@@ -19,6 +19,7 @@ export default function BeilagenSeite({ sprache = 'de' }) {
   const [bearbeitung, setBearbeitung] = useState(null);
   const [loeschung, setLoeschung] = useState(null);
   const [fehler, setFehler] = useState('');
+  const [legtGeradeAn, setLegtGeradeAn] = useState(false);
 
   function laden() {
     neueste('/api/beilagen', apiGet('/api/beilagen'), setBeilagen).catch(() => {});
@@ -27,11 +28,13 @@ export default function BeilagenSeite({ sprache = 'de' }) {
 
   async function anlegen(ereignis) {
     ereignis.preventDefault();
+    if (legtGeradeAn) return;
     if (!neuerNurDeutsch && neuerNameTr.trim() === '') {
       setFehler(`${texte.tuerkischerNameFehlerVorspann}${texte.nurAufDeutsch}${texte.tuerkischerNameFehlerNachspann}`);
       return;
     }
     setFehler('');
+    setLegtGeradeAn(true);
     try {
       await apiPost('/api/beilagen', { name: neuerName, name_tr: neuerNurDeutsch ? '' : neuerNameTr });
       setNeuerName('');
@@ -39,6 +42,8 @@ export default function BeilagenSeite({ sprache = 'de' }) {
       setNeuerNurDeutsch(false);
     } catch (f) {
       setFehler(f.message);
+    } finally {
+      setLegtGeradeAn(false);
     }
   }
 
@@ -76,7 +81,7 @@ export default function BeilagenSeite({ sprache = 'de' }) {
           <Kontrollkaestchen markiert={neuerNurDeutsch} onWahl={setNeuerNurDeutsch} />
           {texte.nurAufDeutsch}
         </label>
-        <button type="submit" disabled={neuerName.trim() === ''}
+        <button type="submit" disabled={neuerName.trim() === '' || legtGeradeAn}
           className="kaertchen-schatten cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
           {texte.anlegen}
         </button>

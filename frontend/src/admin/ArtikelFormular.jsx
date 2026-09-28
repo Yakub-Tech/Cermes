@@ -28,6 +28,7 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
   const [bildUrl, setBildUrl] = useState(artikel?.bild_url ?? null);
   const [bloecke, setBloecke] = useState(artikel?.bloecke ?? []);
   const [fehler, setFehler] = useState('');
+  const [speichertGerade, setSpeichertGerade] = useState(false);
 
   function blockHinzufuegen() {
     setBloecke([...bloecke, { von: '', bis: '' }]);
@@ -70,6 +71,7 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
   }
 
   function speichern() {
+    if (speichertGerade) return;
     if (!nurDeutsch && nameTr.trim() === '') {
       setFehler(`${texte.tuerkischerNameFehlerVorspann}${texte.nurAufDeutsch}${texte.tuerkischerNameFehlerNachspann}`);
       return;
@@ -100,6 +102,7 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
         bloeckeDaten.push({ von, bis });
       }
     }
+    setSpeichertGerade(true);
     onSpeichern({
       name,
       name_tr: nurDeutsch ? '' : nameTr,
@@ -111,7 +114,11 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
       erwarteter_stand: artikel?.stand,
       beilagen_ids: beilagenIds,
       ...(bloeckeDaten ? { bloecke: bloeckeDaten } : {}),
-    }).catch((f) => setFehler(f.message));
+    }).catch((f) => setFehler(f.message)).finally(() => setSpeichertGerade(false));
+  }
+
+  function abbrechenVersuchen() {
+    if (!speichertGerade) onAbbrechen();
   }
 
   const eingabeKlasse =
@@ -119,7 +126,7 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
 
   return (
     <Dialog titel={artikel ? `${beideSprachenName(artikel.name, artikel.name_tr)} ${texte.bearbeitenSuffix}` : texte.titelNeu}
-      onSchliessen={onAbbrechen}>
+      onSchliessen={abbrechenVersuchen}>
       <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.name}</label>
       <input value={name} autoFocus maxLength={NAME_MAX_LAENGE} onChange={(e) => setName(e.target.value)}
         className={eingabeKlasse.replace('mb-2.5', 'mb-1')} />
@@ -237,12 +244,12 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
       {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
 
       <div className="flex gap-2">
-        <button onClick={onAbbrechen}
-          className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
+        <button onClick={abbrechenVersuchen} disabled={speichertGerade}
+          className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell disabled:cursor-not-allowed disabled:opacity-40">
           {texte.abbrechen}
         </button>
-        <button onClick={speichern}
-          className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
+        <button onClick={speichern} disabled={speichertGerade}
+          className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
           {texte.speichern}
         </button>
       </div>
