@@ -203,3 +203,27 @@ test('Zeitraumstatistik: fehlende von/bis liefert verständliche Fehlermeldung',
   assert.equal(ohneBeides.status, 400);
   assert.equal(ohneBeides.body.fehler, 'Bitte einen Start- und einen Endtag angeben.');
 });
+
+test('Tag mit ausschließlich stornierten Verkäufen ist auswählbar, Umsatz null, Storno sichtbar', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const kasse = await angemeldeterAgent(app, db, 'kasse');
+  const artikel = (await admin.post('/api/artikel').send({
+    name: 'Adana', farbe: '#2255cc', preis_cent: 700, beilagen_ids: [], sortierung: 1,
+  })).body;
+  const kaertchen = (await kasse.post('/api/kasse/kassieren').send({
+    positionen: [{ artikel_id: artikel.id, beilagen_ids: [] }],
+  })).body.kaertchen[0];
+  await kasse.post(`/api/kasse/storno/${kaertchen.id}`);
+  db.prepare(
+    `UPDATE kaertchen SET erstellt_am = '2020-01-01T12:00:00+01:00', storniert_am = '2020-01-01T12:05:00+01:00'`
+  ).run();
+
+  const tage = (await admin.get('/api/statistik/verkaufstage')).body;
+  assert.deepEqual(tage, ['2020-01-01']);
+
+  const tag = (await admin.get('/api/statistik/tag/2020-01-01')).body;
+  assert.equal(tag.gesamt.stueck, 0);
+  assert.equal(tag.gesamt.umsatz_cent, 0);
+  assert.equal(tag.stornos.length, 1);
+});

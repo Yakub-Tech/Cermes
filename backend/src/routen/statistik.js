@@ -50,8 +50,10 @@ function fuerRolleFiltern(ergebnis, rolle) {
 router.get('/api/statistik/verkaufstage', brauchtRolle(['admin', 'verwaltung']), (_anfrage, antwort) => {
   const db = oeffneDatenbank();
   const tage = db.prepare(
-    `SELECT DISTINCT substr(erstellt_am, 1, 10) AS tag FROM kaertchen
-     WHERE status != 'storniert' ORDER BY tag DESC`
+    `SELECT substr(erstellt_am, 1, 10) AS tag FROM kaertchen
+     UNION
+     SELECT substr(storniert_am, 1, 10) AS tag FROM kaertchen WHERE status = 'storniert'
+     ORDER BY tag DESC`
   ).all().map((zeile) => zeile.tag);
   antwort.json(tage);
 });
