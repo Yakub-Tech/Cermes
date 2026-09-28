@@ -20,7 +20,7 @@ function nachArtikelGruppiert(kaertchenListe) {
   return gruppiert;
 }
 
-export default function KassierenAbschluss({ ergebnis, laeuft, fehler, onZurueck, onFertig, sprache }) {
+export default function KassierenAbschluss({ ergebnis, laeuft, fehler, zurueckGesperrt, onZurueck, onFertig, sprache }) {
   const texte = sprache === 'tr' ? tr : de;
   const kaertchenGruppiert = nachArtikelGruppiert(ergebnis.kaertchen);
   return (
@@ -66,7 +66,7 @@ export default function KassierenAbschluss({ ergebnis, laeuft, fehler, onZurueck
       )}
 
       <div className="mt-4 flex items-center justify-between rounded-xl bg-flaeche px-6 py-4">
-        <button onClick={onZurueck} disabled={laeuft}
+        <button onClick={onZurueck} disabled={laeuft || zurueckGesperrt}
           className="cursor-pointer rounded-full border border-linie px-8 py-4 text-xl font-bold text-navy hover:bg-flaeche-hell disabled:cursor-not-allowed disabled:opacity-40">
           {texte.zurueck}
         </button>

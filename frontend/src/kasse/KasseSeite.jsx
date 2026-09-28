@@ -9,6 +9,7 @@ import { apiGet, apiPost, apiPut, formatEuro } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
 import { erzeugeMeldungsFolge } from './meldungsFolge.js';
+import { buchungNachFehlerUnklar } from './buchungUnklar.js';
 import { positionHinzufuegen as positionZumWarenkorbHinzufuegen, mengeAendern, positionenFuerApi } from './warenkorb.js';
 import BeilagenDialog from './BeilagenDialog.jsx';
 import Warenkorb from './Warenkorb.jsx';
@@ -35,7 +36,7 @@ export default function KasseSeite() {
   const texte = sprache === 'tr' ? tr : de;
   const naechsterSchluessel = useRef(1);
   const vorgangKennung = useRef(null);
-  const buchungUnklar = useRef(false);
+  const [buchungUnklar, setBuchungUnklar] = useState(false);
   const kundenMelden = useRef(erzeugeMeldungsFolge(
     (stand) => apiPut('/api/kasse/kundenanzeige', stand)
   ));
@@ -134,12 +135,13 @@ export default function KasseSeite() {
         vorgang_kennung: vorgangKennung.current,
       });
       vorgangKennung.current = null;
-      buchungUnklar.current = false;
+      setBuchungUnklar(false);
       setErgebnis(null);
       setPositionen([]);
     } catch (f) {
+      const unklar = buchungNachFehlerUnklar(buchungUnklar, f);
+      setBuchungUnklar(unklar);
       if (f.status === undefined) {
-        buchungUnklar.current = true;
         setFehler(texte.buchungUnklar);
       } else {
         setFehler(f.message);
@@ -218,8 +220,10 @@ export default function KasseSeite() {
 
       {ergebnis && (
         <KassierenAbschluss ergebnis={ergebnis} laeuft={laeuft} fehler={fehler} sprache={sprache}
+          zurueckGesperrt={buchungUnklar}
           onZurueck={() => {
-            if (!buchungUnklar.current) vorgangKennung.current = null;
+            if (buchungUnklar) return;
+            vorgangKennung.current = null;
             setErgebnis(null);
             setFehler('');
           }}
