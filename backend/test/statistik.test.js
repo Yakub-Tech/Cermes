@@ -140,9 +140,9 @@ test('Zeitraumstatistik: mehrere Tage, Tages-Aufschlüsselung, Stornos, leerer Z
       { artikel_id: pommes.id, beilagen_ids: [] },
     ],
   })).body;
+  await kasse.post(`/api/kasse/storno/${verkaufTag1.kaertchen[0].id}`);
   db.prepare('UPDATE kaertchen SET erstellt_am = ? WHERE id IN (?, ?)')
     .run(`${tag1}T10:00:00`, verkaufTag1.kaertchen[0].id, verkaufTag1.kaertchen[1].id);
-  await kasse.post(`/api/kasse/storno/${verkaufTag1.kaertchen[0].id}`);
   db.prepare('UPDATE kaertchen SET storniert_am = ? WHERE id = ?')
     .run(`${tag1}T10:05:00`, verkaufTag1.kaertchen[0].id);
 

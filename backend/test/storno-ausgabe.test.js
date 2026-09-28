@@ -213,3 +213,25 @@ test('Startnummer: Warnung bei Kollision, Bestätigung erzwingt, hohe Nummer ohn
     .send({ naechste_nummer: 500 });
   assert.equal(hoch.status, 200);
 });
+
+test('Kärtchen von gestern lässt sich nicht stornieren, Statistik des alten Tages bleibt gleich', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const kasse = await angemeldeterAgent(app, db, 'kasse');
+  const belegen = await angemeldeterAgent(app, db, 'belegen');
+  const { artikel, kaertchen: erstes } = await verkaufteBestellung(admin, kasse);
+  const zweites = (await kasse.post('/api/kasse/kassieren').send({
+    positionen: [{ artikel_id: artikel.id, beilagen_ids: [] }],
+  })).body.kaertchen[0];
+  await belegen.post(`/api/belegen/status/${zweites.id}`).send({ status: 'abholbereit' });
+  db.prepare("UPDATE kaertchen SET erstellt_am = '2020-01-01T12:00:00+01:00'").run();
+
+  for (const kaertchen of [erstes, zweites]) {
+    const antwort = await kasse.post(`/api/kasse/storno/${kaertchen.id}`);
+    assert.equal(antwort.status, 409);
+    assert.match(antwort.body.fehler, /heutige/);
+    assert.notEqual(db.prepare('SELECT status FROM kaertchen WHERE id = ?').get(kaertchen.id).status, 'storniert');
+  }
+  const statistik = (await admin.get('/api/statistik/tag/2020-01-01')).body;
+  assert.equal(statistik.gesamt.umsatz_cent, 700);
+});

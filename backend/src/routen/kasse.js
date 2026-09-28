@@ -234,6 +234,11 @@ router.post('/api/kasse/storno/:id', brauchtRolle('kasse'), (anfrage, antwort) =
   try {
     const stornieren = db.transaction(() => {
       const kaertchen = db.prepare('SELECT * FROM kaertchen WHERE id = ?').get(anfrage.params.id);
+      if (kaertchen && kaertchen.erstellt_am.slice(0, 10) !== heutigesDatum()) {
+        const fehler = new Error('Nur heutige Kärtchen können storniert werden.');
+        fehler.status = 409;
+        throw fehler;
+      }
       const ergebnis = db.prepare(
         `UPDATE kaertchen SET status = 'storniert', storniert_am = ?, storniert_von = ?
          WHERE id = ? AND status IN ('in_bearbeitung', 'abholbereit')`
@@ -249,8 +254,8 @@ router.post('/api/kasse/storno/:id', brauchtRolle('kasse'), (anfrage, antwort) =
     if (!stornieren()) {
       return antwort.status(409).json({ fehler: 'Dieses Kärtchen kann nicht mehr storniert werden.' });
     }
-  } catch {
-    return antwort.status(500).json({ fehler: UNERWARTETER_FEHLER });
+  } catch (fehler) {
+    return alsAntwort(antwort, fehler);
   }
   sendeEreignis('kaertchen');
   antwort.json({ ok: true });
