@@ -26,13 +26,27 @@ function sessionGeheimnis() {
   return fs.readFileSync(datei, 'utf8');
 }
 
+const SITZUNG_DAUER_MS = 24 * 60 * 60 * 1000;
+
+function sitzungAnlegen(db, anfrage, benutzerId) {
+  db.prepare('DELETE FROM sitzung WHERE ausgestellt_ms < ?').run(Date.now() - SITZUNG_DAUER_MS);
+  const kennung = crypto.randomBytes(24).toString('hex');
+  db.prepare('INSERT INTO sitzung (id, benutzer_id, ausgestellt_ms) VALUES (?, ?, ?)')
+    .run(kennung, benutzerId, Date.now());
+  anfrage.session.sitzungId = kennung;
+}
+
+export function sitzungenDesKontosBeenden(db, benutzerId) {
+  db.prepare('DELETE FROM sitzung WHERE benutzer_id = ?').run(benutzerId);
+}
+
 export function authEinbinden(app) {
   app.use(cookieSession({
     name: 'cermes-session',
     secret: sessionGeheimnis(),
     httpOnly: true,
     sameSite: 'lax',
-    maxAge: 24 * 60 * 60 * 1000,
+    maxAge: SITZUNG_DAUER_MS,
   }));
 
   app.get('/api/ersteinrichtung', (_anfrage, antwort) => {
@@ -65,7 +79,7 @@ export function authEinbinden(app) {
         fehler: 'Die Ersteinrichtung konnte nicht gespeichert werden. Bitte noch einmal versuchen.',
       });
     }
-    anfrage.session.benutzerId = ergebnis.lastInsertRowid;
+    sitzungAnlegen(db, anfrage, ergebnis.lastInsertRowid);
     antwort.json({ rolle: 'admin' });
   });
 
@@ -77,7 +91,7 @@ export function authEinbinden(app) {
       protokolliereOhneAbsturz(db, { benutzername: gekuerzterName(benutzername) }, 'anmeldung', 'login_fehlgeschlagen');
       return antwort.status(401).json({ fehler: 'Benutzername oder Passwort ist falsch.' });
     }
-    anfrage.session.benutzerId = benutzer.id;
+    sitzungAnlegen(db, anfrage, benutzer.id);
     protokolliereOhneAbsturz(db, benutzer, 'anmeldung', 'login');
     antwort.json({ rolle: benutzer.rolle });
   });
@@ -87,6 +101,9 @@ export function authEinbinden(app) {
     if (benutzer) {
       const aktion = anfrage.body?.grund === 'inaktivitaet' ? 'logout_inaktivitaet' : 'logout';
       protokolliereOhneAbsturz(oeffneDatenbank(), benutzer, 'anmeldung', aktion);
+    }
+    if (anfrage.session?.sitzungId) {
+      oeffneDatenbank().prepare('DELETE FROM sitzung WHERE id = ?').run(anfrage.session.sitzungId);
     }
     anfrage.session = null;
     antwort.status(204).end();
@@ -100,8 +117,11 @@ export function authEinbinden(app) {
 }
 
 export function aktuellerBenutzer(anfrage) {
-  if (!anfrage.session?.benutzerId) return null;
-  return oeffneDatenbank().prepare('SELECT * FROM benutzer WHERE id = ?').get(anfrage.session.benutzerId) || null;
+  if (!anfrage.session?.sitzungId) return null;
+  return oeffneDatenbank().prepare(
+    `SELECT b.* FROM sitzung s JOIN benutzer b ON b.id = s.benutzer_id
+     WHERE s.id = ? AND s.ausgestellt_ms > ?`
+  ).get(anfrage.session.sitzungId, Date.now() - SITZUNG_DAUER_MS) || null;
 }
 
 export function brauchtAnmeldung() {

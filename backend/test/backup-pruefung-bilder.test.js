@@ -152,7 +152,7 @@ test('Import: Datenbank mit behaupteter neuer Version, aber fehlenden Tabellen u
   await artikelAnlegen(admin, 'Bleibt');
   const unvollstaendig = sqliteBytes((kurz) => {
     kurz.exec(`CREATE TABLE benutzer (id INTEGER); CREATE TABLE artikel (id INTEGER);
-      CREATE TABLE kaertchen (id INTEGER); PRAGMA user_version = 11;`);
+      CREATE TABLE kaertchen (id INTEGER); PRAGMA user_version = 12;`);
   });
   await ablehnungPruefen(admin, db, await zipBauen({ 'cermes.sqlite': unvollstaendig }), /Cermes/);
 });

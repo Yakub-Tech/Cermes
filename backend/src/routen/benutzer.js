@@ -2,7 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import { oeffneDatenbank } from '../db.js';
 import { jetztIso } from '../zeit.js';
-import { brauchtRolle } from '../auth.js';
+import { brauchtRolle, sitzungenDesKontosBeenden } from '../auth.js';
 import { protokolliere } from '../audit.js';
 
 const router = express.Router();
@@ -63,6 +63,7 @@ router.post('/api/benutzer/:id/passwort', brauchtRolle('admin'), (anfrage, antwo
       if (!benutzer) return false;
       db.prepare('UPDATE benutzer SET passwort_hash = ? WHERE id = ?')
         .run(bcrypt.hashSync(passwort, 10), benutzer.id);
+      sitzungenDesKontosBeenden(db, benutzer.id);
       protokolliere(db, anfrage.benutzer, 'benutzer', 'passwort_geaendert', {
         werte: { konto: benutzer.benutzername },
       });
