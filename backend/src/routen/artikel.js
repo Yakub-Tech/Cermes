@@ -54,7 +54,7 @@ function bloeckeAlsText(bloecke) {
   return sortiereNachVon(bloecke).map((block) => `${block.von}-${block.bis}`);
 }
 
-function ohneKosten({ einkaufskosten_cent, ...rest }) {
+export function ohneKosten({ einkaufskosten_cent, ...rest }) {
   return rest;
 }
 
@@ -72,7 +72,7 @@ function bloeckeSpeichern(db, artikelId, bloecke) {
   }
 }
 
-function artikelMitDetails(db, zeile) {
+export function artikelMitDetails(db, zeile) {
   const beilagenIds = db.prepare(
     'SELECT beilage_id FROM artikel_beilage WHERE artikel_id = ? ORDER BY beilage_id'
   ).all(zeile.id).map((z) => z.beilage_id);

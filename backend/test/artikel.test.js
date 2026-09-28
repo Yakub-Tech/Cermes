@@ -211,3 +211,22 @@ test('Artikelbild: falscher Dateityp wird abgelehnt, unbekannter Artikel liefert
     .attach('bild', GUELTIGES_MINI_PNG, 'test.png');
   assert.equal(unbekannt.status, 404);
 });
+
+test('Bildupload: Verwaltung bekommt keine Einkaufskosten, Admin schon', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const verwaltung = await angemeldeterAgent(app, db, 'verwaltung');
+  const pommes = (await admin.post('/api/artikel').send({
+    name: 'Pommes', farbe: '#f5c211', preis_cent: 350, einkaufskosten_cent: 100, sortierung: 1,
+  })).body;
+
+  const alsVerwaltung = await verwaltung.post(`/api/artikel/${pommes.id}/bild`)
+    .attach('bild', GUELTIGES_MINI_PNG, 'test.png');
+  assert.equal(alsVerwaltung.status, 200);
+  assert.ok(alsVerwaltung.body.bild_url.startsWith('/artikelbilder/'));
+  assert.equal('einkaufskosten_cent' in alsVerwaltung.body, false);
+
+  const alsAdmin = await admin.post(`/api/artikel/${pommes.id}/bild`)
+    .attach('bild', GUELTIGES_MINI_PNG, 'test.png');
+  assert.equal(alsAdmin.body.einkaufskosten_cent, 100);
+});
