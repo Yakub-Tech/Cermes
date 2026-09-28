@@ -1,6 +1,8 @@
 export function erzeugeMeldungsFolge(senden) {
   let laeuft = false;
   let wartend = null;
+  let letzterStand = null;
+  let hatLetztenStand = false;
 
   function absenden(stand) {
     laeuft = true;
@@ -14,11 +16,19 @@ export function erzeugeMeldungsFolge(senden) {
     });
   }
 
-  return function melden(stand) {
+  function melden(stand) {
+    letzterStand = stand;
+    hatLetztenStand = true;
     if (laeuft) {
       wartend = stand;
       return;
     }
     absenden(stand);
-  };
+  }
+
+  function erneutMelden() {
+    if (hatLetztenStand) melden(letzterStand);
+  }
+
+  return { melden, erneutMelden };
 }

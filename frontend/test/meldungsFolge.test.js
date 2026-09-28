@@ -9,7 +9,7 @@ function naechsterTick() {
 test('während eine Meldung läuft, wird nur der letzte Stand danach nachgesendet', async () => {
   const gesendet = [];
   const aufloesungen = [];
-  const melden = erzeugeMeldungsFolge((stand) => {
+  const { melden } = erzeugeMeldungsFolge((stand) => {
     gesendet.push(stand);
     return new Promise((resolve) => aufloesungen.push(resolve));
   });
@@ -32,7 +32,7 @@ test('während eine Meldung läuft, wird nur der letzte Stand danach nachgesende
 test('ein Fehlschlag blockiert die Folge nicht', async () => {
   const gesendet = [];
   let fehlschlagen;
-  const melden = erzeugeMeldungsFolge((stand) => {
+  const { melden } = erzeugeMeldungsFolge((stand) => {
     gesendet.push(stand);
     if (stand === 'A') {
       return new Promise((_resolve, reject) => { fehlschlagen = reject; });
@@ -52,7 +52,7 @@ test('ein Fehlschlag blockiert die Folge nicht', async () => {
 
 test('ohne laufende Meldung wird sofort gesendet', async () => {
   const gesendet = [];
-  const melden = erzeugeMeldungsFolge((stand) => {
+  const { melden } = erzeugeMeldungsFolge((stand) => {
     gesendet.push(stand);
     return Promise.resolve();
   });
@@ -63,4 +63,56 @@ test('ohne laufende Meldung wird sofort gesendet', async () => {
   await naechsterTick();
   melden('B');
   assert.deepEqual(gesendet, ['A', 'B']);
+});
+
+test('erneutMelden schickt den letzten Stand noch einmal, auch nach einem Fehlschlag', async () => {
+  const gesendet = [];
+  let ersterVersuch = true;
+  const { melden, erneutMelden } = erzeugeMeldungsFolge((stand) => {
+    gesendet.push(stand);
+    if (ersterVersuch) {
+      ersterVersuch = false;
+      return Promise.reject(new Error('Netzwerkfehler'));
+    }
+    return Promise.resolve();
+  });
+
+  melden('A');
+  await naechsterTick();
+  await naechsterTick();
+  assert.deepEqual(gesendet, ['A']);
+
+  erneutMelden();
+  await naechsterTick();
+  assert.deepEqual(gesendet, ['A', 'A']);
+});
+
+test('erneutMelden sendet den neuesten Stand und ohne bisherigen Stand nichts', async () => {
+  const gesendet = [];
+  const { melden, erneutMelden } = erzeugeMeldungsFolge((stand) => {
+    gesendet.push(stand);
+    return Promise.resolve();
+  });
+
+  erneutMelden();
+  assert.deepEqual(gesendet, []);
+
+  melden('A');
+  await naechsterTick();
+  melden('B');
+  await naechsterTick();
+  erneutMelden();
+  assert.deepEqual(gesendet, ['A', 'B', 'B']);
+});
+
+test('ein leerer Stand wird ebenfalls erneut gemeldet', async () => {
+  const gesendet = [];
+  const { melden, erneutMelden } = erzeugeMeldungsFolge((stand) => {
+    gesendet.push(stand);
+    return Promise.resolve();
+  });
+  melden(null);
+  await naechsterTick();
+  erneutMelden();
+  assert.deepEqual(gesendet, [null, null]);
 });

@@ -39,6 +39,7 @@ export default function KasseSeite() {
   const kundenMelden = useRef(erzeugeMeldungsFolge(
     (stand) => apiPut('/api/kasse/kundenanzeige', stand)
   ));
+  useLiveUpdate([], () => kundenMelden.current.erneutMelden());
 
   function logoGeklickt(ereignis) {
     if (positionen.length > 0) {
@@ -90,7 +91,7 @@ export default function KasseSeite() {
         ausgewaehlt: fokusAuswahl.some((g) => g.id === beilage.id),
       })),
     } : null;
-    kundenMelden.current({
+    kundenMelden.current.melden({
       warenkorb: positionen.map((p) => ({
         schluessel: p.schluessel,
         artikel_name: p.artikel.name,
