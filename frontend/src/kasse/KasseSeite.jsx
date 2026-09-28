@@ -31,6 +31,8 @@ export default function KasseSeite() {
   const [sprache, setSprache] = useState('de');
   const texte = sprache === 'tr' ? tr : de;
   const naechsterSchluessel = useRef(1);
+  const vorgangKennung = useRef(null);
+  const buchungUnklar = useRef(false);
   const kundenMelden = useRef(erzeugeMeldungsFolge(
     (stand) => apiPut('/api/kasse/kundenanzeige', stand)
   ));
@@ -104,6 +106,9 @@ export default function KasseSeite() {
   async function kassierenVorschauAnzeigen() {
     setLaeuft(true);
     setFehler('');
+    if (!vorgangKennung.current) {
+      vorgangKennung.current = `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+    }
     try {
       const antwort = await apiPost('/api/kasse/kassieren-vorschau', { positionen: positionenFuerApi(positionen) });
       setErgebnis(antwort);
@@ -121,11 +126,19 @@ export default function KasseSeite() {
         positionen: positionenFuerApi(positionen),
         erwartete_nummern: ergebnis.kaertchen.map((k) => k.nummer),
         erwartete_preise_cent: ergebnis.kaertchen.map((k) => k.preis_cent),
+        vorgang_kennung: vorgangKennung.current,
       });
+      vorgangKennung.current = null;
+      buchungUnklar.current = false;
       setErgebnis(null);
       setPositionen([]);
     } catch (f) {
-      setFehler(f.message);
+      if (f.status === undefined) {
+        buchungUnklar.current = true;
+        setFehler(texte.buchungUnklar);
+      } else {
+        setFehler(f.message);
+      }
     }
     setLaeuft(false);
   }
@@ -194,7 +207,11 @@ export default function KasseSeite() {
 
       {ergebnis && (
         <KassierenAbschluss ergebnis={ergebnis} laeuft={laeuft} fehler={fehler} sprache={sprache}
-          onZurueck={() => { setErgebnis(null); setFehler(''); }}
+          onZurueck={() => {
+            if (!buchungUnklar.current) vorgangKennung.current = null;
+            setErgebnis(null);
+            setFehler('');
+          }}
           onFertig={kassierenBuchen} />
       )}
 

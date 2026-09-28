@@ -100,13 +100,41 @@ export function kassierenVorschau(db, positionen) {
   return { summe_cent: summe, kaertchen: ermittleVorschauKaertchen(db, vorbereitet) };
 }
 
-export function kassieren(db, benutzer, positionen, erwarteteNummern, erwartetePreiseCent) {
+function pruefeKennung(kennung) {
+  if (kennung === undefined) return;
+  if (typeof kennung !== 'string' || kennung.length < 8 || kennung.length > 100) {
+    const fehler = new Error('Die Buchung konnte nicht zugeordnet werden. Bitte Seite neu laden.');
+    fehler.status = 400;
+    throw fehler;
+  }
+}
+
+function bereitsGebuchtesErgebnis(db, kennung, anfrageText) {
+  const bisher = db.prepare('SELECT anfrage, antwort FROM kassiervorgang WHERE kennung = ?').get(kennung);
+  if (!bisher) return null;
+  if (bisher.anfrage !== anfrageText) {
+    const fehler = new Error(
+      'Für diese Buchung wurde schon eine andere Bestellung gebucht. Bitte Seite neu laden und im Storno-Tab nachsehen.'
+    );
+    fehler.status = 409;
+    throw fehler;
+  }
+  return JSON.parse(bisher.antwort);
+}
+
+export function kassieren(db, benutzer, positionen, erwarteteNummern, erwartetePreiseCent, kennung) {
+  pruefeKennung(kennung);
+  const anfrageText = JSON.stringify({ positionen });
   const transaktion = db.transaction(() => {
+    if (kennung !== undefined) {
+      const bisherigesErgebnis = bereitsGebuchtesErgebnis(db, kennung, anfrageText);
+      if (bisherigesErgebnis) return bisherigesErgebnis;
+    }
     const { vorbereitet, summe } = bereitePositionenVor(db, positionen);
 
     const vorgang = db.prepare(
-      'INSERT INTO kassiervorgang (zeitpunkt, summe_cent, benutzer_id) VALUES (?, ?, ?)'
-    ).run(jetztIso(), summe, benutzer.id);
+      'INSERT INTO kassiervorgang (zeitpunkt, summe_cent, benutzer_id, kennung, anfrage) VALUES (?, ?, ?, ?, ?)'
+    ).run(jetztIso(), summe, benutzer.id, kennung ?? null, kennung === undefined ? null : anfrageText);
 
     const kaertchen = [];
     const dringendsterZustandProArtikel = new Map();
@@ -161,7 +189,12 @@ export function kassieren(db, benutzer, positionen, erwarteteNummern, erwarteteP
         })),
       },
     });
-    return { kassiervorgang_id: vorgang.lastInsertRowid, summe_cent: summe, kaertchen };
+    const ergebnis = { kassiervorgang_id: vorgang.lastInsertRowid, summe_cent: summe, kaertchen };
+    if (kennung !== undefined) {
+      db.prepare('UPDATE kassiervorgang SET antwort = ? WHERE id = ?')
+        .run(JSON.stringify(ergebnis), vorgang.lastInsertRowid);
+    }
+    return ergebnis;
   });
   return transaktion();
 }
@@ -196,7 +229,7 @@ router.post('/api/kasse/kassieren', brauchtRolle('kasse'), (anfrage, antwort) =>
   try {
     const ergebnis = kassieren(
       db, anfrage.benutzer, anfrage.body.positionen,
-      anfrage.body.erwartete_nummern, anfrage.body.erwartete_preise_cent
+      anfrage.body.erwartete_nummern, anfrage.body.erwartete_preise_cent, anfrage.body.vorgang_kennung
     );
     sendeEreignis('kaertchen');
     antwort.json(ergebnis);
