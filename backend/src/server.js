@@ -20,6 +20,7 @@ import kasseRouter from './routen/kasse.js';
 import ausgabeRouter from './routen/ausgabe.js';
 import belegenRouter from './routen/belegen.js';
 import auditRouter from './routen/audit.js';
+import { frontendEinbinden } from './statischesFrontend.js';
 
 export function erstelleApp() {
   oeffneDatenbank();
@@ -69,8 +70,7 @@ function frontendAusliefern(app) {
   const distOrdner = path.resolve(
     path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'frontend', 'dist'
   );
-  if (!fs.existsSync(distOrdner)) return;
-  app.use(express.static(distOrdner));
+  if (!frontendEinbinden(app, distOrdner)) return;
   app.get('*', (anfrage, antwort, weiter) => {
     if (anfrage.path.startsWith('/api/') || anfrage.path.startsWith('/werbung/')
       || anfrage.path.startsWith('/logo/') || anfrage.path.startsWith('/artikelbilder/')) {

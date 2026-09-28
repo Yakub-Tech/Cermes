@@ -1,4 +1,4 @@
-import { StrictMode, useEffect, useState } from 'react';
+import { StrictMode, Suspense, lazy, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import './design/theme.css';
@@ -10,9 +10,10 @@ import AusgabeSeite from './ausgabe/AusgabeSeite.jsx';
 import BelegenSeite from './belegen/BelegenSeite.jsx';
 import TvSeite from './tv/TvSeite.jsx';
 import KundeSeite from './kunde/KundeSeite.jsx';
-import AdminLayout from './admin/AdminLayout.jsx';
 import StartSeite from './start/StartSeite.jsx';
 import NichtGefundenSeite from './komponenten/NichtGefundenSeite.jsx';
+
+const AdminLayout = lazy(() => import('./admin/AdminLayout.jsx'));
 
 function App() {
   const [laedt, setLaedt] = useState(true);
@@ -41,7 +42,11 @@ function App() {
         <Route path="/belegen" element={<BelegenSeite />} />
         <Route path="/tv" element={<TvSeite />} />
         <Route path="/kunde" element={<KundeSeite />} />
-        <Route path="/admin/*" element={<AdminLayout />} />
+        <Route path="/admin/*" element={
+          <Suspense fallback={null}>
+            <AdminLayout />
+          </Suspense>
+        } />
         <Route path="*" element={<NichtGefundenSeite />} />
       </Routes>
     </>
