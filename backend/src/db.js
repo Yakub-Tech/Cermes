@@ -29,14 +29,22 @@ export function schliesseDatenbank() {
   }
 }
 
-function migrationenAusfuehren(db) {
+export function migrationenAusfuehren(db, ordner = migrationsOrdner) {
   const stand = db.pragma('user_version', { simple: true });
-  const dateien = fs.readdirSync(migrationsOrdner).filter((d) => d.endsWith('.sql')).sort();
-  for (const datei of dateien) {
-    const nummer = Number(datei.split('-')[0]);
-    if (nummer > stand) {
-      db.exec(fs.readFileSync(path.join(migrationsOrdner, datei), 'utf8'));
-      db.pragma(`user_version = ${nummer}`);
+  const dateien = fs.readdirSync(ordner).filter((d) => d.endsWith('.sql')).sort();
+  db.pragma('foreign_keys = OFF');
+  try {
+    for (const datei of dateien) {
+      const nummer = Number(datei.split('-')[0]);
+      if (nummer > stand) {
+        const sql = fs.readFileSync(path.join(ordner, datei), 'utf8');
+        db.transaction(() => {
+          db.exec(sql);
+          db.pragma(`user_version = ${nummer}`);
+        })();
+      }
     }
+  } finally {
+    db.pragma('foreign_keys = ON');
   }
 }
