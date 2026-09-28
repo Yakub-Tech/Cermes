@@ -36,11 +36,14 @@ export default function StatistikZeitraum({ sprache = 'de' }) {
   const [verlauf, setVerlauf] = useState([]);
 
   function statistikLaden(vonWert, bisWert, artikelId) {
-    const anhang = artikelId ? `&artikel_id=${artikelId}` : '';
-    apiGet(`/api/statistik/zeitraum?von=${vonWert}&bis=${bisWert}${anhang}`).then((s) => {
+    const grundUrl = `/api/statistik/zeitraum?von=${vonWert}&bis=${bisWert}`;
+    apiGet(grundUrl).then((s) => {
       setStatistik(s);
-      setVerlauf(s.tage);
+      if (!artikelId) setVerlauf(s.tage);
     }).catch(() => {});
+    if (artikelId) {
+      apiGet(`${grundUrl}&artikel_id=${artikelId}`).then((s) => setVerlauf(s.tage)).catch(() => {});
+    }
   }
 
   useLiveUpdate(['kaertchen'], () => {
