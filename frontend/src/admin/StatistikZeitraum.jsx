@@ -79,7 +79,10 @@ export default function StatistikZeitraum({ sprache = 'de', aktiv = true }) {
     statistikLaden(von, bis, artikelId);
   }
 
-  if (!statistik) return null;
+  if (!statistik) {
+    if (ladefehler) return <LadefehlerHinweis sprache={sprache} onErneut={laden} />;
+    return null;
+  }
 
   const verlaufDaten = (gefilterterVerlauf ?? statistik.tage).map((v) => ({ ...v, tag: datumAnzeigen(v.tag) }));
   const vonOptionen = verkaufstage.filter((tag) => tag <= bis);

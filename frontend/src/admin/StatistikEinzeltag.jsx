@@ -51,7 +51,10 @@ export default function StatistikEinzeltag({ sprache = 'de', aktiv = true }) {
     stundenLaden(datum, artikelId);
   }
 
-  if (!statistik) return null;
+  if (!statistik) {
+    if (ladefehler) return <LadefehlerHinweis sprache={sprache} onErneut={laden} />;
+    return null;
+  }
 
   const stundenDaten = (gefilterteStunden ?? statistik.stunden).map((s) => ({ ...s, stunde: `${s.stunde}${texte.uhr ? ` ${texte.uhr}` : ''}` }));
 

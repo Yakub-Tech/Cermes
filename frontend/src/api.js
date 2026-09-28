@@ -7,6 +7,12 @@ function wartefristFehler(schreibend) {
     : 'Der Server antwortet nicht. Bitte kurz warten und noch einmal versuchen.');
 }
 
+function unvollstaendigFehler(schreibend) {
+  return new Error(schreibend
+    ? 'Die Antwort des Servers kam unvollständig an. Bitte zuerst prüfen, ob die Aktion angekommen ist, bevor sie wiederholt wird.'
+    : 'Die Antwort des Servers kam unvollständig an. Bitte noch einmal versuchen.');
+}
+
 async function anfrage(pfad, optionen = {}) {
   const { wartezeitMs = WARTEZEIT_MS, ...fetchOptionen } = optionen;
   const schreibend = fetchOptionen.method !== undefined;
@@ -26,6 +32,7 @@ async function anfrage(pfad, optionen = {}) {
       daten = await antwort.json();
     } catch (f) {
       if (f.name === 'AbortError') throw wartefristFehler(schreibend);
+      if (antwort.ok) throw unvollstaendigFehler(schreibend);
       daten = {};
     }
     if (!antwort.ok) {
