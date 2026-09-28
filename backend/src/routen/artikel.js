@@ -72,14 +72,18 @@ function bloeckeSpeichern(db, artikelId, bloecke) {
   }
 }
 
+function hoechsteNummerHeute(db, artikelId) {
+  return db.prepare(
+    `SELECT MAX(nummer) AS n FROM kaertchen
+     WHERE artikel_id = ? AND substr(erstellt_am, 1, 10) = ?`
+  ).get(artikelId, heutigesDatum()).n;
+}
+
 export function artikelMitDetails(db, zeile) {
   const beilagenIds = db.prepare(
     'SELECT beilage_id FROM artikel_beilage WHERE artikel_id = ? ORDER BY beilage_id'
   ).all(zeile.id).map((z) => z.beilage_id);
-  const hoechsteHeute = db.prepare(
-    `SELECT MAX(nummer) AS n FROM kaertchen
-     WHERE artikel_id = ? AND substr(erstellt_am, 1, 10) = ? AND status != 'storniert'`
-  ).get(zeile.id, heutigesDatum()).n;
+  const hoechsteHeute = hoechsteNummerHeute(db, zeile.id);
   const bloecke = bloeckeLaden(db, zeile.id);
   const statusInfo = ermittleStatus(bloecke, zeile.naechste_nummer);
   return {
@@ -202,10 +206,7 @@ router.post('/api/artikel/:id/startnummer', brauchtRolle(['admin', 'verwaltung']
   if (!Number.isInteger(neueNummer) || neueNummer < 1) {
     return antwort.status(400).json({ fehler: 'Die Startnummer muss eine ganze Zahl ab 1 sein.' });
   }
-  const hoechsteHeute = db.prepare(
-    `SELECT MAX(nummer) AS n FROM kaertchen
-     WHERE artikel_id = ? AND substr(erstellt_am, 1, 10) = ? AND status != 'storniert'`
-  ).get(artikelId, heutigesDatum()).n;
+  const hoechsteHeute = hoechsteNummerHeute(db, artikelId);
   const aktiveKollision = db.prepare(
     `SELECT COUNT(*) AS n FROM kaertchen
      WHERE artikel_id = ? AND status IN ('in_bearbeitung', 'abholbereit') AND nummer >= ?`

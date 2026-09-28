@@ -235,3 +235,26 @@ test('Kärtchen von gestern lässt sich nicht stornieren, Statistik des alten Ta
   const statistik = (await admin.get('/api/statistik/tag/2020-01-01')).body;
   assert.equal(statistik.gesamt.umsatz_cent, 700);
 });
+
+test('Startnummer: bereits vergebene, aber stornierte Nummer löst ebenfalls die Warnung aus', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const kasse = await angemeldeterAgent(app, db, 'kasse');
+  const { artikel, kaertchen } = await verkaufteBestellung(admin, kasse);
+  await kasse.post(`/api/kasse/storno/${kaertchen.id}`);
+
+  const liste = (await admin.get('/api/artikel')).body;
+  assert.equal(liste[0].hoechste_nummer_heute, 1);
+
+  const ohneBestaetigung = await admin.post(`/api/artikel/${artikel.id}/startnummer`)
+    .send({ naechste_nummer: 1 });
+  assert.equal(ohneBestaetigung.status, 409);
+  assert.equal(ohneBestaetigung.body.warnung.hoechste_nummer_heute, 1);
+
+  const mitBestaetigung = await admin.post(`/api/artikel/${artikel.id}/startnummer`)
+    .send({ naechste_nummer: 1, warnung_bestaetigt: true });
+  assert.equal(mitBestaetigung.status, 200);
+
+  const hoehere = await admin.post(`/api/artikel/${artikel.id}/startnummer`).send({ naechste_nummer: 2 });
+  assert.equal(hoehere.status, 200);
+});
