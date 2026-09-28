@@ -20,7 +20,9 @@ test('Artikel anlegen wird mit Preis, Kosten, Farbe und Beilagen protokolliert',
   const ketchup = (await admin.post('/api/beilagen').send({ name: 'Ketchup' })).body;
   const stand = auditStand(db);
 
-  await artikelAnlegen(admin, { einkaufskosten_cent: 120, beilagen_ids: [ketchup.id] });
+  await artikelAnlegen(admin, {
+    einkaufskosten_cent: 120, beilagen_ids: [ketchup.id], name_tr: 'Patates', bloecke: [{ von: 1, bis: 50 }],
+  });
 
   const eintraege = auditSeit(db, stand);
   assert.equal(eintraege.length, 1);
@@ -29,7 +31,22 @@ test('Artikel anlegen wird mit Preis, Kosten, Farbe und Beilagen protokolliert',
   assert.equal(eintraege[0].benutzername, 'test-admin');
   assert.deepEqual(eintraege[0].details.werte, {
     artikel: 'Pommes', preis_cent: 300, einkaufskosten_cent: 120, farbe: '#f5c211', beilagen: ['Ketchup'],
+    name_tr: 'Patates', sortierung: 1, aktiv: 1, bloecke: ['1-50'],
   });
+});
+
+test('Artikel ändern: reine Änderung der Sortierung wird mit vorher/nachher protokolliert', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const pommes = await artikelAnlegen(admin);
+  const stand = auditStand(db);
+
+  await admin.put(`/api/artikel/${pommes.id}`).send({ ...pommes, sortierung: 7 });
+
+  const eintraege = auditSeit(db, stand);
+  assert.equal(eintraege.length, 1);
+  assert.equal(eintraege[0].aktion, 'artikel_geaendert');
+  assert.deepEqual(eintraege[0].details.aenderungen, { sortierung: { vorher: 1, nachher: 7 } });
 });
 
 test('Artikel ändern: Preis und Name mit vorher/nachher, Rolle des Bearbeiters', async () => {

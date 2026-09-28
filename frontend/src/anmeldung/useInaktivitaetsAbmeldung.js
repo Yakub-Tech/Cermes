@@ -33,7 +33,7 @@ export function useInaktivitaetsAbmeldung(aktiv) {
       if (sekunden === 0 && !wirdAbgemeldet.current) {
         wirdAbgemeldet.current = true;
         sessionStorage.setItem('cermes-inaktiv-abgemeldet', JSON.stringify({ minuten }));
-        apiPost('/api/logout').catch(() => {}).finally(() => location.reload());
+        apiPost('/api/logout', { grund: 'inaktivitaet' }).catch(() => {}).finally(() => location.reload());
       }
     }, 1000);
 

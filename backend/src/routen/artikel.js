@@ -137,6 +137,8 @@ router.post('/api/artikel', brauchtRolle(['admin', 'verwaltung']), (anfrage, ant
         werte: {
           artikel: daten.name.trim(), preis_cent: daten.preis_cent, einkaufskosten_cent: einkaufskostenCent,
           farbe: daten.farbe, beilagen: beilagenNamenFuerArtikel(db, ergebnis.lastInsertRowid),
+          name_tr: normalisiereNameTr(daten.name_tr), sortierung: daten.sortierung ?? 0,
+          aktiv: daten.aktiv ?? 1, bloecke: bloeckeAlsText(bloecke),
         },
       });
       return ergebnis.lastInsertRowid;
@@ -181,7 +183,8 @@ router.put('/api/artikel/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, 
       const vorherWerte = {
         name: vorhanden.name, name_tr: vorhanden.name_tr, farbe: vorhanden.farbe,
         preis_cent: vorhanden.preis_cent, einkaufskosten_cent: vorhanden.einkaufskosten_cent,
-        aktiv: vorhanden.aktiv, beilagen: beilagenNamenFuerArtikel(db, vorhanden.id),
+        aktiv: vorhanden.aktiv, sortierung: vorhanden.sortierung,
+        beilagen: beilagenNamenFuerArtikel(db, vorhanden.id),
         bloecke: bloeckeAlsText(bloeckeLaden(db, vorhanden.id)),
       };
       db.prepare(
@@ -196,12 +199,13 @@ router.put('/api/artikel/:id', brauchtRolle(['admin', 'verwaltung']), (anfrage, 
       const nachherWerte = {
         name: daten.name.trim(), name_tr: nameTr, farbe: daten.farbe,
         preis_cent: daten.preis_cent, einkaufskosten_cent: einkaufskostenCent,
-        aktiv: daten.aktiv ?? 1, beilagen: beilagenNamenFuerArtikel(db, vorhanden.id),
+        aktiv: daten.aktiv ?? 1, sortierung: daten.sortierung ?? 0,
+        beilagen: beilagenNamenFuerArtikel(db, vorhanden.id),
         bloecke: bloeckeAlsText(bloeckeLaden(db, vorhanden.id)),
       };
       protokolliereAenderung(db, anfrage.benutzer, 'artikel', 'artikel', { artikel: nachherWerte.name },
         unterschiede(vorherWerte, nachherWerte,
-          ['name', 'name_tr', 'farbe', 'preis_cent', 'einkaufskosten_cent', 'aktiv', 'beilagen', 'bloecke']));
+          ['name', 'name_tr', 'farbe', 'preis_cent', 'einkaufskosten_cent', 'aktiv', 'sortierung', 'beilagen', 'bloecke']));
     });
     aendern();
     const neu = db.prepare('SELECT * FROM artikel WHERE id = ?').get(vorhanden.id);
