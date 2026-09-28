@@ -2,6 +2,11 @@ import sharp from 'sharp';
 
 const MAXIMALE_BREITE = 1600;
 
+sharp.block({ operation: ['VipsForeignLoad'] });
+sharp.unblock({
+  operation: ['VipsForeignLoadPngBuffer', 'VipsForeignLoadJpegBuffer', 'VipsForeignLoadWebpBuffer'],
+});
+
 async function komprimiereBild(puffer, mimetype) {
   const verkleinert = sharp(puffer).autoOrient().resize({ width: MAXIMALE_BREITE, withoutEnlargement: true });
 
