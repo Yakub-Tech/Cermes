@@ -8,6 +8,7 @@ import { oeffneDatenbank, schliesseDatenbank, datenVerzeichnis } from '../db.js'
 import { heutigesDatum } from '../zeit.js';
 import { brauchtRolle } from '../auth.js';
 import { protokolliere } from '../audit.js';
+import { BILDER_ORDNER, entpacken, pruefeDatenbank, uebernehmen } from '../backupEinspielen.js';
 
 const router = express.Router();
 
@@ -47,25 +48,34 @@ export function neustartRegistrieren(antwort) {
   }
 }
 
-router.get('/api/backup', brauchtRolle('admin'), (anfrage, antwort) => {
+router.get('/api/backup', brauchtRolle('admin'), async (anfrage, antwort) => {
   const db = oeffneDatenbank();
+  let tempOrdner;
+  let kopie;
   try {
-    db.pragma('wal_checkpoint(TRUNCATE)');
+    tempOrdner = fs.mkdtempSync(path.join(datenVerzeichnis(), 'backup-export-'));
+    kopie = path.join(tempOrdner, 'cermes.sqlite');
     protokolliere(db, anfrage.benutzer, 'backup', 'backup_heruntergeladen');
+    await db.backup(kopie);
   } catch {
+    if (tempOrdner) fs.rmSync(tempOrdner, { recursive: true, force: true });
     return antwort.status(500).json({ fehler: 'Das Backup konnte nicht erstellt werden. Bitte noch einmal versuchen.' });
   }
+  antwort.on('close', () => fs.rmSync(tempOrdner, { recursive: true, force: true }));
 
   antwort.setHeader('Content-Type', 'application/zip');
   antwort.setHeader('Content-Disposition',
     `attachment; filename="cermes-backup-${heutigesDatum()}.zip"`);
 
   const zip = archiver('zip');
+  zip.on('error', () => antwort.destroy());
   zip.pipe(antwort);
-  zip.file(path.join(datenVerzeichnis(), 'cermes.sqlite'), { name: 'cermes.sqlite' });
-  const werbeOrdner = path.join(datenVerzeichnis(), 'werbung');
-  if (fs.existsSync(werbeOrdner)) {
-    zip.directory(werbeOrdner, 'werbung');
+  zip.file(kopie, { name: 'cermes.sqlite' });
+  for (const ordnerName of BILDER_ORDNER) {
+    const ordner = path.join(datenVerzeichnis(), ordnerName);
+    if (fs.existsSync(ordner)) {
+      zip.directory(ordner, ordnerName);
+    }
   }
   zip.finalize();
 });
@@ -92,32 +102,35 @@ router.post('/api/backup/einspielen', brauchtRolle('admin'), upload.single('back
         return antwort.status(400).json({ fehler: 'In diesem ZIP fehlt die Datenbankdatei cermes.sqlite. Das ist kein Cermes-Backup.' });
       }
 
-      const db = oeffneDatenbank();
-      protokolliere(db, anfrage.benutzer, 'backup', 'backup_eingespielt');
-
-      db.pragma('wal_checkpoint(TRUNCATE)');
-      schliesseDatenbank();
-
-      const dbDatei = path.join(datenVerzeichnis(), 'cermes.sqlite');
-      if (fs.existsSync(dbDatei)) {
-        fs.copyFileSync(dbDatei, `${dbDatei}.vor-einspielen`);
-      }
-
+      const tempOrdner = path.join(datenVerzeichnis(), 'einspielen-temp');
       try {
-        for (const eintrag of zip.files) {
-          if (eintrag.type !== 'File') continue;
-          const ziel = path.join(datenVerzeichnis(), eintrag.path);
-          if (!ziel.startsWith(path.resolve(datenVerzeichnis()) + path.sep)) continue;
-          fs.mkdirSync(path.dirname(ziel), { recursive: true });
-          fs.writeFileSync(ziel, await eintrag.buffer());
+        try {
+          await entpacken(zip, tempOrdner);
+        } catch {
+          return antwort.status(500).json({
+            fehler: 'Das Backup konnte nicht gelesen werden (Datei beschädigt oder Datenträger voll). Der bisherige Stand ist unverändert.',
+          });
         }
-      } catch {
-        if (fs.existsSync(`${dbDatei}.vor-einspielen`)) {
-          fs.copyFileSync(`${dbDatei}.vor-einspielen`, dbDatei);
+        const problem = pruefeDatenbank(path.join(tempOrdner, 'cermes.sqlite'));
+        if (problem) {
+          return antwort.status(400).json({ fehler: problem });
         }
-        return antwort.status(500).json({
-          fehler: 'Das Backup konnte nicht vollständig eingespielt werden. Der bisherige Stand wurde wiederhergestellt. Bitte Cermes neu starten und es noch einmal versuchen.',
-        });
+
+        const db = oeffneDatenbank();
+        protokolliere(db, anfrage.benutzer, 'backup', 'backup_eingespielt');
+
+        db.pragma('wal_checkpoint(TRUNCATE)');
+        schliesseDatenbank();
+
+        try {
+          uebernehmen(tempOrdner, datenVerzeichnis());
+        } catch {
+          return antwort.status(500).json({
+            fehler: 'Das Backup konnte nicht vollständig eingespielt werden. Der bisherige Stand wurde wiederhergestellt. Bitte Cermes neu starten und es noch einmal versuchen.',
+          });
+        }
+      } finally {
+        fs.rmSync(tempOrdner, { recursive: true, force: true });
       }
 
       neustartRegistrieren(antwort);

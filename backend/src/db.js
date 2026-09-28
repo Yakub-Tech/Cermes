@@ -48,3 +48,8 @@ export function migrationenAusfuehren(db, ordner = migrationsOrdner) {
     db.pragma('foreign_keys = ON');
   }
 }
+
+export function neuesterMigrationsstand() {
+  const dateien = fs.readdirSync(migrationsOrdner).filter((d) => d.endsWith('.sql')).sort();
+  return Number(dateien[dateien.length - 1].split('-')[0]);
+}

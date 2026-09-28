@@ -56,7 +56,7 @@ test('Backup einspielen: scheitert das Schreiben, bleibt der bisherige Stand erh
 
   const einspielen = await admin.post('/api/backup/einspielen').attach('backup', backup.body, 'kaputt.zip');
   assert.equal(einspielen.status, 500);
-  assert.match(einspielen.body.fehler, /wiederhergestellt/);
+  assert.match(einspielen.body.fehler, /unverändert/);
   assert.doesNotMatch(einspielen.body.fehler, /Error|undefined|null/);
 
   t.mock.reset();
