@@ -16,8 +16,7 @@ router.get('/api/ausgabe/kaertchen', brauchtRolle('ausgabe'), (_anfrage, antwort
   const db = oeffneDatenbank();
   antwort.json({
     abholbereit: kaertchenFuerAusgabe(db, 'abholbereit').sort(nachArtikelUndNummerAufsteigend),
-    zuletzt_abgeholt: kaertchenFuerAusgabe(db, 'abgeholt', 'abgeholt_am DESC, id DESC')
-      .slice(0, 30)
+    zuletzt_abgeholt: kaertchenFuerAusgabe(db, 'abgeholt', 'abgeholt_am DESC, id DESC', 30)
       .sort(nachArtikelUndNummerAbsteigend),
   });
 });

@@ -1,13 +1,14 @@
 import { heutigesDatum } from './zeit.js';
 
-export function kaertchenFuerAusgabe(db, status, sortierung = 'id') {
+export function kaertchenFuerAusgabe(db, status, sortierung = 'id', maximal = -1) {
   const zeilen = db.prepare(
     `SELECT id, nummer, artikel_name, artikel_name_tr, artikel_farbe, beilagen, beilagen_tr,
             erstellt_am, abholbereit_am, abgeholt_am
      FROM kaertchen
      WHERE status = ? AND substr(erstellt_am, 1, 10) = ?
-     ORDER BY ${sortierung}`
-  ).all(status, heutigesDatum());
+     ORDER BY ${sortierung}
+     LIMIT ?`
+  ).all(status, heutigesDatum(), maximal);
   return zeilen.map((zeile) => ({
     ...zeile, beilagen: JSON.parse(zeile.beilagen), beilagen_tr: JSON.parse(zeile.beilagen_tr),
   }));
