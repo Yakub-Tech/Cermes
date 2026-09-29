@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import zlib from 'node:zlib';
 import Database from 'better-sqlite3';
 import { migrationenAusfuehren, neuesterMigrationsstand } from './db.js';
 
@@ -32,8 +33,10 @@ export async function entpacken(zip, tempOrdner, grenzen = ENTPACK_GRENZEN) {
     const ziel = path.join(tempOrdner, eintrag.path);
     fs.mkdirSync(path.dirname(ziel), { recursive: true });
     const datei = fs.openSync(ziel, 'w');
+    let pruefsumme = 0;
     try {
       for await (const stueck of eintrag.stream()) {
+        pruefsumme = zlib.crc32(stueck, pruefsumme);
         entpackteBytes += stueck.length;
         if (entpackteBytes > grenzen.maxBytes) {
           const gigabyte = grenzen.maxBytes / (1024 * 1024 * 1024);
@@ -43,6 +46,9 @@ export async function entpacken(zip, tempOrdner, grenzen = ENTPACK_GRENZEN) {
         while (geschrieben < stueck.length) {
           geschrieben += fs.writeSync(datei, stueck, geschrieben, stueck.length - geschrieben);
         }
+      }
+      if (pruefsumme !== eintrag.crc32) {
+        throw new Error(`Die Prüfsumme stimmt nicht, die Datei ${eintrag.path} im Backup ist beschädigt.`);
       }
     } finally {
       fs.closeSync(datei);
