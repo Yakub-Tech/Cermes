@@ -84,3 +84,18 @@ test('Gleiche Kennung und gleiche Positionen, aber neue erwartete Nummern nach Z
   assert.deepEqual(nachZurueck.body, erste.body);
   assert.equal(anzahl(db, 'kaertchen'), 1);
 });
+
+test('Gleiche Kennung und gleiche Positionen, aber Listen mit falscher Länge, liefert das ursprüngliche Ergebnis', async () => {
+  const { db, kasse, pommes } = await vorbereiten();
+  const positionen = [{ artikel_id: pommes.id, beilagen_ids: [] }];
+  const erste = await kasse.post('/api/kasse/kassieren').send({
+    positionen, erwartete_nummern: [1], erwartete_preise_cent: [350], vorgang_kennung: 'kennung-12345678',
+  });
+  const wiederholung = await kasse.post('/api/kasse/kassieren').send({
+    positionen, erwartete_nummern: [1, 2], erwartete_preise_cent: [350, 350], vorgang_kennung: 'kennung-12345678',
+  });
+
+  assert.equal(wiederholung.status, 200);
+  assert.deepEqual(wiederholung.body, erste.body);
+  assert.equal(anzahl(db, 'kaertchen'), 1);
+});

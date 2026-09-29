@@ -122,6 +122,19 @@ function bereitsGebuchtesErgebnis(db, kennung, anfrageText) {
   return JSON.parse(bisher.antwort);
 }
 
+function pruefeListenlaenge(anzahlPositionen, erwarteteNummern, erwartetePreiseCent) {
+  for (const liste of [erwarteteNummern, erwartetePreiseCent]) {
+    if (liste === undefined || liste === null) continue;
+    if (!Array.isArray(liste) || liste.length !== anzahlPositionen) {
+      const fehler = new Error(
+        'Der Warenkorb hat sich geändert. Bitte „Zurück“ tippen und noch einmal auf „Fertig“ gehen.'
+      );
+      fehler.status = 409;
+      throw fehler;
+    }
+  }
+}
+
 export function kassieren(db, benutzer, positionen, erwarteteNummern, erwartetePreiseCent, kennung) {
   pruefeKennung(kennung);
   const anfrageText = JSON.stringify({ positionen });
@@ -131,6 +144,7 @@ export function kassieren(db, benutzer, positionen, erwarteteNummern, erwarteteP
       if (bisherigesErgebnis) return bisherigesErgebnis;
     }
     const { vorbereitet, summe } = bereitePositionenVor(db, positionen);
+    pruefeListenlaenge(vorbereitet.length, erwarteteNummern, erwartetePreiseCent);
 
     const zeitpunkt = jetztIso();
     const vorgang = db.prepare(

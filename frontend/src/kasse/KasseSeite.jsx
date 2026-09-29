@@ -185,8 +185,8 @@ export default function KasseSeite() {
         <div className="flex min-h-0 flex-1">
           <div className="grid flex-1 auto-rows-min grid-cols-2 gap-4 overflow-y-auto p-4 md:grid-cols-3 xl:grid-cols-4">
             {artikelListe.map((artikel) => (
-              <button key={artikel.id} onClick={() => artikelTippen(artikel)}
-                className="putz-textur-hell kaertchen-schatten-vertieft min-h-32 cursor-pointer rounded-[24px] border border-linie bg-flaeche p-4 text-left hover:bg-flaeche-hell active:scale-[0.98]"
+              <button key={artikel.id} onClick={() => artikelTippen(artikel)} disabled={laeuft}
+                className="putz-textur-hell kaertchen-schatten-vertieft min-h-32 cursor-pointer rounded-[24px] border border-linie bg-flaeche p-4 text-left hover:bg-flaeche-hell active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
                 style={{ borderTop: `6px solid ${artikel.farbe}` }}>
                 <p className="break-words text-2xl font-semibold">
                   {zweisprachigerName(artikel.name, artikel.name_tr, sprache)}

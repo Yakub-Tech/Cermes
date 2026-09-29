@@ -35,15 +35,15 @@ export default function Warenkorb({ positionen, onMengeAendern, onKassieren, lae
               {formatEuro(position.artikel.preis_cent * position.menge)}
             </span>
             <div className="flex shrink-0 items-center gap-2 self-center">
-              <button onClick={() => onMengeAendern(position.schluessel, -1)}
+              <button onClick={() => onMengeAendern(position.schluessel, -1)} disabled={laeuft}
                 aria-label={`${position.artikel.name} Menge verringern`}
-                className="cursor-pointer rounded-full border border-linie px-3 py-2 text-blau-hell hover:bg-flaeche-hell">
+                className="cursor-pointer rounded-full border border-linie px-3 py-2 text-blau-hell hover:bg-flaeche-hell disabled:cursor-not-allowed disabled:opacity-40">
                 −
               </button>
               <span className="nummer w-6 text-center text-lg">{position.menge}</span>
-              <button onClick={() => onMengeAendern(position.schluessel, 1)}
+              <button onClick={() => onMengeAendern(position.schluessel, 1)} disabled={laeuft}
                 aria-label={`${position.artikel.name} Menge erhöhen`}
-                className="cursor-pointer rounded-full border border-linie px-3 py-2 text-blau-hell hover:bg-flaeche-hell">
+                className="cursor-pointer rounded-full border border-linie px-3 py-2 text-blau-hell hover:bg-flaeche-hell disabled:cursor-not-allowed disabled:opacity-40">
                 +
               </button>
             </div>
