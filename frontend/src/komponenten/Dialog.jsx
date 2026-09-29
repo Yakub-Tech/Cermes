@@ -2,12 +2,15 @@ import { useEffect, useRef } from 'react';
 
 export default function Dialog({ titel, kinder, children, onSchliessen }) {
   const dialogRef = useRef(null);
+  const ausloeserRef = useRef(document.activeElement);
 
   useEffect(() => {
     const dialogElement = dialogRef.current;
     dialogElement.showModal();
     return () => {
       if (dialogElement.open) dialogElement.close();
+      const ausloeser = ausloeserRef.current;
+      if (ausloeser.isConnected) ausloeser.focus();
     };
   }, []);
 
