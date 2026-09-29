@@ -38,20 +38,4 @@ router.post('/api/belegen/status/:id', brauchtRolle('belegen'), (anfrage, antwor
   antwort.json({ ok: true });
 });
 
-router.get('/api/belegen/beilagen-uebersicht', brauchtRolle('belegen'), (_anfrage, antwort) => {
-  const db = oeffneDatenbank();
-  const artikelListe = db.prepare(
-    'SELECT id, name FROM artikel WHERE aktiv = 1 AND geloescht = 0 ORDER BY sortierung, name'
-  ).all();
-  const uebersicht = artikelListe.map((artikel) => ({
-    artikel_name: artikel.name,
-    beilagen: db.prepare(
-      `SELECT b.name FROM beilage b
-       JOIN artikel_beilage ab ON ab.beilage_id = b.id
-       WHERE ab.artikel_id = ? AND b.aktiv = 1 AND b.geloescht = 0 ORDER BY b.name`
-    ).all(artikel.id).map((zeile) => zeile.name),
-  }));
-  antwort.json(uebersicht);
-});
-
 export default router;

@@ -141,24 +141,6 @@ test('Ausgabe- und Belegen-Listen: Sortierung und zuletzt abgeholt', async () =>
   assert.equal(ausgabeListen.zuletzt_abgeholt[0].nummer, 1);
 });
 
-test('Beilagen-Übersicht zeigt nur aktive Beilagen aktiver Artikel', async () => {
-  const { app, db } = frischeApp();
-  const admin = await angemeldeterAgent(app, db, 'admin');
-  const belegen = await angemeldeterAgent(app, db, 'belegen');
-  const mayo = (await admin.post('/api/beilagen').send({ name: 'Mayo' })).body;
-  const ketchup = (await admin.post('/api/beilagen').send({ name: 'Ketchup' })).body;
-  await admin.put(`/api/beilagen/${ketchup.id}`).send({ name: 'Ketchup', aktiv: 0 });
-  await admin.post('/api/artikel').send({
-    name: 'Pommes', farbe: '#f5c211', preis_cent: 350,
-    beilagen_ids: [mayo.id, ketchup.id], sortierung: 1,
-  });
-
-  const uebersicht = (await belegen.get('/api/belegen/beilagen-uebersicht')).body;
-  assert.equal(uebersicht.length, 1);
-  assert.equal(uebersicht[0].artikel_name, 'Pommes');
-  assert.deepEqual(uebersicht[0].beilagen, ['Mayo']);
-});
-
 test('TV-Endpunkt ist offen, zeigt nur Nötiges, keine stornierten, nur heutige', async () => {
   const { app, db } = frischeApp();
   const admin = await angemeldeterAgent(app, db, 'admin');
