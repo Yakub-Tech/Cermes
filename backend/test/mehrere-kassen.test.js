@@ -2,16 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { frischeApp, angemeldeterAgent, auditStand, auditSeit } from './helfer.js';
 
-async function zweiKassenMitPommes(t) {
+async function zweiKassenMitPommes() {
   const { app, db } = frischeApp();
-  const server = app.listen(0);
-  t.after(() => server.close());
-  const admin = await angemeldeterAgent(server, db, 'admin');
+  const admin = await angemeldeterAgent(app, db, 'admin');
   const pommes = (await admin.post('/api/artikel').send({
     name: 'Pommes', farbe: '#f5c211', preis_cent: 350, beilagen_ids: [], sortierung: 1,
   })).body;
-  const kasseA = await angemeldeterAgent(server, db, 'kasse');
-  const kasseB = await angemeldeterAgent(server, db, 'kasse');
+  const kasseA = await angemeldeterAgent(app, db, 'kasse');
+  const kasseB = await angemeldeterAgent(app, db, 'kasse');
   const positionen = [{ artikel_id: pommes.id, beilagen_ids: [] }];
   return { db, pommes, kasseA, kasseB, positionen };
 }
@@ -20,8 +18,8 @@ function naechsteNummer(db, artikelId) {
   return db.prepare('SELECT naechste_nummer FROM artikel WHERE id = ?').get(artikelId).naechste_nummer;
 }
 
-test('Zwei Sitzungen desselben Kassen-Kontos bleiben gleichzeitig gültig und können beide buchen', async (t) => {
-  const { db, kasseA, kasseB, positionen } = await zweiKassenMitPommes(t);
+test('Zwei Sitzungen desselben Kassen-Kontos bleiben gleichzeitig gültig und können beide buchen', async () => {
+  const { db, kasseA, kasseB, positionen } = await zweiKassenMitPommes();
 
   const antwortA = await kasseA.post('/api/kasse/kassieren').send({ positionen });
   const antwortB = await kasseB.post('/api/kasse/kassieren').send({ positionen });
@@ -32,8 +30,8 @@ test('Zwei Sitzungen desselben Kassen-Kontos bleiben gleichzeitig gültig und k�
   assert.equal(db.prepare('SELECT COUNT(*) AS n FROM kaertchen').get().n, 2);
 });
 
-test('Vorschau-Konflikt: die langsamere Kasse bekommt 409, nichts wird gebucht, neue Vorschau gelingt', async (t) => {
-  const { db, pommes, kasseA, kasseB, positionen } = await zweiKassenMitPommes(t);
+test('Vorschau-Konflikt: die langsamere Kasse bekommt 409, nichts wird gebucht, neue Vorschau gelingt', async () => {
+  const { db, pommes, kasseA, kasseB, positionen } = await zweiKassenMitPommes();
 
   const vorschauA = (await kasseA.post('/api/kasse/kassieren-vorschau').send({ positionen })).body;
   const vorschauB = (await kasseB.post('/api/kasse/kassieren-vorschau').send({ positionen })).body;
@@ -62,8 +60,8 @@ test('Vorschau-Konflikt: die langsamere Kasse bekommt 409, nichts wird gebucht, 
   assert.equal(zweiterVersuchA.body.kaertchen[0].nummer, 2);
 });
 
-test('Zehn gleichzeitige Buchungen von zwei Kassen ergeben zehn verschiedene, lückenlose Nummern', async (t) => {
-  const { kasseA, kasseB, positionen } = await zweiKassenMitPommes(t);
+test('Zehn gleichzeitige Buchungen von zwei Kassen ergeben zehn verschiedene, lückenlose Nummern', async () => {
+  const { kasseA, kasseB, positionen } = await zweiKassenMitPommes();
 
   const anfragen = [];
   for (let i = 0; i < 10; i++) {
@@ -81,8 +79,8 @@ test('Zehn gleichzeitige Buchungen von zwei Kassen ergeben zehn verschiedene, l�
   assert.deepEqual(nummern, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 });
 
-test('Zwei Kassen stornieren gleichzeitig dasselbe Kärtchen: genau ein Storno, ein Audit-Eintrag', async (t) => {
-  const { db, kasseA, kasseB, positionen } = await zweiKassenMitPommes(t);
+test('Zwei Kassen stornieren gleichzeitig dasselbe Kärtchen: genau ein Storno, ein Audit-Eintrag', async () => {
+  const { db, kasseA, kasseB, positionen } = await zweiKassenMitPommes();
   const buchung = (await kasseA.post('/api/kasse/kassieren').send({ positionen })).body;
   const kaertchenId = buchung.kaertchen[0].id;
 

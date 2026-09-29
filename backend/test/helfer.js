@@ -8,13 +8,18 @@ process.env.DATEN_VERZEICHNIS = fs.mkdtempSync(path.join(os.tmpdir(), 'cermes-te
 
 const { oeffneDatenbank } = await import('../src/db.js');
 const { erstelleApp } = await import('../src/server.js');
+const { starteLoopbackServer } = await import('./loopbackServer.js');
+
+let aktuelleApp = null;
+const testServer = await starteLoopbackServer((anfrage, antwort) => aktuelleApp(anfrage, antwort));
 
 export function frischeApp() {
   const db = oeffneDatenbank();
   db.exec(`DELETE FROM kaertchen; DELETE FROM kassiervorgang;
     DELETE FROM artikel_beilage; DELETE FROM artikel_nummernblock; DELETE FROM beilage; DELETE FROM artikel;
     DELETE FROM werbebild; DELETE FROM logo; DELETE FROM benutzer;`);
-  return { app: erstelleApp(), db };
+  aktuelleApp = erstelleApp();
+  return { app: testServer, db };
 }
 
 export async function angemeldeterAgent(app, db, rolle) {

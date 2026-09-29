@@ -7,6 +7,7 @@ import http from 'node:http';
 import express from 'express';
 import request from 'supertest';
 import { frontendEinbinden } from '../src/statischesFrontend.js';
+import { starteLoopbackServer } from './loopbackServer.js';
 
 function tempDistOrdnerAnlegen() {
   const distOrdner = fs.mkdtempSync(path.join(os.tmpdir(), 'cermes-dist-'));
@@ -21,8 +22,9 @@ test('gehashte Assets werden bei Accept-Encoding gzip komprimiert ausgeliefert',
   const { distOrdner, jsInhalt } = tempDistOrdnerAnlegen();
   const app = express();
   frontendEinbinden(app, distOrdner);
+  const server = await starteLoopbackServer(app);
 
-  const antwort = await request(app)
+  const antwort = await request(server)
     .get('/assets/index-ABCDEF.js')
     .set('Accept-Encoding', 'gzip');
 
@@ -37,8 +39,9 @@ test('ohne Gzip-Unterstützung liefert die Route die unkomprimierte Datei', asyn
   const { distOrdner, jsInhalt } = tempDistOrdnerAnlegen();
   const app = express();
   frontendEinbinden(app, distOrdner);
+  const server = await starteLoopbackServer(app);
 
-  const antwort = await request(app)
+  const antwort = await request(server)
     .get('/assets/index-ABCDEF.js')
     .set('Accept-Encoding', 'identity');
 
@@ -51,8 +54,9 @@ test('ein ausdrückliches "gzip;q=0" wird als Ablehnung von Gzip verstanden', as
   const { distOrdner } = tempDistOrdnerAnlegen();
   const app = express();
   frontendEinbinden(app, distOrdner);
+  const server = await starteLoopbackServer(app);
 
-  const antwort = await request(app)
+  const antwort = await request(server)
     .get('/assets/index-ABCDEF.js')
     .set('Accept-Encoding', 'gzip;q=0, deflate');
 
@@ -63,12 +67,13 @@ test('gehashte Assets bekommen eine langfristige Cache-Policy, index.html nicht'
   const { distOrdner } = tempDistOrdnerAnlegen();
   const app = express();
   frontendEinbinden(app, distOrdner);
+  const server = await starteLoopbackServer(app);
 
-  const asset = await request(app).get('/assets/index-ABCDEF.js').set('Accept-Encoding', 'identity');
+  const asset = await request(server).get('/assets/index-ABCDEF.js').set('Accept-Encoding', 'identity');
   assert.match(asset.headers['cache-control'], /max-age=31536000/);
   assert.match(asset.headers['cache-control'], /immutable/);
 
-  const html = await request(app).get('/index.html');
+  const html = await request(server).get('/index.html');
   assert.ok(!html.headers['cache-control'] || !html.headers['cache-control'].includes('max-age=31536000'));
 });
 
@@ -90,8 +95,7 @@ test('kein Zugriff auf .gz-Dateien außerhalb des Asset-Ordners über Pfad-Trave
 
   const app = express();
   frontendEinbinden(app, distOrdner);
-  const server = app.listen(0);
-  await new Promise((resolve) => server.once('listening', resolve));
+  const server = await starteLoopbackServer(app);
   const port = server.address().port;
 
   try {

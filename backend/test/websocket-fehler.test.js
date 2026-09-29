@@ -8,7 +8,7 @@ import { websocketEinbinden, sendeEreignis } from '../src/broadcast.js';
 function starteServer() {
   const server = http.createServer((_anfrage, antwort) => antwort.end('ok'));
   websocketEinbinden(server);
-  return new Promise((fertig) => server.listen(0, () => fertig(server)));
+  return new Promise((fertig) => server.listen(0, '127.0.0.1', () => fertig(server)));
 }
 
 function sendeUngueltigesFrame(port) {
@@ -55,7 +55,7 @@ test('Ungültiges WebSocket-Frame beendet den Server nicht, andere Clients bekom
 test('Server schickt Herzschlag und trennt Verbindungen, die nicht mehr antworten', async () => {
   const server = http.createServer((_anfrage, antwort) => antwort.end('ok'));
   websocketEinbinden(server, 100);
-  await new Promise((fertig) => server.listen(0, fertig));
+  await new Promise((fertig) => server.listen(0, '127.0.0.1', fertig));
   const port = server.address().port;
   try {
     const gesund = new WebSocket(`ws://127.0.0.1:${port}/ws`);
