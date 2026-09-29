@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { apiPost } from '../api.js';
 import { sollEnterAbsenden } from './enterAbsenden.js';
+import { inaktivHinweisAbholen } from './inaktivHinweisSpeicher.js';
 import Urheberrechtshinweis from '../komponenten/Urheberrechtshinweis.jsx';
 import SprachSchalter from '../komponenten/SprachSchalter.jsx';
 import NichtGefundenSeite from '../komponenten/NichtGefundenSeite.jsx';
@@ -20,10 +21,8 @@ export default function LoginSeite() {
   const texte = sprache === 'tr' ? tr : de;
 
   useEffect(() => {
-    const eintrag = sessionStorage.getItem('cermes-inaktiv-abgemeldet');
-    if (!eintrag) return;
-    sessionStorage.removeItem('cermes-inaktiv-abgemeldet');
-    const { minuten } = JSON.parse(eintrag);
+    const minuten = inaktivHinweisAbholen(() => sessionStorage);
+    if (minuten === null) return;
     setAbgemeldetNachMinuten(minuten);
   }, []);
 

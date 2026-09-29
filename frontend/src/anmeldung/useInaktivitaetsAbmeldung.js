@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { apiGet, apiPost } from '../api.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { berechneVerbleibendeSekunden } from './inaktivitaet.js';
+import { inaktivHinweisMerken } from './inaktivHinweisSpeicher.js';
 
 const INTERAKTIONS_EREIGNISSE = ['click', 'keydown', 'touchstart'];
 
@@ -32,7 +33,7 @@ export function useInaktivitaetsAbmeldung(aktiv) {
       setVerbleibendeSekunden(sekunden);
       if (sekunden === 0 && !wirdAbgemeldet.current) {
         wirdAbgemeldet.current = true;
-        sessionStorage.setItem('cermes-inaktiv-abgemeldet', JSON.stringify({ minuten }));
+        inaktivHinweisMerken(() => sessionStorage, minuten);
         apiPost('/api/logout', { grund: 'inaktivitaet' }).catch(() => {}).finally(() => location.reload());
       }
     }, 1000);
