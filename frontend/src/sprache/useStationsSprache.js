@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 
+import { spracheLesen, spracheSpeichern } from './stationsSpracheSpeicher.js';
+
 const SCHLUESSEL = 'sprache';
 
 function gespeicherteSprache() {
-  return localStorage.getItem(SCHLUESSEL) === 'tr' ? 'tr' : 'de';
+  return spracheLesen(() => localStorage);
 }
 
 export function useStationsSprache() {
@@ -18,7 +20,7 @@ export function useStationsSprache() {
   }, []);
 
   function setSprache(neueSprache) {
-    localStorage.setItem(SCHLUESSEL, neueSprache);
+    spracheSpeichern(() => localStorage, neueSprache);
     setSpracheState(neueSprache);
   }
 
