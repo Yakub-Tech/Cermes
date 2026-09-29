@@ -132,9 +132,10 @@ export function kassieren(db, benutzer, positionen, erwarteteNummern, erwarteteP
     }
     const { vorbereitet, summe } = bereitePositionenVor(db, positionen);
 
+    const zeitpunkt = jetztIso();
     const vorgang = db.prepare(
       'INSERT INTO kassiervorgang (zeitpunkt, summe_cent, benutzer_id, kennung, anfrage) VALUES (?, ?, ?, ?, ?)'
-    ).run(jetztIso(), summe, benutzer.id, kennung ?? null, kennung === undefined ? null : anfrageText);
+    ).run(zeitpunkt, summe, benutzer.id, kennung ?? null, kennung === undefined ? null : anfrageText);
 
     const kaertchen = [];
     const dringendsterZustandProArtikel = new Map();
@@ -165,7 +166,7 @@ export function kassieren(db, benutzer, positionen, erwarteteNummern, erwarteteP
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'in_bearbeitung', ?)`
       ).run(vorgang.lastInsertRowid, artikel.id, nummer, artikel.name, artikel.name_tr, artikel.farbe,
         artikel.preis_cent, artikel.einkaufskosten_cent, JSON.stringify(beilagenNamen),
-        JSON.stringify(beilagenNamenTr), jetztIso());
+        JSON.stringify(beilagenNamenTr), zeitpunkt);
       kaertchen.push({
         id: eintrag.lastInsertRowid, nummer, artikel_name: artikel.name, artikel_name_tr: artikel.name_tr,
         artikel_farbe: artikel.farbe, preis_cent: artikel.preis_cent, beilagen: beilagenNamen,
@@ -267,7 +268,8 @@ router.post('/api/kasse/storno/:id', brauchtRolle('kasse'), (anfrage, antwort) =
   try {
     const stornieren = db.transaction(() => {
       const kaertchen = db.prepare('SELECT * FROM kaertchen WHERE id = ?').get(anfrage.params.id);
-      if (kaertchen && kaertchen.erstellt_am.slice(0, 10) !== heutigesDatum()) {
+      const zeitpunkt = jetztIso();
+      if (kaertchen && kaertchen.erstellt_am.slice(0, 10) !== zeitpunkt.slice(0, 10)) {
         const fehler = new Error('Nur heutige Kärtchen können storniert werden.');
         fehler.status = 409;
         throw fehler;
@@ -275,7 +277,7 @@ router.post('/api/kasse/storno/:id', brauchtRolle('kasse'), (anfrage, antwort) =
       const ergebnis = db.prepare(
         `UPDATE kaertchen SET status = 'storniert', storniert_am = ?, storniert_von = ?
          WHERE id = ? AND status IN ('in_bearbeitung', 'abholbereit')`
-      ).run(jetztIso(), anfrage.benutzer.id, anfrage.params.id);
+      ).run(zeitpunkt, anfrage.benutzer.id, anfrage.params.id);
       if (ergebnis.changes === 0) return false;
       protokolliere(db, anfrage.benutzer, 'storno', 'storniert', {
         werte: { nummer: kaertchen.nummer, artikel: kaertchen.artikel_name, preis_cent: kaertchen.preis_cent,

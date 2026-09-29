@@ -50,7 +50,7 @@ test('Backup einspielen: scheitert das Schreiben, bleibt der bisherige Stand erh
     res.on('end', () => weiter(null, Buffer.concat(teile)));
   });
 
-  t.mock.method(fs, 'writeFileSync', () => {
+  t.mock.method(fs, 'writeSync', () => {
     throw new Error('Testfehler: Datenträger voll');
   });
 
@@ -104,10 +104,10 @@ test('Backup einspielen: die Sperre ist während des gesamten Datei-Schreibens a
   assert.equal(backupWirdEingespielt(), false, 'außerhalb eines Einspielens ist die Sperre aus');
 
   let waehrendDesSchreibens;
-  const echtesWriteFileSync = fs.writeFileSync;
-  t.mock.method(fs, 'writeFileSync', function (...args) {
+  const echtesWriteSync = fs.writeSync;
+  t.mock.method(fs, 'writeSync', function (...args) {
     waehrendDesSchreibens = backupWirdEingespielt();
-    return echtesWriteFileSync.apply(fs, args);
+    return echtesWriteSync.apply(fs, args);
   });
 
   const einspielen = await admin.post('/api/backup/einspielen').attach('backup', backup.body, 'alt.zip');

@@ -8,6 +8,7 @@ import { oeffneDatenbank, datenVerzeichnis } from '../db.js';
 import { jetztIso } from '../zeit.js';
 import { brauchtRolle } from '../auth.js';
 import { sendeEreignis } from '../broadcast.js';
+import { verkleinereLogo } from '../bildkompression.js';
 import { protokolliere, protokolliereAenderung, unterschiede } from '../audit.js';
 
 const router = express.Router();
@@ -48,7 +49,7 @@ router.get('/api/logo', brauchtRolle(['admin', 'verwaltung']), (_anfrage, antwor
   antwort.json(logos.map((logo) => ({ ...logo, url: `/logo/${logo.dateiname}` })));
 });
 
-router.post('/api/logo', brauchtRolle(['admin', 'verwaltung']), upload.single('logo'), (anfrage, antwort) => {
+router.post('/api/logo', brauchtRolle(['admin', 'verwaltung']), upload.single('logo'), async (anfrage, antwort) => {
   const db = oeffneDatenbank();
   if (!anfrage.file) {
     return antwort.status(400).json({ fehler: 'Bitte eine Bilddatei auswählen.' });
@@ -57,9 +58,15 @@ router.post('/api/logo', brauchtRolle(['admin', 'verwaltung']), upload.single('l
   if (!endung) {
     return antwort.status(400).json({ fehler: 'Nur Bilder im Format PNG, JPEG oder WebP sind erlaubt.' });
   }
+  let verkleinert;
+  try {
+    verkleinert = await verkleinereLogo(anfrage.file.buffer);
+  } catch {
+    return antwort.status(400).json({ fehler: 'Diese Datei scheint kein gültiges Bild zu sein.' });
+  }
   const dateiname = `${Date.now()}-${crypto.randomBytes(4).toString('hex')}.${endung}`;
   try {
-    fs.writeFileSync(path.join(logoOrdner(), dateiname), anfrage.file.buffer);
+    fs.writeFileSync(path.join(logoOrdner(), dateiname), verkleinert);
     const logo = db.transaction(() => {
       const ergebnis = db.prepare(
         'INSERT INTO logo (dateiname, aktiv, hochgeladen_am) VALUES (?, 0, ?)'

@@ -26,4 +26,13 @@ async function komprimiereBild(puffer, mimetype) {
   return { puffer: await verkleinert.jpeg({ quality: 80 }).toBuffer(), endung: 'jpg' };
 }
 
-export { komprimiereBild };
+const LOGO_MAXIMALE_KANTE = 512;
+
+async function verkleinereLogo(puffer) {
+  return sharp(puffer)
+    .autoOrient()
+    .resize({ width: LOGO_MAXIMALE_KANTE, height: LOGO_MAXIMALE_KANTE, fit: 'inside', withoutEnlargement: true })
+    .toBuffer();
+}
+
+export { komprimiereBild, verkleinereLogo };

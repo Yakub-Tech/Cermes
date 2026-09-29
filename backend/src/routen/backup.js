@@ -106,7 +106,10 @@ router.post('/api/backup/einspielen', brauchtRolle('admin'), upload.single('back
       try {
         try {
           await entpacken(zip, tempOrdner);
-        } catch {
+        } catch (fehler) {
+          if (fehler.status === 400) {
+            return antwort.status(400).json({ fehler: fehler.message });
+          }
           return antwort.status(500).json({
             fehler: 'Das Backup konnte nicht gelesen werden (Datei beschädigt oder Datenträger voll). Der bisherige Stand ist unverändert.',
           });

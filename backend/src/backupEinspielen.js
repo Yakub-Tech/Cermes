@@ -5,9 +5,23 @@ import { migrationenAusfuehren, neuesterMigrationsstand } from './db.js';
 
 export const BILDER_ORDNER = ['werbung', 'logo', 'artikelbilder'];
 
-export async function entpacken(zip, tempOrdner) {
+export const ENTPACK_GRENZEN = { maxBytes: 2 * 1024 * 1024 * 1024, maxDateien: 10000 };
+
+function zuGrossFehler(text) {
+  const fehler = new Error(`${text} Das ist kein normales Cermes-Backup, der bisherige Stand ist unverändert.`);
+  fehler.status = 400;
+  return fehler;
+}
+
+export async function entpacken(zip, tempOrdner, grenzen = ENTPACK_GRENZEN) {
+  if (zip.files.length > grenzen.maxDateien) {
+    throw zuGrossFehler(
+      `Dieses Backup enthält zu viele Dateien (mehr als ${grenzen.maxDateien.toLocaleString('de-DE')}).`
+    );
+  }
   fs.rmSync(tempOrdner, { recursive: true, force: true });
   fs.mkdirSync(tempOrdner, { recursive: true });
+  let entpackteBytes = 0;
   for (const eintrag of zip.files) {
     if (eintrag.type !== 'File') continue;
     const teile = eintrag.path.split('/');
@@ -17,7 +31,22 @@ export async function entpacken(zip, tempOrdner) {
     if (!istDatenbank && !istBild) continue;
     const ziel = path.join(tempOrdner, eintrag.path);
     fs.mkdirSync(path.dirname(ziel), { recursive: true });
-    fs.writeFileSync(ziel, await eintrag.buffer());
+    const datei = fs.openSync(ziel, 'w');
+    try {
+      for await (const stueck of eintrag.stream()) {
+        entpackteBytes += stueck.length;
+        if (entpackteBytes > grenzen.maxBytes) {
+          const gigabyte = grenzen.maxBytes / (1024 * 1024 * 1024);
+          throw zuGrossFehler(`Dieses Backup ist entpackt zu groß (mehr als ${gigabyte.toLocaleString('de-DE')} GB).`);
+        }
+        let geschrieben = 0;
+        while (geschrieben < stueck.length) {
+          geschrieben += fs.writeSync(datei, stueck, geschrieben, stueck.length - geschrieben);
+        }
+      }
+    } finally {
+      fs.closeSync(datei);
+    }
   }
 }
 
