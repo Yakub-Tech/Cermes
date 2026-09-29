@@ -6,7 +6,7 @@ import archiver from 'archiver';
 import unzipper from 'unzipper';
 import Database from 'better-sqlite3';
 import { frischeApp, angemeldeterAgent } from './helfer.js';
-import { datenVerzeichnis, oeffneDatenbank } from '../src/db.js';
+import { datenVerzeichnis, oeffneDatenbank, neuesterMigrationsstand } from '../src/db.js';
 import { testNeustartFunktionSetzen } from '../src/routen/backup.js';
 
 testNeustartFunktionSetzen(() => {});
@@ -152,7 +152,7 @@ test('Import: Datenbank mit behaupteter neuer Version, aber fehlenden Tabellen u
   await artikelAnlegen(admin, 'Bleibt');
   const unvollstaendig = sqliteBytes((kurz) => {
     kurz.exec(`CREATE TABLE benutzer (id INTEGER); CREATE TABLE artikel (id INTEGER);
-      CREATE TABLE kaertchen (id INTEGER); PRAGMA user_version = 12;`);
+      CREATE TABLE kaertchen (id INTEGER); PRAGMA user_version = ${neuesterMigrationsstand()};`);
   });
   await ablehnungPruefen(admin, db, await zipBauen({ 'cermes.sqlite': unvollstaendig }), /Cermes/);
 });
