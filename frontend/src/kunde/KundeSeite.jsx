@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { apiGet } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
@@ -8,9 +9,12 @@ import WarenkorbListe from './WarenkorbListe.jsx';
 import FokusAnsicht from './FokusAnsicht.jsx';
 import BestellUebersicht from './BestellUebersicht.jsx';
 import { de, tr } from '../sprache/kunde.js';
+import { kassenNummerAusText } from '../kassenNummer.js';
 
 export default function KundeSeite() {
   const { neueste } = useNeuesteAntwort(alleLaden);
+  const [suchParameter] = useSearchParams();
+  const kassenNummer = kassenNummerAusText(suchParameter.get('kasse')) ?? 1;
   const [artikelListe, setArtikelListe] = useState([]);
   const [zustand, setZustand] = useState({ warenkorb: [], fokus: null, summe_cent: null, sprache: 'de' });
   const texte = zustand.sprache === 'tr' ? tr : de;
@@ -19,7 +23,7 @@ export default function KundeSeite() {
     neueste('/api/kunde/artikel', apiGet('/api/kunde/artikel'), setArtikelListe).catch(() => {});
   }
   function zustandLaden() {
-    neueste('zustand', apiGet('/api/kunde/zustand'), setZustand).catch(() => {});
+    neueste('zustand', apiGet(`/api/kunde/zustand?kasse=${kassenNummer}`), setZustand).catch(() => {});
   }
   function alleLaden() {
     artikelLaden();

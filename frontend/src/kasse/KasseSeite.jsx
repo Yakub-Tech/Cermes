@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Kopfzeile from '../komponenten/Kopfzeile.jsx';
 import Fusszeile from '../komponenten/Fusszeile.jsx';
 import SprachSchalter from '../komponenten/SprachSchalter.jsx';
@@ -18,11 +18,14 @@ import StornoTab from './StornoTab.jsx';
 import WarenkorbVerlassenDialog from './WarenkorbVerlassenDialog.jsx';
 import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 import { de, tr } from '../sprache/kasse.js';
+import { kassenNummerDiesesGeraets } from '../kassenNummer.js';
 
 export default function KasseSeite() {
   const { neueste, ladefehler } = useNeuesteAntwort(laden);
   const session = useSession('kasse');
   const navigiere = useNavigate();
+  const [suchParameter] = useSearchParams();
+  const [kassenNummer] = useState(() => kassenNummerDiesesGeraets(suchParameter.get('kasse'), () => localStorage));
   const [tab, setTab] = useState('verkauf');
   const [artikelListe, setArtikelListe] = useState([]);
   const [positionen, setPositionen] = useState([]);
@@ -38,7 +41,7 @@ export default function KasseSeite() {
   const vorgangKennung = useRef(null);
   const [buchungUnklar, setBuchungUnklar] = useState(false);
   const kundenMelden = useRef(erzeugeMeldungsFolge(
-    (stand) => apiPut('/api/kasse/kundenanzeige', stand)
+    (stand) => apiPut('/api/kasse/kundenanzeige', { ...stand, kasse: kassenNummer })
   ));
   useLiveUpdate([], () => kundenMelden.current.erneutMelden());
 
@@ -154,7 +157,7 @@ export default function KasseSeite() {
 
   return (
     <div className="flex h-screen flex-col">
-      <Kopfzeile titel={texte.titel} benutzername={session.benutzername} aufLogoKlick={logoGeklickt}
+      <Kopfzeile titel={kassenNummer === 1 ? texte.titel : `${texte.titel} ${kassenNummer}`} benutzername={session.benutzername} aufLogoKlick={logoGeklickt}
         sprache={sprache}
         rechts={
           <>
