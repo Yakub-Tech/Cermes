@@ -40,9 +40,14 @@ export default function KasseSeite() {
   const naechsterSchluessel = useRef(1);
   const vorgangKennung = useRef(null);
   const [buchungUnklar, setBuchungUnklar] = useState(false);
-  const kundenMelden = useRef(erzeugeMeldungsFolge(
-    (stand) => apiPut('/api/kasse/kundenanzeige', { ...stand, kasse: kassenNummer })
-  ));
+  const kundenMelden = useRef(null);
+  useEffect(() => {
+    const folge = erzeugeMeldungsFolge(
+      (stand) => apiPut('/api/kasse/kundenanzeige', { ...stand, kasse: kassenNummer })
+    );
+    kundenMelden.current = folge;
+    return () => folge.beenden();
+  }, [kassenNummer]);
   useLiveUpdate([], () => kundenMelden.current.erneutMelden());
 
   function logoGeklickt(ereignis) {

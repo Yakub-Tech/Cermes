@@ -7,13 +7,16 @@ export function erzeugeMeldungsFolge(senden) {
   let hatLetztenStand = false;
   let wiederholungsTimer = null;
   let wiederholungen = 0;
+  let beendet = false;
 
   function absenden(stand) {
+    if (beendet) return;
     laeuft = true;
     let fehlgeschlagen = false;
     senden(stand).catch(() => {
       fehlgeschlagen = true;
     }).then(() => {
+      if (beendet) return;
       laeuft = false;
       if (wartend !== null) {
         const naechster = wartend;
@@ -48,5 +51,12 @@ export function erzeugeMeldungsFolge(senden) {
     if (hatLetztenStand) melden(letzterStand);
   }
 
-  return { melden, erneutMelden };
+  function beenden() {
+    beendet = true;
+    clearTimeout(wiederholungsTimer);
+    wiederholungsTimer = null;
+    wartend = null;
+  }
+
+  return { melden, erneutMelden, beenden };
 }
