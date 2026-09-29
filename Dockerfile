@@ -13,5 +13,6 @@ COPY backend/ ./backend/
 COPY assets/ ./assets/
 COPY --from=frontend-bau /bau/dist ./frontend/dist
 ENV DATEN_VERZEICHNIS=/app/data
+ENV NODE_ENV=production
 EXPOSE 8080
 CMD ["node", "backend/src/server.js"]

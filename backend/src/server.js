@@ -21,6 +21,7 @@ import ausgabeRouter from './routen/ausgabe.js';
 import belegenRouter from './routen/belegen.js';
 import auditRouter from './routen/audit.js';
 import { frontendEinbinden } from './statischesFrontend.js';
+import { fehlerBehandlung } from './fehlerBehandlung.js';
 
 export function erstelleApp() {
   oeffneDatenbank();
@@ -63,6 +64,7 @@ export function erstelleApp() {
   app.use((_anfrage, antwort) => {
     antwort.status(404).json({ fehler: 'Diese Adresse gibt es nicht.' });
   });
+  app.use(fehlerBehandlung);
   return app;
 }
 
