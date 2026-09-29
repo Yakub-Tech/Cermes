@@ -1,6 +1,6 @@
 import express from 'express';
 import { oeffneDatenbank } from '../db.js';
-import { kundenzustandLesen } from '../kundenzustand.js';
+import { kundenzustandLesen, kassenNummerPruefen } from '../kundenzustand.js';
 
 const router = express.Router();
 
@@ -25,8 +25,14 @@ router.get('/api/kunde/artikel', (_anfrage, antwort) => {
   antwort.json(mitDetails);
 });
 
-router.get('/api/kunde/zustand', (_anfrage, antwort) => {
-  antwort.json(kundenzustandLesen());
+router.get('/api/kunde/zustand', (anfrage, antwort) => {
+  let kassenNummer;
+  try {
+    kassenNummer = kassenNummerPruefen(anfrage.query.kasse);
+  } catch (fehler) {
+    return antwort.status(fehler.status).json({ fehler: fehler.message });
+  }
+  antwort.json(kundenzustandLesen(kassenNummer));
 });
 
 export default router;

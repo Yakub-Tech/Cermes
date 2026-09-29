@@ -3,7 +3,7 @@ import { oeffneDatenbank } from '../db.js';
 import { jetztIso, heutigesDatum } from '../zeit.js';
 import { brauchtRolle } from '../auth.js';
 import { sendeEreignis } from '../broadcast.js';
-import { kundenzustandSchreiben } from '../kundenzustand.js';
+import { kundenzustandSchreiben, kassenNummerPruefen } from '../kundenzustand.js';
 import { sortiereNachVon, ermittleVergabeUndNeuePosition, ermittleStatus, hinweisText } from '../nummernbloecke.js';
 import { protokolliere, unterschiede } from '../audit.js';
 
@@ -220,7 +220,13 @@ router.get('/api/kasse/artikel', brauchtRolle('kasse'), (_anfrage, antwort) => {
 });
 
 router.put('/api/kasse/kundenanzeige', brauchtRolle('kasse'), (anfrage, antwort) => {
-  kundenzustandSchreiben(anfrage.body);
+  let kassenNummer;
+  try {
+    kassenNummer = kassenNummerPruefen(anfrage.body?.kasse);
+  } catch (fehler) {
+    return alsAntwort(antwort, fehler);
+  }
+  kundenzustandSchreiben(kassenNummer, anfrage.body);
   sendeEreignis('kunden_anzeige');
   antwort.json({ ok: true });
 });
