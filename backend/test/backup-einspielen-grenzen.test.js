@@ -139,3 +139,15 @@ test('Backup einspielen: ein Bild mit geändertem Byte wird abgelehnt und nichts
   fs.rmSync(path.join(datenVerzeichnis(), 'cermes.sqlite.vor-einspielen'), { force: true });
   fs.rmSync(path.join(datenVerzeichnis(), 'logo'), { recursive: true, force: true });
 });
+
+test('Backup einspielen: ein ZIP ohne cermes.sqlite wird mit einem verständlichen Fehlersatz abgelehnt', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+
+  const antwort = await admin.post('/api/backup/einspielen')
+    .attach('backup', await zipBauen({ 'logo/x.png': Buffer.alloc(10) }), 'ohne-datenbank.zip');
+
+  assert.equal(antwort.status, 400);
+  assert.equal(antwort.body.fehler,
+    'In diesem ZIP fehlt die Datenbankdatei cermes.sqlite. Das ist kein Cermes-Backup.');
+});
