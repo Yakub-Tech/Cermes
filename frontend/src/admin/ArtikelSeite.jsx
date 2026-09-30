@@ -79,7 +79,7 @@ export default function ArtikelSeite({ rolle, sprache = 'de' }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-linie text-sm">
-            {artikelListe.length === 0 && (
+            {artikelListe.length === 0 && !ladefehler && (
               <tr><td colSpan={rolle === 'admin' ? 7 : 6} className="px-2.5 py-4 text-schrift-gedimmt">
                 {texte.keineArtikel}
               </td></tr>

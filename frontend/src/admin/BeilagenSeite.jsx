@@ -92,7 +92,7 @@ export default function BeilagenSeite({ sprache = 'de' }) {
       {fehler && <p className="mb-2.5 max-w-md rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
 
       <ul className="kaertchen-schatten max-w-md divide-y divide-linie rounded-lg border border-linie bg-flaeche text-sm">
-        {beilagen.length === 0 && (
+        {beilagen.length === 0 && !ladefehler && (
           <li className="px-2.5 py-4 text-schrift-gedimmt">{texte.keineBeilagen}</li>
         )}
         {beilagen.map((beilage) => (

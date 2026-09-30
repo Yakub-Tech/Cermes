@@ -43,7 +43,7 @@ export default function WerbungSeite({ sprache = 'de' }) {
 
       {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
 
-      {bilder.length === 0 && (
+      {bilder.length === 0 && !ladefehler && (
         <p className="mb-2.5 text-sm text-schrift-gedimmt">{texte.keineBilder}</p>
       )}
 

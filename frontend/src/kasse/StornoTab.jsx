@@ -58,7 +58,7 @@ export default function StornoTab({ sprache }) {
 
       {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
 
-      {gefiltert.length === 0 && (
+      {gefiltert.length === 0 && !ladefehler && (
         <p className="text-schrift-gedimmt">{texte.keineKaertchen}</p>
       )}
 

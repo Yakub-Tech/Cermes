@@ -202,7 +202,7 @@ export default function KasseSeite() {
                 )}
               </button>
             ))}
-            {artikelListe.length === 0 && (
+            {artikelListe.length === 0 && !ladefehler && (
               <p className="col-span-full p-4 text-schrift-gedimmt">
                 {texte.keineArtikel}
               </p>
