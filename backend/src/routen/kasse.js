@@ -6,6 +6,7 @@ import { sendeEreignis } from '../broadcast.js';
 import { kundenzustandSchreiben, kassenNummerPruefen } from '../kundenzustand.js';
 import { sortiereNachVon, ermittleVergabeUndNeuePosition, ermittleStatus, hinweisText } from '../nummernbloecke.js';
 import { protokolliere, unterschiede } from '../audit.js';
+import { ohneKosten } from './artikel.js';
 
 const router = express.Router();
 
@@ -226,7 +227,7 @@ router.get('/api/kasse/artikel', brauchtRolle('kasse'), (_anfrage, antwort) => {
        WHERE ab.artikel_id = ? AND b.geloescht = 0 ORDER BY b.name`
     ).all(artikel.id);
     return {
-      ...artikel, beilagen,
+      ...ohneKosten(artikel), beilagen,
       bild_url: artikel.bild_dateiname ? `/artikelbilder/${artikel.bild_dateiname}` : null,
     };
   });

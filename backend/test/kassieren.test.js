@@ -109,6 +109,30 @@ test('Kassen-Artikelliste zeigt nur aktive Artikel mit allen Beilagen', async ()
   assert.deepEqual(beilagenTr.sort(), ['Mayonez', null]);
 });
 
+test('Kassen-Artikelliste enthält keine Einkaufskosten, aber alle Felder für die Kasse', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+  const mayo = (await admin.post('/api/beilagen').send({ name: 'Mayo', name_tr: 'Mayonez' })).body;
+  const pommes = (await admin.post('/api/artikel').send({
+    name: 'Pommes', farbe: '#f5c211', preis_cent: 350, einkaufskosten_cent: 100,
+    beilagen_ids: [mayo.id],
+  })).body;
+  assert.equal(pommes.einkaufskosten_cent, 100);
+
+  const kasse = await angemeldeterAgent(app, db, 'kasse');
+  const antwort = await kasse.get('/api/kasse/artikel');
+  assert.equal(antwort.status, 200);
+  const artikel = antwort.body[0];
+
+  assert.equal('einkaufskosten_cent' in artikel, false);
+  assert.equal(artikel.id, pommes.id);
+  assert.equal(artikel.name, 'Pommes');
+  assert.equal(artikel.preis_cent, 350);
+  assert.equal(artikel.farbe, '#f5c211');
+  assert.equal(artikel.bild_url, null);
+  assert.deepEqual(artikel.beilagen.map((b) => b.name), ['Mayo']);
+});
+
 test('Leerer Warenkorb wird abgelehnt', async () => {
   const { app, db } = frischeApp();
   const kasse = await angemeldeterAgent(app, db, 'kasse');
