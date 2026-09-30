@@ -2,7 +2,7 @@ import express from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { oeffneDatenbank } from './db.js';
+import { oeffneDatenbank, schliesseDatenbank } from './db.js';
 import { authEinbinden } from './auth.js';
 import { websocketEinbinden } from './broadcast.js';
 import tvRouter from './routen/tv.js';
@@ -91,6 +91,14 @@ export function starteServer() {
   return server;
 }
 
+export function beendenBeiSigtermRegistrieren(prozess = process) {
+  prozess.on('SIGTERM', () => {
+    schliesseDatenbank();
+    prozess.exit(0);
+  });
+}
+
 if (process.argv[1] && process.argv[1].endsWith('server.js')) {
+  beendenBeiSigtermRegistrieren();
   starteServer();
 }
