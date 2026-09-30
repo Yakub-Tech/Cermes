@@ -30,22 +30,27 @@ const SITZUNG_DAUER_MS = 24 * 60 * 60 * 1000;
 
 const FEHLVERSUCHE_BIS_PAUSE = 10;
 const PAUSE_MS = 30 * 1000;
-const fehlversucheJeAdresse = new Map();
+const fehlversucheJeSchluessel = new Map();
 
-function pauseRestSekunden(adresse) {
-  const eintrag = fehlversucheJeAdresse.get(adresse);
+function bremsSchluessel(adresse, benutzer) {
+  if (!benutzer) return adresse;
+  return `${adresse}|${benutzer.benutzername}`;
+}
+
+function pauseRestSekunden(schluessel) {
+  const eintrag = fehlversucheJeSchluessel.get(schluessel);
   if (!eintrag || eintrag.pauseBis <= Date.now()) return 0;
   return Math.ceil((eintrag.pauseBis - Date.now()) / 1000);
 }
 
-function fehlversuchMerken(adresse) {
-  const eintrag = fehlversucheJeAdresse.get(adresse) ?? { anzahl: 0, pauseBis: 0 };
+function fehlversuchMerken(schluessel) {
+  const eintrag = fehlversucheJeSchluessel.get(schluessel) ?? { anzahl: 0, pauseBis: 0 };
   eintrag.anzahl += 1;
   if (eintrag.anzahl >= FEHLVERSUCHE_BIS_PAUSE) {
     eintrag.anzahl = 0;
     eintrag.pauseBis = Date.now() + PAUSE_MS;
   }
-  fehlversucheJeAdresse.set(adresse, eintrag);
+  fehlversucheJeSchluessel.set(schluessel, eintrag);
 }
 
 function sitzungAnlegen(db, anfrage, benutzerId) {
@@ -104,21 +109,22 @@ export function authEinbinden(app) {
   });
 
   app.post('/api/login', (anfrage, antwort) => {
-    const restSekunden = pauseRestSekunden(anfrage.ip);
+    const db = oeffneDatenbank();
+    const { benutzername, passwort } = anfrage.body;
+    const benutzer = db.prepare('SELECT * FROM benutzer WHERE benutzername = ?').get(benutzername);
+    const schluessel = bremsSchluessel(anfrage.ip, benutzer);
+    const restSekunden = pauseRestSekunden(schluessel);
     if (restSekunden > 0) {
       return antwort.status(429).json({
         fehler: `Zu viele falsche Anmeldeversuche. Bitte in ${restSekunden} Sekunden noch einmal versuchen.`,
       });
     }
-    const db = oeffneDatenbank();
-    const { benutzername, passwort } = anfrage.body;
-    const benutzer = db.prepare('SELECT * FROM benutzer WHERE benutzername = ?').get(benutzername);
     if (!benutzer || !bcrypt.compareSync(passwort || '', benutzer.passwort_hash)) {
-      fehlversuchMerken(anfrage.ip);
+      fehlversuchMerken(schluessel);
       protokolliereOhneAbsturz(db, { benutzername: gekuerzterName(benutzername) }, 'anmeldung', 'login_fehlgeschlagen');
       return antwort.status(401).json({ fehler: 'Benutzername oder Passwort ist falsch.' });
     }
-    fehlversucheJeAdresse.delete(anfrage.ip);
+    fehlversucheJeSchluessel.delete(schluessel);
     sitzungAnlegen(db, anfrage, benutzer.id);
     protokolliereOhneAbsturz(db, benutzer, 'anmeldung', 'login');
     antwort.json({ rolle: benutzer.rolle });
