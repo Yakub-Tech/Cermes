@@ -21,11 +21,16 @@ export default function TvSeite() {
   const { neueste, ladefehler } = useNeuesteAntwort(alleLaden);
   const verbunden = useVerbindungsStatus();
   const [kaertchen, setKaertchen] = useState({ in_bearbeitung: [], abholbereit: [] });
+  const [kaertchenGeladen, setKaertchenGeladen] = useState(false);
   const [werbung, setWerbung] = useState([]);
   const [virtuelleGroesse, setVirtuelleGroesse] = useState(berechneVirtuelleGroesse);
 
+  function kaertchenUebernehmen(daten) {
+    setKaertchen(daten);
+    setKaertchenGeladen(true);
+  }
   function kaertchenLaden() {
-    neueste('/api/tv/kaertchen', apiGet('/api/tv/kaertchen'), setKaertchen).catch(() => {});
+    neueste('/api/tv/kaertchen', apiGet('/api/tv/kaertchen'), kaertchenUebernehmen).catch(() => {});
   }
   function werbungLaden() {
     neueste('/api/tv/werbung', apiGet('/api/tv/werbung'), setWerbung).catch(() => {});
@@ -68,11 +73,13 @@ export default function TvSeite() {
           <div className="flex min-h-0 flex-1 gap-3">
             <div className="min-w-0 flex-1">
               <StatusSpalte titel="In Bearbeitung" titelTuerkisch="Hazırlanıyor"
-                kaertchen={kaertchen.in_bearbeitung} />
+                kaertchen={kaertchen.in_bearbeitung} geladen={kaertchenGeladen}
+                neueHervorheben={false} />
             </div>
             <div className="min-w-0 flex-1">
               <StatusSpalte titel="Abholbereit" titelTuerkisch="Hazır"
-                kaertchen={kaertchen.abholbereit} />
+                kaertchen={kaertchen.abholbereit} geladen={kaertchenGeladen}
+                neueHervorheben />
             </div>
           </div>
           {werbung.length > 0 && (

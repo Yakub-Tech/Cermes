@@ -1,13 +1,15 @@
 import { sortiereFuerFluss } from './gruppierung.js';
 import { useUeberlaufErkennung } from '../komponenten/useUeberlaufErkennung.js';
 import { usePendelScroll } from '../komponenten/usePendelScroll.js';
+import { useNeueKaertchen } from './useNeueKaertchen.js';
 import TvKarte from './TvKarte.jsx';
 
 const MINDESTBREITE_PX = 130;
 
-export default function StatusSpalte({ titel, titelTuerkisch, kaertchen }) {
+export default function StatusSpalte({ titel, titelTuerkisch, kaertchen, neueHervorheben, geladen }) {
   const flussKaertchen = sortiereFuerFluss(kaertchen);
   const { rahmen, inhalt, ueberlauf, ueberlaufPx } = useUeberlaufErkennung(kaertchen);
+  const istNeu = useNeueKaertchen(kaertchen, geladen && neueHervorheben);
   const { versatzPx, uebergangSekunden } = usePendelScroll(ueberlaufPx);
 
   return (
@@ -31,7 +33,7 @@ export default function StatusSpalte({ titel, titelTuerkisch, kaertchen }) {
             }}
           >
             {flussKaertchen.map((k) => (
-              <TvKarte key={`${k.nummer}-${k.artikel_name}`} kaertchen={k} />
+              <TvKarte key={`${k.nummer}-${k.artikel_name}`} kaertchen={k} neu={istNeu(k)} />
             ))}
           </div>
         </div>
