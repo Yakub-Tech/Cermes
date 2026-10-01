@@ -82,6 +82,12 @@ export default function KasseSeite() {
     setFokusAuswahl([]);
   }
 
+  function ausverkauftUmschalten(artikel) {
+    setFehler('');
+    apiPut(`/api/artikel/${artikel.id}/ausverkauft`, { ausverkauft: artikel.ausverkauft ? 0 : 1 })
+      .catch((f) => setFehler(f.message));
+  }
+
   function positionMengeAendern(schluessel, delta) {
     setPositionen((alte) => mengeAendern(alte, schluessel, delta));
   }
@@ -190,17 +196,31 @@ export default function KasseSeite() {
         <div className="flex min-h-0 flex-1">
           <div className="grid flex-1 auto-rows-min grid-cols-2 gap-4 overflow-y-auto p-4 md:grid-cols-3 xl:grid-cols-4">
             {artikelListe.map((artikel) => (
-              <button key={artikel.id} onClick={() => artikelTippen(artikel)} disabled={laeuft}
-                className="putz-textur-hell kaertchen-schatten-vertieft min-h-32 cursor-pointer rounded-[24px] border border-linie bg-flaeche p-4 text-left hover:bg-flaeche-hell active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
-                style={{ borderTop: `6px solid ${artikel.farbe}` }}>
-                <p className="break-words text-2xl font-semibold">
-                  {zweisprachigerName(artikel.name, artikel.name_tr, sprache)}
-                </p>
-                <p className="nummer mt-2 text-xl text-navy">{formatEuro(artikel.preis_cent)}</p>
-                {artikel.beilagen.length > 0 && (
-                  <p className="mt-1 text-sm text-schrift-gedimmt">{texte.mitBeilagenAuswahl}</p>
-                )}
-              </button>
+              <div key={artikel.id} className="flex flex-col gap-1">
+                <button onClick={() => artikelTippen(artikel)} disabled={laeuft || !!artikel.ausverkauft}
+                  className={`putz-textur-hell kaertchen-schatten-vertieft min-h-32 flex-1 cursor-pointer rounded-[24px] border border-linie bg-flaeche p-4 text-left hover:bg-flaeche-hell active:scale-[0.98] disabled:cursor-not-allowed ${
+                    artikel.ausverkauft ? 'opacity-50 grayscale' : 'disabled:opacity-40'
+                  }`}
+                  style={{ borderTop: `6px solid ${artikel.farbe}` }}>
+                  <p className="break-words text-2xl font-semibold">
+                    {zweisprachigerName(artikel.name, artikel.name_tr, sprache)}
+                  </p>
+                  <p className="nummer mt-2 text-xl text-navy">{formatEuro(artikel.preis_cent)}</p>
+                  {artikel.ausverkauft ? (
+                    <p className="mt-1 inline-block rounded-full bg-weinrot px-3 py-0.5 text-sm font-bold text-flaeche">
+                      {texte.ausverkauft}
+                    </p>
+                  ) : (
+                    artikel.beilagen.length > 0 && (
+                      <p className="mt-1 text-sm text-schrift-gedimmt">{texte.mitBeilagenAuswahl}</p>
+                    )
+                  )}
+                </button>
+                <button onClick={() => ausverkauftUmschalten(artikel)}
+                  className="cursor-pointer rounded-full border border-linie px-3 py-1 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
+                  {artikel.ausverkauft ? texte.wiederVerfuegbar : texte.ausverkauftMelden}
+                </button>
+              </div>
             ))}
             {artikelListe.length === 0 && !ladefehler && (
               <p className="col-span-full p-4 text-schrift-gedimmt">

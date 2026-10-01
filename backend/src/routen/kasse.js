@@ -44,6 +44,11 @@ function bereitePositionenVor(db, positionen) {
       fehler.status = 409;
       throw fehler;
     }
+    if (artikel.ausverkauft) {
+      const fehler = new Error(`„${artikel.name}“ ist ausverkauft. Bitte Position entfernen.`);
+      fehler.status = 409;
+      throw fehler;
+    }
     const beilagenNamen = [];
     const beilagenNamenTr = [];
     for (const beilageId of position.beilagen_ids || []) {

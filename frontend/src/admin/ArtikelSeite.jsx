@@ -75,12 +75,13 @@ export default function ArtikelSeite({ rolle, sprache = 'de' }) {
               <th className="px-2.5 py-2">{texte.spalteBeilagen}</th>
               <th className="px-2.5 py-2">{texte.spalteWeiterBeiNr}</th>
               <th className="px-2.5 py-2">{texte.spalteAktiv}</th>
+              <th className="px-2.5 py-2">{texte.spalteAusverkauft}</th>
               <th className="px-2.5 py-2"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-linie text-sm">
             {artikelListe.length === 0 && !ladefehler && (
-              <tr><td colSpan={rolle === 'admin' ? 7 : 6} className="px-2.5 py-4 text-schrift-gedimmt">
+              <tr><td colSpan={rolle === 'admin' ? 8 : 7} className="px-2.5 py-4 text-schrift-gedimmt">
                 {texte.keineArtikel}
               </td></tr>
             )}
@@ -123,6 +124,17 @@ export default function ArtikelSeite({ rolle, sprache = 'de' }) {
                       artikel.aktiv ? 'bg-navy text-grund' : 'border border-linie text-schrift-gedimmt'
                     }`}>
                     {artikel.aktiv ? texte.aktiv : texte.inaktiv}
+                  </button>
+                </td>
+                <td className="px-2.5 py-2">
+                  <button
+                    onClick={() => apiPut(`/api/artikel/${artikel.id}/ausverkauft`, {
+                      ausverkauft: artikel.ausverkauft ? 0 : 1,
+                    }).catch((f) => setFehler(f.message))}
+                    className={`cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold ${
+                      artikel.ausverkauft ? 'bg-weinrot text-flaeche' : 'border border-linie text-schrift-gedimmt'
+                    }`}>
+                    {artikel.ausverkauft ? texte.ausverkauft : texte.verfuegbar}
                   </button>
                 </td>
                 <td className="px-2.5 py-2 text-right whitespace-nowrap">

@@ -14,6 +14,7 @@ import statistikRouter from './routen/statistik.js';
 import benutzerRouter from './routen/benutzer.js';
 import backupRouter, { backupWirdEingespielt } from './routen/backup.js';
 import artikelRouter from './routen/artikel.js';
+import artikelAusverkauftRouter from './routen/artikelAusverkauft.js';
 import artikelBildRouter, { artikelBilderOrdner } from './routen/artikelBild.js';
 import beilagenRouter from './routen/beilagen.js';
 import kasseRouter from './routen/kasse.js';
@@ -42,6 +43,7 @@ export function erstelleApp() {
     antwort.json({ adresse: ip ? `${ip}:8080` : null });
   });
   app.use(artikelRouter);
+  app.use(artikelAusverkauftRouter);
   app.use(artikelBildRouter);
   app.use(beilagenRouter);
   app.use(kasseRouter);

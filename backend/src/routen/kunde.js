@@ -17,7 +17,7 @@ router.get('/api/kunde/artikel', (_anfrage, antwort) => {
     ).all(artikel.id);
     return {
       id: artikel.id, name: artikel.name, name_tr: artikel.name_tr,
-      farbe: artikel.farbe, preis_cent: artikel.preis_cent,
+      farbe: artikel.farbe, preis_cent: artikel.preis_cent, ausverkauft: artikel.ausverkauft,
       bild_url: artikel.bild_dateiname ? `/artikelbilder/${artikel.bild_dateiname}` : null,
       beilagen,
     };
