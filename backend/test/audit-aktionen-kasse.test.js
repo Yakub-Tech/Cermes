@@ -109,8 +109,8 @@ test('Kassieren wird mit Vorgang, Summe und allen Positionen protokolliert', asy
       kassiervorgang: ergebnis.kassiervorgang_id,
       summe_cent: 850,
       positionen: [
-        { nummer: 1, artikel_name: 'Pommes', beilagen: ['Ketchup'], preis_cent: 350 },
-        { nummer: 1, artikel_name: 'Burger', beilagen: [], preis_cent: 500 },
+        { nummer: 1, artikel_name: 'Pommes', beilagen: ['Ketchup'], sonderwunsch: null, preis_cent: 350 },
+        { nummer: 1, artikel_name: 'Burger', beilagen: [], sonderwunsch: null, preis_cent: 500 },
       ],
     },
   });

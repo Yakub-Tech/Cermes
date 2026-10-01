@@ -5,20 +5,22 @@ function sindBeilagenGleich(a, b) {
   return idsA.every((id, index) => id === idsB[index]);
 }
 
-function findePassendePosition(positionen, artikel, beilagen) {
+function findePassendePosition(positionen, artikel, beilagen, sonderwunsch) {
   return positionen.find((position) =>
-    position.artikel.id === artikel.id && sindBeilagenGleich(position.beilagen, beilagen)
+    position.artikel.id === artikel.id
+    && sindBeilagenGleich(position.beilagen, beilagen)
+    && position.sonderwunsch === sonderwunsch
   );
 }
 
-export function positionHinzufuegen(positionen, artikel, beilagen, naechsterSchluessel) {
-  const bestehende = findePassendePosition(positionen, artikel, beilagen);
+export function positionHinzufuegen(positionen, artikel, beilagen, naechsterSchluessel, sonderwunsch = '') {
+  const bestehende = findePassendePosition(positionen, artikel, beilagen, sonderwunsch);
   if (bestehende) {
     return positionen.map((position) =>
       position === bestehende ? { ...position, menge: position.menge + 1 } : position
     );
   }
-  return [...positionen, { schluessel: naechsterSchluessel(), artikel, beilagen, menge: 1 }];
+  return [...positionen, { schluessel: naechsterSchluessel(), artikel, beilagen, sonderwunsch, menge: 1 }];
 }
 
 export function mengeAendern(positionen, schluessel, delta) {
@@ -36,6 +38,7 @@ export function positionenFuerApi(positionen) {
       eintraege.push({
         artikel_id: position.artikel.id,
         beilagen_ids: position.beilagen.map((beilage) => beilage.id),
+        sonderwunsch: position.sonderwunsch,
       });
     }
   }

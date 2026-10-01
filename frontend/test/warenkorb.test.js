@@ -58,10 +58,30 @@ test('mengeAendern entfernt die Position, wenn die Menge auf 0 fallen würde', (
 
 test('positionenFuerApi entfaltet eine Position mit Menge 2 zu zwei einzelnen Einträgen', () => {
   const positionen = [
-    { schluessel: 1, artikel: pommes, beilagen: [ketchup], menge: 2 },
+    { schluessel: 1, artikel: pommes, beilagen: [ketchup], sonderwunsch: '', menge: 2 },
   ];
   assert.deepEqual(positionenFuerApi(positionen), [
-    { artikel_id: 1, beilagen_ids: [10] },
-    { artikel_id: 1, beilagen_ids: [10] },
+    { artikel_id: 1, beilagen_ids: [10], sonderwunsch: '' },
+    { artikel_id: 1, beilagen_ids: [10], sonderwunsch: '' },
+  ]);
+});
+
+test('gleicher Artikel mit anderem Sonderwunsch bekommt eine eigene Position, gleicher Sonderwunsch zählt hoch', () => {
+  let positionen = positionHinzufuegen([], pommes, [], () => 1, 'ohne Salz');
+  positionen = positionHinzufuegen(positionen, pommes, [], () => 2, '');
+  positionen = positionHinzufuegen(positionen, pommes, [], () => 3, 'ohne Salz');
+  assert.equal(positionen.length, 2);
+  assert.equal(positionen[0].menge, 2);
+  assert.equal(positionen[0].sonderwunsch, 'ohne Salz');
+  assert.equal(positionen[1].sonderwunsch, '');
+});
+
+test('positionenFuerApi schickt den Sonderwunsch jeder Einheit mit', () => {
+  const positionen = [
+    { schluessel: 1, artikel: pommes, beilagen: [], sonderwunsch: 'ohne Salz', menge: 2 },
+  ];
+  assert.deepEqual(positionenFuerApi(positionen), [
+    { artikel_id: 1, beilagen_ids: [], sonderwunsch: 'ohne Salz' },
+    { artikel_id: 1, beilagen_ids: [], sonderwunsch: 'ohne Salz' },
   ]);
 });

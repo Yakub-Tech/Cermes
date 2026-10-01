@@ -71,15 +71,20 @@ export default function KasseSeite() {
     }
   }
 
-  function positionHinzufuegen(artikel, beilagen) {
+  function positionHinzufuegen(artikel, beilagen, sonderwunsch = '') {
     function naechsteNummer() {
       const nummer = naechsterSchluessel.current;
       naechsterSchluessel.current += 1;
       return nummer;
     }
-    setPositionen((alte) => positionZumWarenkorbHinzufuegen(alte, artikel, beilagen, naechsteNummer));
+    setPositionen((alte) => positionZumWarenkorbHinzufuegen(alte, artikel, beilagen, naechsteNummer, sonderwunsch));
     setBeilagenArtikel(null);
     setFokusAuswahl([]);
+  }
+
+  function sonderwunschOeffnen(artikel) {
+    setFokusAuswahl([]);
+    setBeilagenArtikel(artikel);
   }
 
   function ausverkauftUmschalten(artikel) {
@@ -93,7 +98,7 @@ export default function KasseSeite() {
   }
 
   useEffect(() => {
-    const fokus = beilagenArtikel ? {
+    const fokus = beilagenArtikel && beilagenArtikel.beilagen.length > 0 ? {
       artikel_name: beilagenArtikel.name,
       artikel_name_tr: beilagenArtikel.name_tr,
       farbe: beilagenArtikel.farbe,
@@ -216,10 +221,18 @@ export default function KasseSeite() {
                     )
                   )}
                 </button>
-                <button onClick={() => ausverkauftUmschalten(artikel)}
-                  className="cursor-pointer rounded-full border border-linie px-3 py-1 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
-                  {artikel.ausverkauft ? texte.wiederVerfuegbar : texte.ausverkauftMelden}
-                </button>
+                <div className="flex gap-1">
+                  {artikel.beilagen.length === 0 && !artikel.ausverkauft && (
+                    <button onClick={() => sonderwunschOeffnen(artikel)} disabled={laeuft}
+                      className="flex-1 cursor-pointer rounded-full border border-linie px-3 py-1 text-sm text-schrift-gedimmt hover:bg-flaeche-hell disabled:cursor-not-allowed disabled:opacity-40">
+                      {texte.sonderwunsch}
+                    </button>
+                  )}
+                  <button onClick={() => ausverkauftUmschalten(artikel)}
+                    className="flex-1 cursor-pointer rounded-full border border-linie px-3 py-1 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
+                    {artikel.ausverkauft ? texte.wiederVerfuegbar : texte.ausverkauftMelden}
+                  </button>
+                </div>
               </div>
             ))}
             {artikelListe.length === 0 && !ladefehler && (
@@ -241,7 +254,7 @@ export default function KasseSeite() {
 
       {beilagenArtikel && (
         <BeilagenDialog artikel={beilagenArtikel} sprache={sprache}
-          onBestaetigen={(beilagen) => positionHinzufuegen(beilagenArtikel, beilagen)}
+          onBestaetigen={(beilagen, sonderwunsch) => positionHinzufuegen(beilagenArtikel, beilagen, sonderwunsch)}
           onAbbrechen={() => { setBeilagenArtikel(null); setFokusAuswahl([]); }}
           onAuswahlAendern={setFokusAuswahl} />
       )}

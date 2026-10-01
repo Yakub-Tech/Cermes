@@ -27,6 +27,24 @@ const STATUS_SCHWERE = {
   ok: 0, block_wechseln: 1, block_eintragen: 2, aufgebraucht: 3,
 };
 
+const SONDERWUNSCH_MAX_ZEICHEN = 100;
+
+function pruefeSonderwunsch(wert) {
+  if (wert === undefined || wert === null) return null;
+  if (typeof wert !== 'string') {
+    const fehler = new Error('Der Sonderwunsch ist ungültig. Bitte noch einmal eintragen.');
+    fehler.status = 400;
+    throw fehler;
+  }
+  const text = wert.trim();
+  if (text.length > SONDERWUNSCH_MAX_ZEICHEN) {
+    const fehler = new Error(`Der Sonderwunsch ist zu lang. Erlaubt sind höchstens ${SONDERWUNSCH_MAX_ZEICHEN} Zeichen.`);
+    fehler.status = 400;
+    throw fehler;
+  }
+  return text === '' ? null : text;
+}
+
 function bereitePositionenVor(db, positionen) {
   if (!Array.isArray(positionen) || positionen.length === 0) {
     const fehler = new Error('Der Warenkorb ist leer.');
@@ -65,8 +83,9 @@ function bereitePositionenVor(db, positionen) {
       beilagenNamen.push(beilage.name);
       beilagenNamenTr.push(beilage.name_tr);
     }
+    const sonderwunsch = pruefeSonderwunsch(position.sonderwunsch);
     summe += artikel.preis_cent;
-    vorbereitet.push({ artikel, beilagenNamen, beilagenNamenTr });
+    vorbereitet.push({ artikel, beilagenNamen, beilagenNamenTr, sonderwunsch });
   }
   return { vorbereitet, summe };
 }
@@ -75,7 +94,7 @@ function ermittleVorschauKaertchen(db, vorbereitet) {
   const kaertchen = [];
   const naechstePositionProArtikel = new Map();
   const dringendsterZustandProArtikel = new Map();
-  for (const { artikel, beilagenNamen, beilagenNamenTr } of vorbereitet) {
+  for (const { artikel, beilagenNamen, beilagenNamenTr, sonderwunsch } of vorbereitet) {
     let bisherigePosition = naechstePositionProArtikel.get(artikel.id);
     if (bisherigePosition === undefined) {
       bisherigePosition = db.prepare('SELECT naechste_nummer FROM artikel WHERE id = ?')
@@ -87,7 +106,7 @@ function ermittleVorschauKaertchen(db, vorbereitet) {
     kaertchen.push({
       artikel_name: artikel.name, artikel_name_tr: artikel.name_tr, artikel_farbe: artikel.farbe,
       preis_cent: artikel.preis_cent, beilagen: beilagenNamen, beilagen_tr: beilagenNamenTr,
-      nummer, hinweis: null,
+      sonderwunsch, nummer, hinweis: null,
     });
     const statusInfo = ermittleStatus(bloecke, nummer);
     const bisher = dringendsterZustandProArtikel.get(artikel.id);
@@ -159,7 +178,7 @@ export function kassieren(db, benutzer, positionen, erwarteteNummern, erwarteteP
 
     const kaertchen = [];
     const dringendsterZustandProArtikel = new Map();
-    for (const [index, { artikel, beilagenNamen, beilagenNamenTr }] of vorbereitet.entries()) {
+    for (const [index, { artikel, beilagenNamen, beilagenNamenTr, sonderwunsch }] of vorbereitet.entries()) {
       if (erwartetePreiseCent && erwartetePreiseCent[index] !== undefined
         && erwartetePreiseCent[index] !== artikel.preis_cent) {
         const fehler = new Error(
@@ -182,15 +201,15 @@ export function kassieren(db, benutzer, positionen, erwarteteNummern, erwarteteP
       db.prepare('UPDATE artikel SET naechste_nummer = ? WHERE id = ?').run(neuePosition, artikel.id);
       const eintrag = db.prepare(
         `INSERT INTO kaertchen (kassiervorgang_id, artikel_id, nummer, artikel_name, artikel_name_tr,
-           artikel_farbe, preis_cent, einkaufskosten_cent, beilagen, beilagen_tr, status, erstellt_am)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'in_bearbeitung', ?)`
+           artikel_farbe, preis_cent, einkaufskosten_cent, beilagen, beilagen_tr, sonderwunsch, status, erstellt_am)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'in_bearbeitung', ?)`
       ).run(vorgang.lastInsertRowid, artikel.id, nummer, artikel.name, artikel.name_tr, artikel.farbe,
         artikel.preis_cent, artikel.einkaufskosten_cent, JSON.stringify(beilagenNamen),
-        JSON.stringify(beilagenNamenTr), zeitpunkt);
+        JSON.stringify(beilagenNamenTr), sonderwunsch, zeitpunkt);
       kaertchen.push({
         id: eintrag.lastInsertRowid, nummer, artikel_name: artikel.name, artikel_name_tr: artikel.name_tr,
         artikel_farbe: artikel.farbe, preis_cent: artikel.preis_cent, beilagen: beilagenNamen,
-        beilagen_tr: beilagenNamenTr, hinweis: null,
+        beilagen_tr: beilagenNamenTr, sonderwunsch, hinweis: null,
       });
       const statusInfo = ermittleStatus(bloecke, nummer);
       const bisher = dringendsterZustandProArtikel.get(artikel.id);
@@ -206,7 +225,8 @@ export function kassieren(db, benutzer, positionen, erwarteteNummern, erwarteteP
         kassiervorgang: vorgang.lastInsertRowid,
         summe_cent: summe,
         positionen: kaertchen.map((k) => ({
-          nummer: k.nummer, artikel_name: k.artikel_name, beilagen: k.beilagen, preis_cent: k.preis_cent,
+          nummer: k.nummer, artikel_name: k.artikel_name, beilagen: k.beilagen, sonderwunsch: k.sonderwunsch,
+          preis_cent: k.preis_cent,
         })),
       },
     });
@@ -279,7 +299,7 @@ router.get('/api/kasse/stornierbar', brauchtRolle('kasse'), (_anfrage, antwort) 
   const db = oeffneDatenbank();
   const zeilen = db.prepare(
     `SELECT id, nummer, artikel_name, artikel_name_tr, artikel_farbe, preis_cent,
-            beilagen, beilagen_tr, status, erstellt_am
+            beilagen, beilagen_tr, sonderwunsch, status, erstellt_am
      FROM kaertchen
      WHERE status IN ('in_bearbeitung', 'abholbereit') AND substr(erstellt_am, 1, 10) = ?
      ORDER BY erstellt_am DESC, id DESC`

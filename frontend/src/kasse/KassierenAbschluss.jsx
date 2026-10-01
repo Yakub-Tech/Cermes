@@ -49,6 +49,11 @@ export default function KassierenAbschluss({ ergebnis, laeuft, fehler, zurueckGe
                   {kaertchen.beilagen.map((name, i) => zweisprachigerName(name, (kaertchen.beilagen_tr ?? [])[i], sprache)).join(', ')}
                 </p>
               )}
+              {kaertchen.sonderwunsch && (
+                <p className="mt-1 break-words rounded-lg bg-grund/90 px-2 py-1 text-sm font-semibold text-navy">
+                  {kaertchen.sonderwunsch}
+                </p>
+              )}
               {kaertchen.hinweis && (
                 <p className="mt-2 rounded-lg bg-grund/90 px-2 py-1 text-sm font-semibold text-weinrot">
                   {kaertchen.hinweis}

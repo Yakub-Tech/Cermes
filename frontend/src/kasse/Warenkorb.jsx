@@ -30,6 +30,9 @@ export default function Warenkorb({ positionen, onMengeAendern, onKassieren, lae
                   {position.beilagen.map((b) => zweisprachigerName(b.name, b.name_tr, sprache)).join(', ')}
                 </p>
               )}
+              {position.sonderwunsch && (
+                <p className="break-words text-sm font-semibold text-weinrot">{position.sonderwunsch}</p>
+              )}
             </div>
             <span className="nummer self-center text-lg">
               {formatEuro(position.artikel.preis_cent * position.menge)}

@@ -6,6 +6,7 @@ export const de = {
   ausverkauft: 'Ausverkauft',
   ausverkauftMelden: 'Ausverkauft melden',
   wiederVerfuegbar: 'Wieder verfügbar',
+  sonderwunsch: 'Sonderwunsch',
   keineArtikel: 'Keine Artikel verfügbar. Artikel werden in der Verwaltung angelegt.',
   buchungUnklar: 'Buchung wird geprüft: Es kam keine Antwort vom Server. Bitte noch einmal „Fertig“ tippen. Die Bestellung wird dabei nicht doppelt gebucht. „Zurück“ bleibt bis dahin gesperrt, damit die angezeigten Kärtchen gültig bleiben.',
 };
@@ -17,6 +18,7 @@ export const tr = {
   ausverkauft: 'Tükendi',
   ausverkauftMelden: 'Tükendi olarak işaretle',
   wiederVerfuegbar: 'Tekrar mevcut',
+  sonderwunsch: 'Özel istek',
   keineArtikel: 'Kullanılabilir ürün yok. Ürünler yönetim bölümünde oluşturulur.',
   buchungUnklar: 'Kayıt kontrol ediliyor: Sunucudan yanıt gelmedi. Lütfen tekrar „Tamam“a basın. Sipariş iki kez kaydedilmez. Gösterilen kartlar geçerli kalsın diye o zamana kadar „Geri“ kullanılamaz.',
 };

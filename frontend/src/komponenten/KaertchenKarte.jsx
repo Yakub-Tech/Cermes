@@ -23,6 +23,11 @@ export default function KaertchenKarte({ kaertchen, zeitText, warnung, onTippen,
           {kaertchen.beilagen.map((name, i) => zweisprachigerName(name, (kaertchen.beilagen_tr ?? [])[i], sprache)).join(', ')}
         </span>
       )}
+      {kaertchen.sonderwunsch && (
+        <span className="mt-1 block break-words rounded-lg bg-grund/90 px-2 py-1 text-sm font-semibold text-navy">
+          {kaertchen.sonderwunsch}
+        </span>
+      )}
       {zeitText && (
         <span className={`mt-1 block text-sm ${warnung ? 'font-bold' : 'opacity-70'}`}>
           {zeitText}
