@@ -11,6 +11,7 @@ import { apiGet, apiPost } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
 import { alterText } from '../zeitAnzeige.js';
+import StornoHinweis from './StornoHinweis.jsx';
 import OffeneMengenLeiste from './OffeneMengenLeiste.jsx';
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/belegen.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
@@ -20,7 +21,7 @@ export default function BelegenSeite() {
   const session = useSession('belegen');
   const [sprache, setSprache] = useStationsSprache();
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
-  const [listen, setListen] = useState({ in_bearbeitung: [], abholbereit: [] });
+  const [listen, setListen] = useState({ in_bearbeitung: [], abholbereit: [], storniert: [] });
   const [snackbar, setSnackbar] = useState(null);
   const [aktionsfehler, setAktionsfehler] = useState('');
   const [jetzt, setJetzt] = useState(Date.now());
@@ -38,6 +39,10 @@ export default function BelegenSeite() {
   function aktionAbgelehnt(fehler) {
     setAktionsfehler(fehler.message);
     laden();
+  }
+
+  function stornoVerstanden(kaertchen) {
+    apiPost(`/api/belegen/storno-quittieren/${kaertchen.id}`).then(laden).catch(aktionAbgelehnt);
   }
 
   async function statusWechsel(kaertchen, neuerStatus, rueckStatus, meldung) {
@@ -96,6 +101,8 @@ export default function BelegenSeite() {
             onErneut={() => { setAktionsfehler(''); laden(); }} />
         </div>
       )}
+
+      <StornoHinweis kaertchen={listen.storniert} sprache={sprache} texte={texte} onVerstanden={stornoVerstanden} />
 
       <OffeneMengenLeiste kaertchen={listen.in_bearbeitung} jetzt={jetzt} sprache={sprache} texte={texte} />
 

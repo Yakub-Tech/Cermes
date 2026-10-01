@@ -8,6 +8,8 @@ export const de = {
   nochZuMachen: 'Noch zu machen:',
   seitPraefix: 'seit ',
   seitSuffix: ' min',
+  stornoTitel: 'STORNIERT, nicht weitermachen:',
+  stornoVerstanden: 'Verstanden',
 };
 export const tr = {
   titel: 'Hazırlama',
@@ -19,4 +21,6 @@ export const tr = {
   nochZuMachen: 'Yapılacaklar:',
   seitPraefix: '',
   seitSuffix: ' dakikadır',
+  stornoTitel: 'İPTAL EDİLDİ, devam etmeyin:',
+  stornoVerstanden: 'Anlaşıldı',
 };

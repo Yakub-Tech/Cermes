@@ -32,6 +32,7 @@ export const de = {
   aktionen: {
     kassiert: 'Kassiert',
     storniert: 'Storniert',
+    storno_quittiert: 'Storno von der Küche bestätigt',
     kaertchen_status_geaendert: 'Kärtchen-Status geändert',
     artikel_angelegt: 'Artikel angelegt',
     artikel_geaendert: 'Artikel geändert',
@@ -126,6 +127,7 @@ export const tr = {
   aktionen: {
     kassiert: 'Satış yapıldı',
     storniert: 'İptal edildi',
+    storno_quittiert: 'İptal mutfak tarafından onaylandı',
     kaertchen_status_geaendert: 'Kart durumu değişti',
     artikel_angelegt: 'Ürün oluşturuldu',
     artikel_geaendert: 'Ürün değiştirildi',

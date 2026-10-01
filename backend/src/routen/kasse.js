@@ -321,7 +321,8 @@ router.post('/api/kasse/storno/:id', brauchtRolle('kasse'), (anfrage, antwort) =
         throw fehler;
       }
       const ergebnis = db.prepare(
-        `UPDATE kaertchen SET status = 'storniert', storniert_am = ?, storniert_von = ?
+        `UPDATE kaertchen SET status = 'storniert', storniert_am = ?, storniert_von = ?,
+                storno_kueche_offen = (status = 'in_bearbeitung')
          WHERE id = ? AND status IN ('in_bearbeitung', 'abholbereit')`
       ).run(zeitpunkt, anfrage.benutzer.id, anfrage.params.id);
       if (ergebnis.changes === 0) return false;
