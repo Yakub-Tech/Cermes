@@ -16,7 +16,7 @@ function zelleSchreiben(zelle, wert, art) {
   if (art === 'euro') zelle.value = wert / 100;
   else zelle.value = wert;
   zelle.numFmt = FORMATE[art];
-  zelle.alignment = { horizontal: art === 'text' ? 'left' : 'right', vertical: 'middle' };
+  zelle.alignment = { horizontal: art === 'text' ? 'left' : 'right', vertical: 'middle', wrapText: art === 'text' };
 }
 
 function kopfBlock(blatt, modell, erstelltText) {
@@ -62,7 +62,7 @@ function seiteEinrichten(blatt) {
 async function uebersichtBauen(arbeitsmappe, modell, erstelltText, logo) {
   const blatt = arbeitsmappe.addWorksheet(modell.uebersichtName);
   const tabellenStart = kopfBlock(blatt, modell, erstelltText);
-  const arten = ['text', 'text'];
+  const arten = ['text', 'zahl'];
   kopfzeileSchreiben(blatt, tabellenStart, modell.kennzahlSpalten, arten);
 
   modell.kennzahlen.forEach((kennzahl, index) => {
@@ -73,6 +73,7 @@ async function uebersichtBauen(arbeitsmappe, modell, erstelltText, logo) {
     const wertZelle = blatt.getCell(zeilenNummer, 2);
     zelleSchreiben(wertZelle, kennzahl.roh, kennzahl.art);
     wertZelle.font = { bold: true };
+    wertZelle.alignment = { horizontal: 'right', vertical: 'middle' };
     wertZelle.border = rahmen();
     if (index % 2 === 1) {
       for (const zelle of [beschriftung, wertZelle]) {

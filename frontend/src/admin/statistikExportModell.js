@@ -88,12 +88,12 @@ export function exportModellBauen(eingabe) {
   });
 
   const stornoSpalten = [
-    ...(mitDatum ? [{ titel: texte.spalteDatum, art: 'text' }] : []),
-    { titel: texte.spalteUhrzeit, art: 'text' },
+    ...(mitDatum ? [{ titel: texte.spalteDatum, art: 'text', breite: 62 }] : []),
+    { titel: texte.spalteUhrzeit, art: 'text', breite: 62 },
     { titel: texte.spalteNummer, art: 'nummer' },
     { titel: texte.spalteArtikel, art: 'text' },
     { titel: texte.spalteBetrag, art: 'euro' },
-    { titel: texte.spalteStorniertVon, art: 'text' },
+    { titel: texte.spalteStorniertVon, art: 'text', breite: 70 },
   ];
   const stornoZeilen = stornos.map((s) => [
     ...(mitDatum ? [datumAnzeigen(s.datum)] : []),

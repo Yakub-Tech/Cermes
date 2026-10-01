@@ -12,45 +12,92 @@ function zahlFormatieren(wert) {
 }
 
 function zelleText(wert, art) {
-  if (art === 'euro') return formatEuro(wert);
+  if (art === 'euro') return formatEuro(wert).replace(' ', '\u00a0');
   if (art === 'zahl') return zahlFormatieren(wert);
   return String(wert);
 }
 
-function tabelleBauen(spalten, zeilen, summe) {
-  const kopf = spalten.map((s) => ({
+function ausrichtung(spalte) {
+  return spalte.art === 'text' ? 'left' : 'right';
+}
+
+function kopfZeile(spalten) {
+  return spalten.map((s) => ({
     text: s.titel, bold: true, color: '#FFFFFF', fillColor: MARINE,
-    alignment: s.art === 'text' ? 'left' : 'right', margin: [4, 4, 4, 4],
+    alignment: ausrichtung(s), margin: [4, 4, 4, 4],
   }));
-  const koerper = zeilen.map((zeile, index) => zeile.map((wert, nummer) => ({
+}
+
+function datenZeilen(spalten, zeilen, startIndex) {
+  return zeilen.map((zeile, index) => zeile.map((wert, nummer) => ({
     text: zelleText(wert, spalten[nummer].art),
-    alignment: spalten[nummer].art === 'text' ? 'left' : 'right',
-    fillColor: index % 2 === 1 ? ZEBRA : null,
+    alignment: ausrichtung(spalten[nummer]),
+    fillColor: (startIndex + index) % 2 === 1 ? ZEBRA : null,
     margin: [4, 3, 4, 3],
   })));
-  const summenZeile = summe ? [summe.map((wert, nummer) => ({
+}
+
+function summenZeile(spalten, summe) {
+  return summe.map((wert, nummer) => ({
     text: wert === '' ? '' : zelleText(wert, nummer === 0 ? 'text' : spalten[nummer].art),
-    bold: true, alignment: spalten[nummer].art === 'text' ? 'left' : 'right', margin: [4, 4, 4, 4],
-  }))] : [];
+    bold: true, alignment: ausrichtung(spalten[nummer]), margin: [4, 4, 4, 4],
+  }));
+}
 
-  const breiten = spalten.map((s) => (s.art === 'text' ? '*' : 'auto'));
+function spaltenBreiten(spalten) {
+  const festeBreiten = { euro: 80, zahl: 70, nummer: 55 };
+  const breiten = spalten.map((s) => s.breite ?? (s.art === 'text' ? '*' : festeBreiten[s.art]));
   if (!breiten.includes('*')) breiten[0] = '*';
+  return breiten;
+}
 
-  return {
-    table: { headerRows: 1, dontBreakRows: true, widths: breiten, body: [kopf, ...koerper, ...summenZeile] },
-    layout: {
-      hLineWidth: (i, knoten) => (i === knoten.table.body.length - 1 && summe ? 1.5 : 0.5),
-      hLineColor: (i, knoten) => (i === knoten.table.body.length - 1 && summe ? MARINE : LINIE),
-      vLineWidth: () => 0,
+const TABELLEN_LINIEN = {
+  hLineColor: () => LINIE,
+  vLineWidth: () => 0,
+};
+
+function tabelleBauen(spalten, zeilen, summe) {
+  const breiten = spaltenBreiten(spalten);
+  if (!summe || zeilen.length < 2) {
+    const koerper = [kopfZeile(spalten), ...datenZeilen(spalten, zeilen, 0)];
+    if (summe) koerper.push(summenZeile(spalten, summe));
+    return [{
+      table: { headerRows: 1, dontBreakRows: true, widths: breiten, body: koerper },
+      layout: {
+        ...TABELLEN_LINIEN,
+        hLineWidth: (i, knoten) => (i === knoten.table.body.length - 1 && summe ? 1.5 : 0.5),
+        hLineColor: (i, knoten) => (i === knoten.table.body.length - 1 && summe ? MARINE : LINIE),
+      },
+    }];
+  }
+
+  const hauptZeilen = zeilen.slice(0, -1);
+  const schlussZeile = zeilen.slice(-1);
+  return [
+    {
+      table: { headerRows: 1, dontBreakRows: true, widths: breiten, body: [kopfZeile(spalten), ...datenZeilen(spalten, hauptZeilen, 0)] },
+      layout: { ...TABELLEN_LINIEN, hLineWidth: () => 0.5 },
     },
-  };
+    {
+      unbreakable: true,
+      table: {
+        widths: breiten,
+        body: [...datenZeilen(spalten, schlussZeile, hauptZeilen.length), summenZeile(spalten, summe)],
+      },
+      layout: {
+        ...TABELLEN_LINIEN,
+        hLineWidth: (i) => (i === 0 ? 0 : (i === 1 ? 1.5 : 0.5)),
+        hLineColor: (i) => (i === 1 ? MARINE : LINIE),
+      },
+    },
+  ];
 }
 
 function kennzahlKacheln(kennzahlen) {
   const zellen = kennzahlen.map((k) => ({
     stack: [
       { text: k.beschriftung, fontSize: 8, color: GRAU },
-      { text: k.art === 'euro' ? formatEuro(k.roh) : String(k.wert), fontSize: 14, bold: true, color: MARINE, margin: [0, 3, 0, 0] },
+      { text: k.art === 'euro' ? formatEuro(k.roh).replace(' ', '\u00a0') : String(k.wert), fontSize: 14, bold: true, color: MARINE, margin: [0, 3, 0, 0] },
     ],
     margin: [6, 6, 6, 6],
   }));
@@ -95,7 +142,7 @@ function dokumentBauen(modell, logo, erstelltText) {
       inhalt.push({ stack: [ueberschrift, { text: modell.texte.keineEintraege, italics: true, color: GRAU }], unbreakable: true });
     } else {
       const stufe = abschnitt.zeilen.length <= 25 ? 1 : 2;
-      inhalt.push({ ...ueberschrift, headlineLevel: stufe }, tabelleBauen(abschnitt.spalten, abschnitt.zeilen, abschnitt.summe));
+      inhalt.push({ ...ueberschrift, headlineLevel: stufe }, ...tabelleBauen(abschnitt.spalten, abschnitt.zeilen, abschnitt.summe));
     }
   }
 

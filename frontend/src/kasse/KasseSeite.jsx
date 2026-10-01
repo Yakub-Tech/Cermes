@@ -22,7 +22,7 @@ import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 import { de, tr } from '../sprache/kasse.js';
 import { kassenNummerDiesesGeraets } from '../kassenNummer.js';
 
-const knopfUnterKachel = 'h-12 cursor-pointer rounded-full border border-linie px-1 text-center text-[13px] leading-tight text-schrift-gedimmt hover:bg-flaeche-hell';
+const knopfUnterKachel = 'h-12 cursor-pointer rounded-full border border-linie px-2 text-center text-[11px] leading-tight text-schrift-gedimmt hover:bg-flaeche-hell';
 
 export default function KasseSeite() {
   const { neueste, ladefehler } = useNeuesteAntwort(laden);
@@ -221,7 +221,7 @@ export default function KasseSeite() {
                     artikel.ausverkauft ? 'opacity-50 grayscale' : 'disabled:opacity-40'
                   }`}
                   style={{ borderTop: `6px solid ${artikel.farbe}` }}>
-                  <p lang={sprache} className="hyphens-auto break-words text-2xl font-semibold">
+                  <p lang={sprache === 'tr' && artikel.name_tr ? 'tr' : 'de'} className="hyphens-auto break-words text-2xl font-semibold">
                     {zweisprachigerName(artikel.name, artikel.name_tr, sprache)}
                   </p>
                   <p className="nummer mt-2 text-xl text-navy">{formatEuro(artikel.preis_cent)}</p>

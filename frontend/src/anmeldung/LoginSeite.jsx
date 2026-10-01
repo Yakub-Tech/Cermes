@@ -43,6 +43,7 @@ export default function LoginSeite() {
     if (laeuft) return;
     setLaeuft(true);
     setFehler('');
+    setPasswortGeaendert(false);
     try {
       const { rolle } = await apiPost('/api/login', { benutzername, passwort });
       const rolleZuPfad = { admin: '/admin', verwaltung: '/admin' };
