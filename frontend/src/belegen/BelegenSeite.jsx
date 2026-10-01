@@ -11,6 +11,7 @@ import { apiGet, apiPost } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
 import { alterText } from '../zeitAnzeige.js';
+import OffeneMengenLeiste from './OffeneMengenLeiste.jsx';
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/belegen.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
@@ -95,6 +96,8 @@ export default function BelegenSeite() {
             onErneut={() => { setAktionsfehler(''); laden(); }} />
         </div>
       )}
+
+      <OffeneMengenLeiste kaertchen={listen.in_bearbeitung} jetzt={jetzt} sprache={sprache} texte={texte} />
 
       <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 bg-grund p-3">
         {spalten.map((spalte) => (

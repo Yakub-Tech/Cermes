@@ -5,6 +5,9 @@ export const de = {
   meldungAbholbereit: 'ist abholbereit',
   meldungZurueckInBearbeitung: 'zurück in Bearbeitung',
   nrPraefix: 'Nr.',
+  nochZuMachen: 'Noch zu machen:',
+  seitPraefix: 'seit ',
+  seitSuffix: ' min',
 };
 export const tr = {
   titel: 'Hazırlama',
@@ -13,4 +16,7 @@ export const tr = {
   meldungAbholbereit: 'teslime hazır',
   meldungZurueckInBearbeitung: 'tekrar hazırlanıyor',
   nrPraefix: 'No.',
+  nochZuMachen: 'Yapılacaklar:',
+  seitPraefix: '',
+  seitSuffix: ' dakikadır',
 };
