@@ -1,14 +1,30 @@
 import { formatEuro } from '../api.js';
 import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 import { de, tr } from '../sprache/warenkorb.js';
+import { de as geparktDe, tr as geparktTr } from '../sprache/geparkt.js';
 
-export default function Warenkorb({ positionen, onMengeAendern, onKassieren, laeuft, fehler, sprache }) {
+export default function Warenkorb({ positionen, onMengeAendern, onKassieren, laeuft, fehler, sprache,
+  geparktAnzahl, onParken, onGeparkteOeffnen }) {
   const texte = sprache === 'tr' ? tr : de;
+  const geparktTexte = sprache === 'tr' ? geparktTr : geparktDe;
   const summe = positionen.reduce((s, p) => s + p.artikel.preis_cent * p.menge, 0);
 
   return (
     <aside className="flex w-96 shrink-0 flex-col border-l border-linie bg-flaeche">
       <h2 className="border-b border-linie px-4 py-3 font-display text-xl text-navy">{texte.titel}</h2>
+
+      <div className="flex gap-2 border-b border-linie px-4 py-3">
+        <button onClick={onParken} disabled={laeuft || positionen.length === 0} title={geparktTexte.parkenErklaerung}
+          className="flex-1 cursor-pointer rounded-full border border-linie py-3 text-lg text-navy hover:bg-flaeche-hell disabled:cursor-not-allowed disabled:opacity-40">
+          {geparktTexte.parken}
+        </button>
+        <button onClick={onGeparkteOeffnen} disabled={laeuft}
+          className={`flex-1 cursor-pointer rounded-full border py-3 text-lg disabled:cursor-not-allowed disabled:opacity-40 ${
+            geparktAnzahl > 0 ? 'border-blau bg-blau font-bold text-flaeche hover:bg-blau-hell' : 'border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
+          }`}>
+          {geparktTexte.knopf} ({geparktAnzahl})
+        </button>
+      </div>
 
       <ul className="flex-1 overflow-y-auto">
         {positionen.length === 0 && (

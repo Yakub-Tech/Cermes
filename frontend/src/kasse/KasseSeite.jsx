@@ -15,6 +15,8 @@ import BeilagenDialog from './BeilagenDialog.jsx';
 import Warenkorb from './Warenkorb.jsx';
 import KassierenAbschluss from './KassierenAbschluss.jsx';
 import StornoTab from './StornoTab.jsx';
+import GeparkteDialog from './GeparkteDialog.jsx';
+import { useGeparkte } from './useGeparkte.js';
 import WarenkorbVerlassenDialog from './WarenkorbVerlassenDialog.jsx';
 import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 import { de, tr } from '../sprache/kasse.js';
@@ -92,6 +94,16 @@ export default function KasseSeite() {
     apiPut(`/api/artikel/${artikel.id}/ausverkauft`, { ausverkauft: artikel.ausverkauft ? 0 : 1 })
       .catch((f) => setFehler(f.message));
   }
+
+  const parkplatz = useGeparkte({
+    kassenNummer, sprache, positionen, setPositionen, artikelListe, meldeHinweis: setFehler,
+    naechsterSchluessel: () => {
+      const nummer = naechsterSchluessel.current;
+      naechsterSchluessel.current += 1;
+      return nummer;
+    },
+    vorParken: () => { setBeilagenArtikel(null); setFokusAuswahl([]); },
+  });
 
   function positionMengeAendern(schluessel, delta) {
     setPositionen((alte) => mengeAendern(alte, schluessel, delta));
@@ -244,6 +256,9 @@ export default function KasseSeite() {
 
           <Warenkorb positionen={positionen} laeuft={laeuft} fehler={fehler} sprache={sprache}
             onMengeAendern={positionMengeAendern}
+            geparktAnzahl={parkplatz.geparkte.length}
+            onParken={parkplatz.parken}
+            onGeparkteOeffnen={() => { setFehler(''); parkplatz.setDialogOffen(true); }}
             onKassieren={kassierenVorschauAnzeigen} />
         </div>
       ) : (
@@ -269,6 +284,13 @@ export default function KasseSeite() {
             setFehler('');
           }}
           onFertig={kassierenBuchen} />
+      )}
+
+      {parkplatz.dialogOffen && (
+        <GeparkteDialog geparkte={parkplatz.geparkte} sprache={sprache}
+          onZurueckholen={parkplatz.zurueckholen}
+          onVerwerfen={parkplatz.verwerfen}
+          onSchliessen={() => parkplatz.setDialogOffen(false)} />
       )}
 
       {warenkorbVerlassenAktiv && (
