@@ -84,8 +84,8 @@ body {
 }
 
 @keyframes neu-leuchten {
-  0%, 100% { box-shadow: 0 0 0 3px var(--color-akzent-hell), 0 0 6px 2px rgba(242, 165, 44, 0.5); filter: brightness(1); }
-  50% { box-shadow: 0 0 0 4px #fff, 0 0 10px 4px var(--color-akzent-hell); filter: brightness(1.25); }
+  0%, 100% { box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgba(0, 0, 0, 0.45), 0 0 4px 3px rgba(255, 255, 255, 0.4); filter: brightness(1); }
+  50% { box-shadow: 0 0 0 3px #fff, 0 0 0 5px rgba(0, 0, 0, 0.45), 0 0 6px 3px rgba(255, 255, 255, 0.7); filter: brightness(1.2); }
 }
 .neu-leuchten {
   animation: neu-leuchten 1s ease-in-out 5;
@@ -133,7 +133,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .neu-leuchten {
     animation: none;
-    box-shadow: 0 0 0 4px var(--color-akzent-hell);
+    box-shadow: 0 0 0 3px #fff, 0 0 0 5px rgba(0, 0, 0, 0.45);
   }
   .warn-puls, .einblenden, .werbeband-scroll, .sprachwechsel,
   .auswahlmenue-panel, .haekchen-indicator {
