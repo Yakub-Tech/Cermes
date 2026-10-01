@@ -14,7 +14,9 @@ export default function GeparkteDialog({ geparkte, sprache, onZurueckholen, onVe
   return (
     <Dialog titel={texte.titel} onSchliessen={onSchliessen}>
       {geparkte.length === 0 && <p className="mb-4 text-schrift-gedimmt">{texte.keine}</p>}
-      <ul className="mb-4 flex max-h-[60vh] flex-col gap-3 overflow-y-auto">
+      <ul className={`mb-4 flex max-h-[50vh] flex-col gap-3 overflow-y-auto ${
+        geparkte.length > 2 ? 'border-b border-linie pb-1 shadow-[inset_0_-14px_10px_-10px_rgba(0,0,0,0.45)]' : ''
+      }`}>
         {geparkte.map((eintrag, index) => {
           const portionen = eintrag.positionen.reduce((s, p) => s + p.menge, 0);
           const summe = eintrag.positionen.reduce((s, p) => s + p.preis_cent * p.menge, 0);

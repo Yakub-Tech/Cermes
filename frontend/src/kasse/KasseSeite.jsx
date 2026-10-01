@@ -22,6 +22,8 @@ import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 import { de, tr } from '../sprache/kasse.js';
 import { kassenNummerDiesesGeraets } from '../kassenNummer.js';
 
+const knopfUnterKachel = 'h-12 cursor-pointer rounded-full border border-linie px-1 text-center text-[13px] leading-tight text-schrift-gedimmt hover:bg-flaeche-hell';
+
 export default function KasseSeite() {
   const { neueste, ladefehler } = useNeuesteAntwort(laden);
   const session = useSession('kasse');
@@ -211,7 +213,7 @@ export default function KasseSeite() {
 
       {tab === 'verkauf' ? (
         <div className="flex min-h-0 flex-1">
-          <div className="grid flex-1 auto-rows-min grid-cols-2 gap-4 overflow-y-auto p-4 md:grid-cols-3 xl:grid-cols-4">
+          <div className="grid min-w-0 flex-1 auto-rows-min grid-cols-2 gap-4 overflow-y-auto p-4 md:grid-cols-3 xl:grid-cols-4">
             {artikelListe.map((artikel) => (
               <div key={artikel.id} className="flex flex-col gap-1">
                 <button onClick={() => artikelTippen(artikel)} disabled={laeuft || !!artikel.ausverkauft}
@@ -219,7 +221,7 @@ export default function KasseSeite() {
                     artikel.ausverkauft ? 'opacity-50 grayscale' : 'disabled:opacity-40'
                   }`}
                   style={{ borderTop: `6px solid ${artikel.farbe}` }}>
-                  <p className="break-words text-2xl font-semibold">
+                  <p lang={sprache} className="hyphens-auto break-words text-2xl font-semibold">
                     {zweisprachigerName(artikel.name, artikel.name_tr, sprache)}
                   </p>
                   <p className="nummer mt-2 text-xl text-navy">{formatEuro(artikel.preis_cent)}</p>
@@ -233,15 +235,15 @@ export default function KasseSeite() {
                     )
                   )}
                 </button>
-                <div className="flex gap-1">
+                <div className="grid grid-cols-2 gap-1">
                   {artikel.beilagen.length === 0 && !artikel.ausverkauft && (
                     <button onClick={() => sonderwunschOeffnen(artikel)} disabled={laeuft}
-                      className="flex-1 cursor-pointer rounded-full border border-linie px-3 py-1 text-sm text-schrift-gedimmt hover:bg-flaeche-hell disabled:cursor-not-allowed disabled:opacity-40">
+                      className={`${knopfUnterKachel} disabled:cursor-not-allowed disabled:opacity-40`}>
                       {texte.sonderwunsch}
                     </button>
                   )}
                   <button onClick={() => ausverkauftUmschalten(artikel)}
-                    className="flex-1 cursor-pointer rounded-full border border-linie px-3 py-1 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
+                    className={`${knopfUnterKachel} ${artikel.beilagen.length === 0 && !artikel.ausverkauft ? '' : 'col-span-2'}`}>
                     {artikel.ausverkauft ? texte.wiederVerfuegbar : texte.ausverkauftMelden}
                   </button>
                 </div>

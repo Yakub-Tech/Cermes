@@ -7,7 +7,7 @@ import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen, onAuswahlAendern, sprache }) {
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [gewaehlt, setGewaehlt] = useState([]);
-  const [sonderwunschAktiv, setSonderwunschAktiv] = useState(false);
+  const [sonderwunschAktiv, setSonderwunschAktiv] = useState(artikel.beilagen.length === 0);
   const [sonderwunsch, setSonderwunsch] = useState('');
 
   function umschalten(beilage) {
@@ -47,14 +47,16 @@ export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen, on
             </button>
           );
         })}
-        <button onClick={() => setSonderwunschAktiv(!sonderwunschAktiv)}
-          className={`col-span-2 cursor-pointer rounded-full border px-4 py-4 text-center text-lg ${
-            sonderwunschAktiv
-              ? 'border-navy bg-navy text-grund font-bold'
-              : 'border-dashed border-linie bg-grund hover:bg-flaeche-hell'
-          }`}>
-          {texte.sonderwunsch}
-        </button>
+        {artikel.beilagen.length > 0 && (
+          <button onClick={() => setSonderwunschAktiv(!sonderwunschAktiv)}
+            className={`col-span-2 cursor-pointer rounded-full border px-4 py-4 text-center text-lg ${
+              sonderwunschAktiv
+                ? 'border-navy bg-navy text-grund font-bold'
+                : 'border-dashed border-linie bg-grund hover:bg-flaeche-hell'
+            }`}>
+            {texte.sonderwunsch}
+          </button>
+        )}
       </div>
       {sonderwunschAktiv && (
         <input type="text" value={sonderwunsch} maxLength={100} autoFocus

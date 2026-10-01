@@ -78,7 +78,7 @@ export default function StornoTab({ sprache }) {
                 <span className="block truncate text-lg">
                   {zweisprachigerName(kaertchen.artikel_name, kaertchen.artikel_name_tr, sprache)}
                 </span>
-                <span className="block truncate text-sm text-schrift-gedimmt">
+                <span className="block break-words text-sm text-schrift-gedimmt">
                   {kaertchen.erstellt_am.slice(11, 16)}{texte.uhr ? ` ${texte.uhr}` : ''}
                   {kaertchen.beilagen.length > 0 &&
                     ` · ${kaertchen.beilagen.map((name, i) => zweisprachigerName(name, (kaertchen.beilagen_tr ?? [])[i], sprache)).join(', ')}`}
