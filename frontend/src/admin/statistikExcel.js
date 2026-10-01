@@ -55,8 +55,8 @@ function kopfzeileSchreiben(blatt, zeilenNummer, titel, arten) {
   blatt.views = [{ state: 'frozen', ySplit: zeilenNummer }];
 }
 
-function seiteEinrichten(blatt) {
-  blatt.pageSetup = { orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 0 };
+function seiteEinrichten(blatt, mitGrafik = false) {
+  blatt.pageSetup = { orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: mitGrafik ? 1 : 0 };
 }
 
 async function uebersichtBauen(arbeitsmappe, modell, erstelltText, logo) {
@@ -97,9 +97,7 @@ async function uebersichtBauen(arbeitsmappe, modell, erstelltText, logo) {
   seiteEinrichten(blatt);
 }
 
-function abschnittBauen(arbeitsmappe, modell, abschnitt, erstelltText) {
-  const blatt = arbeitsmappe.addWorksheet(abschnitt.blattName);
-  const tabellenStart = kopfBlock(blatt, modell, erstelltText) + 1;
+function tabelleSchreiben(blatt, modell, abschnitt, tabellenStart) {
   blatt.getCell(tabellenStart - 1, 1).value = abschnitt.titel;
   blatt.getCell(tabellenStart - 1, 1).font = { size: 13, bold: true, color: { argb: MARINE } };
 
@@ -138,7 +136,24 @@ function abschnittBauen(arbeitsmappe, modell, abschnitt, erstelltText) {
   }
 
   spaltenBreiten(blatt, titel, abschnitt.zeilen);
-  seiteEinrichten(blatt);
+}
+
+function grafikEinfuegen(arbeitsmappe, blatt, block, tabellenStart) {
+  const bild = block.bilder[0];
+  const spalte = block.abschnitt ? block.abschnitt.spalten.length + 1.3 : 0;
+  const titelZelle = blatt.getCell(tabellenStart - 1, block.abschnitt ? block.abschnitt.spalten.length + 2 : 1);
+  titelZelle.value = block.grafik.titel;
+  titelZelle.font = { size: 13, bold: true, color: { argb: MARINE } };
+  const bildId = arbeitsmappe.addImage({ base64: bild.dataUrl, extension: 'png' });
+  blatt.addImage(bildId, { tl: { col: spalte, row: tabellenStart }, ext: { width: bild.breite, height: bild.hoehe } });
+}
+
+function blockBauen(arbeitsmappe, modell, block, erstelltText) {
+  const blatt = arbeitsmappe.addWorksheet(block.blattName);
+  const tabellenStart = kopfBlock(blatt, modell, erstelltText) + 1;
+  if (block.abschnitt) tabelleSchreiben(blatt, modell, block.abschnitt, tabellenStart);
+  if (block.grafik) grafikEinfuegen(arbeitsmappe, blatt, block, tabellenStart);
+  seiteEinrichten(blatt, block.grafik !== null);
 }
 
 export async function excelErstellen(eingabe, modell, logo, erstelltText) {
@@ -147,9 +162,9 @@ export async function excelErstellen(eingabe, modell, logo, erstelltText) {
   arbeitsmappe.creator = modell.titel;
   arbeitsmappe.created = new Date();
 
-  await uebersichtBauen(arbeitsmappe, modell, erstelltText, logo);
-  for (const abschnitt of modell.abschnitte) {
-    abschnittBauen(arbeitsmappe, modell, abschnitt, erstelltText);
+  if (modell.kennzahlen.length > 0) await uebersichtBauen(arbeitsmappe, modell, erstelltText, logo);
+  for (const block of modell.bloecke) {
+    blockBauen(arbeitsmappe, modell, block, erstelltText);
   }
 
   const puffer = await arbeitsmappe.xlsx.writeBuffer();

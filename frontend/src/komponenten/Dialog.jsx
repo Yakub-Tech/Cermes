@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-export default function Dialog({ titel, kinder, children, onSchliessen }) {
+export default function Dialog({ titel, kinder, children, onSchliessen, breite = 'max-w-sm' }) {
   const dialogRef = useRef(null);
   const ausloeserRef = useRef(document.activeElement);
 
@@ -23,8 +23,8 @@ export default function Dialog({ titel, kinder, children, onSchliessen }) {
     <dialog ref={dialogRef} onCancel={escapeGedrueckt} onClick={onSchliessen}
       className="fixed inset-0 m-0 flex h-full max-h-none w-full max-w-none items-center
         justify-center bg-transparent p-2.5 backdrop:bg-black/70">
-      <div className="max-h-[90vh] w-full max-w-sm overflow-y-auto rounded-lg border border-linie
-          bg-flaeche p-4 shadow-2xl"
+      <div className={`max-h-[90vh] w-full ${breite} overflow-y-auto rounded-lg border border-linie
+          bg-flaeche p-4 shadow-2xl`}
         onClick={(ereignis) => ereignis.stopPropagation()}>
         {titel && <h2 className="mb-2.5 font-display text-base text-navy">{titel}</h2>}
         {kinder ?? children}

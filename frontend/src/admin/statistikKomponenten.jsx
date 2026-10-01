@@ -5,17 +5,13 @@ import { formatEuro } from '../api.js';
 import { datumAnzeigen } from './datum.js';
 import { artikelSortieren, sortierOptionen } from './artikelSortierung.js';
 import { kennzahlenBauen } from './statistikKennzahlen.js';
+import {
+  stueckFarbe, umsatzFarbe, gewinnFarbe, farbeOhneKosten, gewinnNeutralFarbe, achsenFarbe, gitterFarbe,
+} from './statistikFarben.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/statistikKomponenten.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
-export const stueckFarbe = '#2563A6';
-export const umsatzFarbe = '#0F8B8D';
-export const gewinnFarbe = '#2E8B57';
-export const farbeOhneKosten = '#8a97a6';
-const gewinnNeutralFarbe = '#5a6b7d';
-const achsenFarbe = '#5a6b7d';
-const gitterFarbe = '#ccd8e4';
 const ACHSEN_WINKEL_GRAD = -30;
 const ACHSEN_WINKEL_RAD = (ACHSEN_WINKEL_GRAD * Math.PI) / 180;
 const ACHSEN_COS = Math.cos(ACHSEN_WINKEL_RAD);

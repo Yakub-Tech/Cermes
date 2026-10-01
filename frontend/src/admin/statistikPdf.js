@@ -6,6 +6,7 @@ const MARINE = '#10538F';
 const ZEBRA = '#EEF3F8';
 const LINIE = '#CCD8E4';
 const GRAU = '#5A6B7D';
+const BILD_BREITE = 515;
 
 function zahlFormatieren(wert) {
   return wert.toLocaleString('de-DE');
@@ -109,11 +110,27 @@ function kennzahlKacheln(kennzahlen) {
 
 function seitenumbruchVorUeberschrift(knoten, abfrage) {
   if (!knoten.headlineLevel) return false;
+  if (knoten.startPosition.verticalRatio > 0.85) return true;
   const tabelle = abfrage.getFollowingNodesOnPage().find((k) => k.table);
   if (!tabelle) return true;
   const stehtObenAufSeite = knoten.startPosition.verticalRatio < 0.05;
   if (knoten.headlineLevel === 1 && tabelle.pageNumbers.length > 1 && !stehtObenAufSeite) return true;
   return false;
+}
+
+function abschnittInhalt(modell, abschnitt) {
+  const ueberschrift = { text: abschnitt.titel, fontSize: 13, bold: true, color: MARINE, margin: [0, 18, 0, 6] };
+  if (abschnitt.zeilen.length === 0) {
+    return [{ stack: [ueberschrift, { text: modell.texte.keineEintraege, italics: true, color: GRAU }], unbreakable: true }];
+  }
+  const stufe = abschnitt.zeilen.length <= 25 ? 1 : 2;
+  return [{ ...ueberschrift, headlineLevel: stufe }, ...tabelleBauen(abschnitt.spalten, abschnitt.zeilen, abschnitt.summe)];
+}
+
+function grafikInhalt(block) {
+  const ueberschrift = { text: block.grafik.titel, fontSize: 13, bold: true, color: MARINE, margin: [0, 18, 0, 6] };
+  const bilder = block.bilder.map((bild) => ({ image: bild.dataUrl, width: BILD_BREITE, alignment: 'center' }));
+  return [{ stack: [ueberschrift, bilder[0]], unbreakable: true }, ...bilder.slice(1)];
 }
 
 function dokumentBauen(modell, logo, erstelltText) {
@@ -131,19 +148,15 @@ function dokumentBauen(modell, logo, erstelltText) {
     margin: [0, 0, 0, 14],
   };
 
-  const inhalt = [kopf, kennzahlKacheln(modell.kennzahlen)];
+  const inhalt = [kopf];
+  if (modell.kennzahlen.length > 0) inhalt.push(kennzahlKacheln(modell.kennzahlen));
   if (modell.hinweisOhneKosten) {
     inhalt.push({ text: modell.texte.stueckOhneKosten.trim(), italics: true, fontSize: 9, color: '#8B1E2D', margin: [0, 6, 0, 0] });
   }
 
-  for (const abschnitt of modell.abschnitte) {
-    const ueberschrift = { text: abschnitt.titel, fontSize: 13, bold: true, color: MARINE, margin: [0, 18, 0, 6] };
-    if (abschnitt.zeilen.length === 0) {
-      inhalt.push({ stack: [ueberschrift, { text: modell.texte.keineEintraege, italics: true, color: GRAU }], unbreakable: true });
-    } else {
-      const stufe = abschnitt.zeilen.length <= 25 ? 1 : 2;
-      inhalt.push({ ...ueberschrift, headlineLevel: stufe }, ...tabelleBauen(abschnitt.spalten, abschnitt.zeilen, abschnitt.summe));
-    }
+  for (const block of modell.bloecke) {
+    if (block.abschnitt) inhalt.push(...abschnittInhalt(modell, block.abschnitt));
+    if (block.grafik) inhalt.push(...grafikInhalt(block));
   }
 
   return {
