@@ -1,11 +1,10 @@
-import { useState } from 'react';
 import {
   ResponsiveContainer, BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts';
 import { formatEuro } from '../api.js';
 import { datumAnzeigen } from './datum.js';
 import { artikelSortieren, sortierOptionen } from './artikelSortierung.js';
-import { gewinnmargeBerechnen } from './gewinnmarge.js';
+import { kennzahlenBauen } from './statistikKennzahlen.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/statistikKomponenten.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
@@ -118,28 +117,13 @@ export function Kennzahlen({ gesamt, stosszeit, sprache = 'de' }) {
   const texte = sprache === 'tr' ? eigeneTr : eigeneDe;
   const zeigtGeld = gesamt.umsatz_cent !== undefined;
   const kostenVollstaendig = !gesamt.stueck_ohne_kosten;
-  const marge = zeigtGeld ? gewinnmargeBerechnen(gesamt) : null;
-  const margeAnzeige = marge === null
-    ? '–'
-    : sprache === 'tr'
-      ? (marge < 0 ? `-%${Math.abs(marge)}` : `%${marge}`)
-      : `${marge} %`;
-
-  const kennzahlen = [
-    { id: 'portionen', beschriftung: texte.portionenLabel, wert: gesamt.stueck, farbe: stueckFarbe },
-    ...(zeigtGeld ? [
-      { id: 'umsatz', beschriftung: texte.umsatzLabel, wert: formatEuro(gesamt.umsatz_cent), farbe: umsatzFarbe },
-      {
-        id: 'gewinn', beschriftung: texte.gewinnLabel, wert: formatEuro(gesamt.gewinn_cent),
-        farbe: kostenVollstaendig ? gewinnFarbe : gewinnNeutralFarbe,
-      },
-      {
-        id: 'marge', beschriftung: texte.margeLabel, wert: margeAnzeige,
-        farbe: kostenVollstaendig ? gewinnFarbe : gewinnNeutralFarbe,
-      },
-    ] : []),
-    { id: 'stosszeit', beschriftung: texte.stosszeitLabel, wert: stosszeit ?? '–' },
-  ];
+  const farben = {
+    portionen: stueckFarbe,
+    umsatz: umsatzFarbe,
+    gewinn: kostenVollstaendig ? gewinnFarbe : gewinnNeutralFarbe,
+    marge: kostenVollstaendig ? gewinnFarbe : gewinnNeutralFarbe,
+  };
+  const kennzahlen = kennzahlenBauen(gesamt, stosszeit, sprache).map((k) => ({ ...k, farbe: farben[k.id] }));
 
   return (
     <div className="space-y-2.5">
@@ -155,8 +139,7 @@ export function Kennzahlen({ gesamt, stosszeit, sprache = 'de' }) {
   );
 }
 
-export function ArtikelDiagramme({ gesamt, artikel, leerText, sprache = 'de' }) {
-  const [sortierung, setSortierung] = useState('alphabetisch');
+export function ArtikelDiagramme({ gesamt, artikel, leerText, sortierung, onSortierung, sprache = 'de' }) {
   const texte = sprache === 'tr' ? eigeneTr : eigeneDe;
   const zeigtGeld = gesamt.umsatz_cent !== undefined;
 
@@ -164,7 +147,7 @@ export function ArtikelDiagramme({ gesamt, artikel, leerText, sprache = 'de' }) 
     <div className="space-y-2.5">
       <div className="flex items-center justify-end gap-1.5">
         <span className="text-xs text-schrift-gedimmt">{texte.sortierungLabel}</span>
-        <Auswahlmenue wert={sortierung} onWahl={setSortierung} optionen={sortierOptionen(sprache)}
+        <Auswahlmenue wert={sortierung} onWahl={onSortierung} optionen={sortierOptionen(sprache)}
           klasse="text-xs kaertchen-schatten" />
       </div>
 

@@ -6,6 +6,7 @@ import { useLiveUpdate } from '../useLiveUpdate.js';
 import { useNurAktivLaden } from '../useNurAktivLaden.js';
 import { heutigesDatum, datumAnzeigen } from './datum.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
+import ExportKnoepfe from './ExportKnoepfe.jsx';
 import { Kennzahlen, ArtikelDiagramme, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
 import { staerkstesElement } from './staerkstesElement.js';
 import { beideSprachenName, zweisprachigerName } from '../sprache/zweisprachigerName.js';
@@ -20,6 +21,7 @@ export default function StatistikEinzeltag({ sprache = 'de', aktiv = true }) {
   const [statistik, setStatistik] = useState(null);
   const [artikelListe, setArtikelListe] = useState([]);
   const [stundenArtikel, setStundenArtikel] = useState('');
+  const [sortierung, setSortierung] = useState('alphabetisch');
   const [gefilterteStunden, setGefilterteStunden] = useState(null);
 
   function stundenLaden(tagesDatum, artikelId) {
@@ -70,6 +72,9 @@ export default function StatistikEinzeltag({ sprache = 'de', aktiv = true }) {
     ...s, artikel_name: zweisprachigerName(s.artikel_name, s.artikel_name_tr, sprache),
   }));
 
+  const gewaehlterArtikel = artikelListe.find((a) => String(a.id) === stundenArtikel);
+  const stundenArtikelName = gewaehlterArtikel ? beideSprachenName(gewaehlterArtikel.name, gewaehlterArtikel.name_tr) : '';
+
   return (
     <div className="space-y-8">
       {ladefehler && <LadefehlerHinweis sprache={sprache} onErneut={laden} />}
@@ -86,12 +91,18 @@ export default function StatistikEinzeltag({ sprache = 'de', aktiv = true }) {
             ...tage.map((tag) => ({ wert: tag, text: datumAnzeigen(tag) })),
           ]}
           klasse="text-sm kaertchen-schatten" />
+        <ExportKnoepfe sprache={sprache} eingabe={{
+          ansicht: 'einzeltag', von: datum, bis: datum, sprache, gesamt: statistik.gesamt, stosszeit,
+          artikel: artikelAngezeigt, sortierung, verlauf: stundenDaten.map((s) => ({ beschriftung: s.stunde, stueck: s.stueck })),
+          verlaufArtikelName: stundenArtikelName, stornos: stornosAngezeigt,
+        }} />
       </div>
 
       <Kennzahlen gesamt={statistik.gesamt} stosszeit={stosszeit} sprache={sprache} />
 
       <div className="space-y-2.5">
-        <ArtikelDiagramme gesamt={statistik.gesamt} artikel={artikelAngezeigt} leerText={texte.keineVerkaeufe} sprache={sprache} />
+        <ArtikelDiagramme gesamt={statistik.gesamt} artikel={artikelAngezeigt} leerText={texte.keineVerkaeufe}
+          sortierung={sortierung} onSortierung={setSortierung} sprache={sprache} />
 
         <BalkenDiagramm titel={texte.titelTagesverlauf} daten={stundenDaten}
           xSchluessel="stunde" ySchluessel="stueck" schraegeAchse={false}

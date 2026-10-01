@@ -6,6 +6,7 @@ import { useLiveUpdate } from '../useLiveUpdate.js';
 import { useNurAktivLaden } from '../useNurAktivLaden.js';
 import { heutigesDatum, datumAnzeigen } from './datum.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
+import ExportKnoepfe from './ExportKnoepfe.jsx';
 import { Kennzahlen, ArtikelDiagramme, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
 import { staerkstesElement } from './staerkstesElement.js';
 import { beideSprachenName, zweisprachigerName } from '../sprache/zweisprachigerName.js';
@@ -37,6 +38,7 @@ export default function StatistikZeitraum({ sprache = 'de', aktiv = true }) {
   const [statistik, setStatistik] = useState(null);
   const [artikelListe, setArtikelListe] = useState([]);
   const [verlaufArtikel, setVerlaufArtikel] = useState('');
+  const [sortierung, setSortierung] = useState('alphabetisch');
   const [gefilterterVerlauf, setGefilterterVerlauf] = useState(null);
 
   function statistikLaden(vonWert, bisWert, artikelId) {
@@ -98,6 +100,9 @@ export default function StatistikZeitraum({ sprache = 'de', aktiv = true }) {
     ...s, artikel_name: zweisprachigerName(s.artikel_name, s.artikel_name_tr, sprache),
   }));
 
+  const gewaehlterArtikel = artikelListe.find((a) => String(a.id) === verlaufArtikel);
+  const verlaufArtikelName = gewaehlterArtikel ? beideSprachenName(gewaehlterArtikel.name, gewaehlterArtikel.name_tr) : '';
+
   return (
     <div className="space-y-8">
       {ladefehler && <LadefehlerHinweis sprache={sprache} onErneut={laden} />}
@@ -110,12 +115,18 @@ export default function StatistikZeitraum({ sprache = 'de', aktiv = true }) {
         <Auswahlmenue wert={bis} onWahl={bisWaehlen}
           optionen={bisOptionen.map((tag) => ({ wert: tag, text: datumAnzeigen(tag) }))}
           klasse="text-sm kaertchen-schatten" />
+        <ExportKnoepfe sprache={sprache} eingabe={{
+          ansicht: 'zeitraum', von, bis, sprache, gesamt: statistik.gesamt, stosszeit,
+          artikel: artikelAngezeigt, sortierung, verlauf: verlaufDaten.map((v) => ({ beschriftung: v.tag, stueck: v.stueck })),
+          verlaufArtikelName, stornos: stornosAngezeigt,
+        }} />
       </div>
 
       <Kennzahlen gesamt={statistik.gesamt} stosszeit={stosszeit} sprache={sprache} />
 
       <div className="space-y-2.5">
-        <ArtikelDiagramme gesamt={statistik.gesamt} artikel={artikelAngezeigt} leerText={texte.keineVerkaeufe} sprache={sprache} />
+        <ArtikelDiagramme gesamt={statistik.gesamt} artikel={artikelAngezeigt} leerText={texte.keineVerkaeufe}
+          sortierung={sortierung} onSortierung={setSortierung} sprache={sprache} />
 
         <BalkenDiagramm titel={texte.titelProTag} daten={verlaufDaten}
           xSchluessel="tag" ySchluessel="stueck"
