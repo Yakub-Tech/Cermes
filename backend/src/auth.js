@@ -6,6 +6,7 @@ import path from 'node:path';
 import { oeffneDatenbank, datenVerzeichnis } from './db.js';
 import { jetztIso } from './zeit.js';
 import { protokolliere } from './audit.js';
+import { passwortRegelFehler } from './passwortRegeln.js';
 
 function gekuerzterName(text) {
   return String(text ?? '').slice(0, 100);
@@ -65,6 +66,25 @@ export function sitzungenDesKontosBeenden(db, benutzerId) {
   db.prepare('DELETE FROM sitzung WHERE benutzer_id = ?').run(benutzerId);
 }
 
+function kontoPruefen(db, anfrage, benutzername, passwort, fehlAktion, fehlText) {
+  const benutzer = db.prepare('SELECT * FROM benutzer WHERE benutzername = ?').get(benutzername);
+  const schluessel = bremsSchluessel(anfrage.ip, benutzer);
+  const restSekunden = pauseRestSekunden(schluessel);
+  if (restSekunden > 0) {
+    return {
+      fehlerStatus: 429,
+      fehlerText: `Zu viele falsche Anmeldeversuche. Bitte in ${restSekunden} Sekunden noch einmal versuchen.`,
+    };
+  }
+  if (!benutzer || !bcrypt.compareSync(passwort || '', benutzer.passwort_hash)) {
+    fehlversuchMerken(schluessel);
+    protokolliereOhneAbsturz(db, { benutzername: gekuerzterName(benutzername) }, 'anmeldung', fehlAktion);
+    return { fehlerStatus: 401, fehlerText: fehlText };
+  }
+  fehlversucheJeSchluessel.delete(schluessel);
+  return { benutzer };
+}
+
 export function authEinbinden(app) {
   app.use(cookieSession({
     name: 'cermes-session',
@@ -90,6 +110,10 @@ export function authEinbinden(app) {
     if (!benutzername || !passwort || passwort.length < 8) {
       return antwort.status(400).json({ fehler: 'Benutzername und ein Passwort mit mindestens 8 Zeichen sind nötig.' });
     }
+    const regelFehler = passwortRegelFehler(passwort);
+    if (regelFehler) {
+      return antwort.status(400).json({ fehler: regelFehler });
+    }
     let ergebnis;
     try {
       ergebnis = db.transaction(() => {
@@ -111,23 +135,50 @@ export function authEinbinden(app) {
   app.post('/api/login', (anfrage, antwort) => {
     const db = oeffneDatenbank();
     const { benutzername, passwort } = anfrage.body;
-    const benutzer = db.prepare('SELECT * FROM benutzer WHERE benutzername = ?').get(benutzername);
-    const schluessel = bremsSchluessel(anfrage.ip, benutzer);
-    const restSekunden = pauseRestSekunden(schluessel);
-    if (restSekunden > 0) {
-      return antwort.status(429).json({
-        fehler: `Zu viele falsche Anmeldeversuche. Bitte in ${restSekunden} Sekunden noch einmal versuchen.`,
-      });
+    const pruefung = kontoPruefen(db, anfrage, benutzername, passwort, 'login_fehlgeschlagen',
+      'Benutzername oder Passwort ist falsch.');
+    if (pruefung.fehlerStatus) {
+      return antwort.status(pruefung.fehlerStatus).json({ fehler: pruefung.fehlerText });
     }
-    if (!benutzer || !bcrypt.compareSync(passwort || '', benutzer.passwort_hash)) {
-      fehlversuchMerken(schluessel);
-      protokolliereOhneAbsturz(db, { benutzername: gekuerzterName(benutzername) }, 'anmeldung', 'login_fehlgeschlagen');
-      return antwort.status(401).json({ fehler: 'Benutzername oder Passwort ist falsch.' });
-    }
-    fehlversucheJeSchluessel.delete(schluessel);
+    const benutzer = pruefung.benutzer;
     sitzungAnlegen(db, anfrage, benutzer.id);
     protokolliereOhneAbsturz(db, benutzer, 'anmeldung', 'login');
     antwort.json({ rolle: benutzer.rolle });
+  });
+
+  app.post('/api/passwort-aendern', (anfrage, antwort) => {
+    const db = oeffneDatenbank();
+    const { aktuellesPasswort, neuesPasswort } = anfrage.body;
+    const benutzername = typeof anfrage.body.benutzername === 'string' ? anfrage.body.benutzername : '';
+    const pruefung = kontoPruefen(db, anfrage, benutzername,
+      typeof aktuellesPasswort === 'string' ? aktuellesPasswort : '',
+      'passwort_aendern_fehlgeschlagen', 'Benutzername oder aktuelles Passwort ist falsch.');
+    if (pruefung.fehlerStatus) {
+      return antwort.status(pruefung.fehlerStatus).json({ fehler: pruefung.fehlerText });
+    }
+    const benutzer = pruefung.benutzer;
+    const regelFehler = passwortRegelFehler(neuesPasswort);
+    if (regelFehler) {
+      return antwort.status(400).json({ fehler: regelFehler });
+    }
+    if (bcrypt.compareSync(neuesPasswort, benutzer.passwort_hash)) {
+      return antwort.status(400).json({ fehler: 'Das neue Passwort muss sich vom bisherigen unterscheiden.' });
+    }
+    try {
+      db.transaction(() => {
+        db.prepare('UPDATE benutzer SET passwort_hash = ? WHERE id = ?')
+          .run(bcrypt.hashSync(neuesPasswort, 10), benutzer.id);
+        sitzungenDesKontosBeenden(db, benutzer.id);
+        protokolliere(db, benutzer, 'benutzer', 'passwort_selbst_geaendert', {
+          werte: { konto: benutzer.benutzername },
+        });
+      })();
+    } catch {
+      return antwort.status(500).json({
+        fehler: 'Es ist ein unerwarteter Fehler aufgetreten. Bitte noch einmal versuchen.',
+      });
+    }
+    antwort.json({ ok: true });
   });
 
   app.post('/api/logout', (anfrage, antwort) => {

@@ -4,6 +4,7 @@ import { oeffneDatenbank } from '../db.js';
 import { jetztIso } from '../zeit.js';
 import { brauchtRolle, sitzungenDesKontosBeenden } from '../auth.js';
 import { protokolliere } from '../audit.js';
+import { passwortRegelFehler } from '../passwortRegeln.js';
 
 const router = express.Router();
 
@@ -22,8 +23,9 @@ router.post('/api/benutzer', brauchtRolle('admin'), (anfrage, antwort) => {
   if (!benutzername || String(benutzername).trim() === '') {
     return antwort.status(400).json({ fehler: 'Bitte einen Benutzernamen angeben.' });
   }
-  if (!passwort || passwort.length < 8) {
-    return antwort.status(400).json({ fehler: 'Das Passwort muss mindestens 8 Zeichen haben.' });
+  const regelFehler = passwortRegelFehler(passwort);
+  if (regelFehler) {
+    return antwort.status(400).json({ fehler: regelFehler });
   }
   if (!['admin', 'kasse', 'belegen', 'ausgabe', 'verwaltung'].includes(rolle)) {
     return antwort.status(400).json({ fehler: 'Bitte eine Rolle wählen: Admin, Verwaltung, Kasse, Belegen oder Ausgabe.' });
@@ -54,8 +56,9 @@ router.post('/api/benutzer', brauchtRolle('admin'), (anfrage, antwort) => {
 router.post('/api/benutzer/:id/passwort', brauchtRolle('admin'), (anfrage, antwort) => {
   const db = oeffneDatenbank();
   const { passwort } = anfrage.body;
-  if (!passwort || passwort.length < 8) {
-    return antwort.status(400).json({ fehler: 'Das Passwort muss mindestens 8 Zeichen haben.' });
+  const regelFehler = passwortRegelFehler(passwort);
+  if (regelFehler) {
+    return antwort.status(400).json({ fehler: regelFehler });
   }
   try {
     const setzen = db.transaction(() => {
