@@ -19,7 +19,7 @@ export default function ArtikelKarte({ artikel, sprache }) {
         <p className={`nummer mt-2 text-xl ${hatBild ? 'text-flaeche/90 drop-shadow-md' : 'text-navy'}`}>
           {formatEuro(artikel.preis_cent)}
         </p>
-        {artikel.ausverkauft && (
+        {!!artikel.ausverkauft && (
           <p className="mt-2 inline-block rounded-full bg-weinrot px-4 py-1 text-lg font-bold text-flaeche">
             {texte.ausverkauft}
           </p>
