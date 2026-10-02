@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { berechneVerbleibendeSekunden, formatiereCountdown } from '../src/anmeldung/inaktivitaet.js';
+import { berechneVerbleibendeSekunden, formatiereCountdown, aktivitaetMeldenNoetig } from '../src/anmeldung/inaktivitaet.js';
 
 test('direkt nach einer Interaktion sind die vollen Sekunden übrig', () => {
   const zeitlimitMs = 30 * 60 * 1000;
@@ -26,4 +26,14 @@ test('formatiereCountdown zeigt Minuten:Sekunden, Sekunden zweistellig', () => {
   assert.equal(formatiereCountdown(1799), '29:59');
   assert.equal(formatiereCountdown(0), '0:00');
   assert.equal(formatiereCountdown(65), '1:05');
+});
+
+test('aktivitaetMeldenNoetig meldet höchstens einmal pro Minute', () => {
+  assert.equal(aktivitaetMeldenNoetig(0, 60 * 1000), true);
+  assert.equal(aktivitaetMeldenNoetig(0, 59 * 1000), false);
+  assert.equal(aktivitaetMeldenNoetig(1000, 1000), false);
+});
+
+test('aktivitaetMeldenNoetig meldet beim ersten Mal sofort', () => {
+  assert.equal(aktivitaetMeldenNoetig(null, 5000), true);
 });

@@ -2,7 +2,8 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import { oeffneDatenbank } from '../db.js';
 import { jetztIso } from '../zeit.js';
-import { brauchtRolle, sitzungenDesKontosBeenden } from '../auth.js';
+import { brauchtRolle } from '../auth.js';
+import { sitzungenDesKontosBeenden } from '../sitzung.js';
 import { protokolliere } from '../audit.js';
 import { passwortRegelFehler } from '../passwortRegeln.js';
 

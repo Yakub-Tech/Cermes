@@ -7,6 +7,7 @@ import { oeffneDatenbank, datenVerzeichnis } from './db.js';
 import { jetztIso } from './zeit.js';
 import { protokolliere } from './audit.js';
 import { passwortRegelFehler } from './passwortRegeln.js';
+import { SITZUNG_DAUER_MS, sitzungAnlegen, sitzungenDesKontosBeenden, aktuellerBenutzer } from './sitzung.js';
 
 function gekuerzterName(text) {
   return String(text ?? '').slice(0, 100);
@@ -41,8 +42,6 @@ function einrichtungsKennwortStimmt(eingabe) {
   return crypto.timingSafeEqual(sha(eingabe), sha(einrichtungsKennwort()));
 }
 
-const SITZUNG_DAUER_MS = 24 * 60 * 60 * 1000;
-
 const FEHLVERSUCHE_BIS_PAUSE = 10;
 const PAUSE_MS = 30 * 1000;
 const fehlversucheJeSchluessel = new Map();
@@ -67,18 +66,6 @@ function fehlversuchMerken(schluessel) {
     eintrag.pauseBis = Date.now() + PAUSE_MS;
   }
   fehlversucheJeSchluessel.set(schluessel, eintrag);
-}
-
-function sitzungAnlegen(db, anfrage, benutzerId) {
-  db.prepare('DELETE FROM sitzung WHERE ausgestellt_ms < ?').run(Date.now() - SITZUNG_DAUER_MS);
-  const kennung = crypto.randomBytes(24).toString('hex');
-  db.prepare('INSERT INTO sitzung (id, benutzer_id, ausgestellt_ms) VALUES (?, ?, ?)')
-    .run(kennung, benutzerId, Date.now());
-  anfrage.session.sitzungId = kennung;
-}
-
-export function sitzungenDesKontosBeenden(db, benutzerId) {
-  db.prepare('DELETE FROM sitzung WHERE benutzer_id = ?').run(benutzerId);
 }
 
 function kontoPruefen(db, anfrage, benutzername, passwort, fehlAktion, fehlText) {
@@ -216,6 +203,10 @@ export function authEinbinden(app) {
     antwort.status(204).end();
   });
 
+  app.post('/api/aktivitaet', brauchtAnmeldung(), (_anfrage, antwort) => {
+    antwort.status(204).end();
+  });
+
   app.get('/api/session', (anfrage, antwort) => {
     const benutzer = aktuellerBenutzer(anfrage);
     if (!benutzer) return antwort.json({ angemeldet: false });
@@ -223,18 +214,20 @@ export function authEinbinden(app) {
   });
 }
 
-export function aktuellerBenutzer(anfrage) {
-  if (!anfrage.session?.sitzungId) return null;
-  return oeffneDatenbank().prepare(
-    `SELECT b.* FROM sitzung s JOIN benutzer b ON b.id = s.benutzer_id
-     WHERE s.id = ? AND s.ausgestellt_ms > ?`
-  ).get(anfrage.session.sitzungId, Date.now() - SITZUNG_DAUER_MS) || null;
+function nichtAngemeldet(anfrage, antwort) {
+  if (anfrage.inaktivAbgemeldet) {
+    return antwort.status(401).json({
+      fehler: 'Sie wurden wegen Inaktivität abgemeldet. Bitte melden Sie sich neu an.',
+      inaktiv: true,
+    });
+  }
+  return antwort.status(401).json({ fehler: 'Bitte zuerst anmelden.' });
 }
 
 export function brauchtAnmeldung() {
   return (anfrage, antwort, weiter) => {
     if (!aktuellerBenutzer(anfrage)) {
-      return antwort.status(401).json({ fehler: 'Bitte zuerst anmelden.' });
+      return nichtAngemeldet(anfrage, antwort);
     }
     weiter();
   };
@@ -244,7 +237,7 @@ export function brauchtRolle(rolle) {
   const erlaubteRollen = Array.isArray(rolle) ? rolle : [rolle];
   return (anfrage, antwort, weiter) => {
     const benutzer = aktuellerBenutzer(anfrage);
-    if (!benutzer) return antwort.status(401).json({ fehler: 'Bitte zuerst anmelden.' });
+    if (!benutzer) return nichtAngemeldet(anfrage, antwort);
     if (!erlaubteRollen.includes(benutzer.rolle)) {
       return antwort.status(403).json({ fehler: 'Dieses Konto hat hierfür keine Berechtigung.' });
     }
