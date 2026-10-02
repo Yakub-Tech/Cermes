@@ -46,6 +46,7 @@ const SITZUNG_DAUER_MS = 24 * 60 * 60 * 1000;
 const FEHLVERSUCHE_BIS_PAUSE = 10;
 const PAUSE_MS = 30 * 1000;
 const fehlversucheJeSchluessel = new Map();
+const BLIND_HASH = bcrypt.hashSync(crypto.randomBytes(16).toString('hex'), 10);
 
 function bremsSchluessel(adresse, benutzer) {
   if (!benutzer) return adresse;
@@ -90,7 +91,9 @@ function kontoPruefen(db, anfrage, benutzername, passwort, fehlAktion, fehlText)
       fehlerText: `Zu viele falsche Anmeldeversuche. Bitte in ${restSekunden} Sekunden noch einmal versuchen.`,
     };
   }
-  if (!benutzer || !bcrypt.compareSync(passwort || '', benutzer.passwort_hash)) {
+  const hash = benutzer ? benutzer.passwort_hash : BLIND_HASH;
+  const passwortStimmt = bcrypt.compareSync(passwort || '', hash);
+  if (!benutzer || !passwortStimmt) {
     fehlversuchMerken(schluessel);
     protokolliereOhneAbsturz(db, { benutzername: gekuerzterName(benutzername) }, 'anmeldung', fehlAktion);
     return { fehlerStatus: 401, fehlerText: fehlText };
