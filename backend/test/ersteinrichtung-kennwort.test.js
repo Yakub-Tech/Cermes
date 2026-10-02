@@ -58,6 +58,24 @@ test('Ersteinrichtung: Kennwort kommt aus CERMES_EINRICHTUNGSKENNWORT, keine Dat
   }
 });
 
+test('Ersteinrichtung: nach 10 falschen Kennwörtern kurze Pause, danach geht es von selbst wieder', async (t) => {
+  t.mock.timers.enable({ apis: ['Date'], now: Date.now() });
+  const { app, db } = frischeApp();
+  const versuch = (kennwort) => request(app).post('/api/ersteinrichtung')
+    .send({ benutzername: 'chef', passwort: 'sehr-geheim', einrichtungsKennwort: kennwort });
+
+  for (let i = 0; i < 10; i += 1) {
+    assert.equal((await versuch(`falsch-${i}`)).status, 403);
+  }
+  const gebremst = await versuch(einrichtungsKennwort());
+  assert.equal(gebremst.status, 429);
+  assert.match(gebremst.body.fehler, /^Zu viele falsche Einrichtungskennwörter\. Bitte in \d+ Sekunden noch einmal versuchen\.$/);
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM benutzer').get().n, 0);
+
+  t.mock.timers.tick(30 * 1000 + 1);
+  assert.equal((await versuch(einrichtungsKennwort())).status, 200);
+});
+
 for (const eingabe of ['', 'irgendwas']) {
   test(`Ersteinrichtung: ohne Umgebungsvariable gesperrt (Eingabe "${eingabe}")`, async () => {
     const vorher = process.env.CERMES_EINRICHTUNGSKENNWORT;

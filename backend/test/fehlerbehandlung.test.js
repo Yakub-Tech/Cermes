@@ -81,6 +81,17 @@ test('Benutzer anlegen mit einer Zahl als Benutzername ergibt 500 mit dem allgem
   pruefeSauberenFehler(antwort, 500, UNERWARTETER_FEHLER);
 });
 
+test('Statistik-Zeitraum mit einem Objekt als Starttag ergibt 500 mit dem allgemeinen deutschen Satz', async () => {
+  const { app, db } = frischeApp();
+  const admin = await angemeldeterAgent(app, db, 'admin');
+
+  const { antwort } = await mitAbgefangenemProtokoll(
+    () => admin.get('/api/statistik/zeitraum?von[a]=1&bis=2026-01-01')
+  );
+
+  pruefeSauberenFehler(antwort, 500, UNERWARTETER_FEHLER);
+});
+
 test('Hat die Antwort schon begonnen, reicht die Fehlerbehandlung den Fehler an Express weiter', async () => {
   const fehler = new Error('mitten in der Antwort');
   let weitergereicht = null;

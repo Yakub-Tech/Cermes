@@ -113,11 +113,20 @@ export function authEinbinden(app) {
         fehler: 'Die Ersteinrichtung ist gesperrt, weil am Server kein Einrichtungskennwort eingestellt ist. Wie das geht, steht in der ANLEITUNG.md.',
       });
     }
+    const schluessel = `einrichtung|${anfrage.ip}`;
+    const restSekunden = pauseRestSekunden(schluessel);
+    if (restSekunden > 0) {
+      return antwort.status(429).json({
+        fehler: `Zu viele falsche Einrichtungskennwörter. Bitte in ${restSekunden} Sekunden noch einmal versuchen.`,
+      });
+    }
     if (!einrichtungsKennwortStimmt(anfrage.body.einrichtungsKennwort)) {
+      fehlversuchMerken(schluessel);
       return antwort.status(403).json({
         fehler: 'Das Einrichtungskennwort fehlt oder ist falsch. Es steht in der Datei .env im Cermes-Ordner.',
       });
     }
+    fehlversucheJeSchluessel.delete(schluessel);
     if (!benutzername || !passwort || passwort.length < 8) {
       return antwort.status(400).json({ fehler: 'Benutzername und ein Passwort mit mindestens 8 Zeichen sind nötig.' });
     }
