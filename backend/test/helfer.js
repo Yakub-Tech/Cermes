@@ -5,6 +5,7 @@ import request from 'supertest';
 import bcrypt from 'bcryptjs';
 
 process.env.DATEN_VERZEICHNIS = fs.mkdtempSync(path.join(os.tmpdir(), 'cermes-test-'));
+process.env.CERMES_EINRICHTUNGSKENNWORT = 'Test-Einrichtung-47';
 
 const { oeffneDatenbank } = await import('../src/db.js');
 const { erstelleApp } = await import('../src/server.js');

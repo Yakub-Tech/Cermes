@@ -49,8 +49,8 @@ export default function Ersteinrichtung() {
             aria-describedby="einrichtungsKennwortHinweis"
             className="mb-1 w-full rounded border border-linie bg-grund px-3 py-3 font-mono text-lg outline-none focus:border-blau-hell" />
           <p id="einrichtungsKennwortHinweis" className="mb-4 text-sm text-schrift-gedimmt">
-            Steht beim Start des Servers im Container-Log (Befehl: docker compose logs cermes)
-            und in der Datei data/einrichtungs-kennwort.
+            Das hast du vor dem ersten Start selbst festgelegt. Es steht in der Datei .env im
+            Cermes-Ordner (siehe ANLEITUNG.md, Teil 1).
           </p>
 
           <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="benutzername">

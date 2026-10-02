@@ -29,15 +29,12 @@ function sessionGeheimnis() {
 }
 
 export function einrichtungsKennwort() {
-  const datei = path.join(datenVerzeichnis(), 'einrichtungs-kennwort');
-  if (!fs.existsSync(datei)) {
-    fs.writeFileSync(datei, crypto.randomBytes(8).toString('hex'));
-  }
-  return fs.readFileSync(datei, 'utf8').trim();
+  return (process.env.CERMES_EINRICHTUNGSKENNWORT ?? '').trim();
 }
 
 function einrichtungsKennwortStimmt(eingabe) {
   if (typeof eingabe !== 'string') return false;
+  if (einrichtungsKennwort() === '') return false;
   const sha = (text) => crypto.createHash('sha256').update(text).digest();
   return crypto.timingSafeEqual(sha(eingabe), sha(einrichtungsKennwort()));
 }
@@ -111,9 +108,14 @@ export function authEinbinden(app) {
       return antwort.status(409).json({ fehler: 'Die Ersteinrichtung wurde bereits durchgeführt.' });
     }
     const { benutzername, passwort } = anfrage.body;
+    if (einrichtungsKennwort() === '') {
+      return antwort.status(403).json({
+        fehler: 'Die Ersteinrichtung ist gesperrt, weil am Server kein Einrichtungskennwort eingestellt ist. Wie das geht, steht in der ANLEITUNG.md.',
+      });
+    }
     if (!einrichtungsKennwortStimmt(anfrage.body.einrichtungsKennwort)) {
       return antwort.status(403).json({
-        fehler: 'Das Einrichtungskennwort fehlt oder ist falsch. Es steht beim Start des Servers im Container-Log.',
+        fehler: 'Das Einrichtungskennwort fehlt oder ist falsch. Es steht in der Datei .env im Cermes-Ordner.',
       });
     }
     if (!benutzername || !passwort || passwort.length < 8) {

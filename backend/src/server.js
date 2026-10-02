@@ -90,7 +90,11 @@ export function starteServer() {
     console.log('Cermes läuft auf Port 8080');
     const anzahlBenutzer = oeffneDatenbank().prepare('SELECT COUNT(*) AS n FROM benutzer').get().n;
     if (anzahlBenutzer === 0) {
-      console.log(`Einrichtungskennwort für das erste Admin-Konto: ${einrichtungsKennwort()}`);
+      if (einrichtungsKennwort() === '') {
+        console.log('Ersteinrichtung gesperrt: Die Umgebungsvariable CERMES_EINRICHTUNGSKENNWORT ist nicht gesetzt (Datei .env, siehe ANLEITUNG.md).');
+      } else {
+        console.log('Ersteinrichtung offen, das Einrichtungskennwort steht in der Datei .env im Cermes-Ordner.');
+      }
     }
   });
   websocketEinbinden(server);
