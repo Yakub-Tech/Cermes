@@ -6,8 +6,6 @@ export const de = {
   meldungZurueckInBearbeitung: 'zurück in Bearbeitung',
   nrPraefix: 'Nr.',
   nochZuMachen: 'Noch zu machen:',
-  seitPraefix: 'seit ',
-  seitSuffix: ' min',
   stornoTitel: 'STORNIERT, nicht weitermachen:',
   stornoVerstanden: 'Verstanden',
 };
@@ -19,8 +17,6 @@ export const tr = {
   meldungZurueckInBearbeitung: 'tekrar hazırlanıyor',
   nrPraefix: 'No.',
   nochZuMachen: 'Yapılacaklar:',
-  seitPraefix: '',
-  seitSuffix: ' dakikadır',
   stornoTitel: 'İPTAL EDİLDİ, devam etmeyin:',
   stornoVerstanden: 'Anlaşıldı',
 };

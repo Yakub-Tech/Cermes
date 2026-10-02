@@ -104,7 +104,7 @@ export default function BelegenSeite() {
 
       <StornoHinweis kaertchen={listen.storniert} sprache={sprache} texte={texte} onVerstanden={stornoVerstanden} />
 
-      <OffeneMengenLeiste kaertchen={listen.in_bearbeitung} jetzt={jetzt} sprache={sprache} texte={texte} />
+      <OffeneMengenLeiste kaertchen={listen.in_bearbeitung} sprache={sprache} texte={texte} />
 
       <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 bg-grund p-3">
         {spalten.map((spalte) => (

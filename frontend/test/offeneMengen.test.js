@@ -21,15 +21,6 @@ test('Zählt die Kärtchen je Artikel, Beilagen und Sonderwünsche spielen keine
   assert.equal(mengen[1].artikel_name_tr, 'Patates');
 });
 
-test('Merkt sich je Artikel das älteste Kärtchen, unabhängig von der Reihenfolge', () => {
-  const kaertchen = [
-    karte('Adana', 'Adana', '2026-10-01T12:05:00'),
-    karte('Adana', 'Adana', '2026-10-01T12:00:00'),
-    karte('Adana', 'Adana', '2026-10-01T12:09:00'),
-  ];
-  assert.equal(offeneMengen(kaertchen)[0].aeltestes_seit, '2026-10-01T12:00:00');
-});
-
 test('Sortiert alphabetisch nach deutschem Artikelnamen, damit die Zeilen nicht springen', () => {
   const kaertchen = [karte('Pommes', 'Patates', 'x'), karte('Adana', 'Adana', 'x'), karte('Ayran', 'Ayran', 'x')];
   assert.deepEqual(offeneMengen(kaertchen).map((m) => m.artikel_name), ['Adana', 'Ayran', 'Pommes']);
