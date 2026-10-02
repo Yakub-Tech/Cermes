@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import { frischeApp, angemeldeterAgent, auditStand, auditSeit } from './helfer.js';
+import { einrichtungsKennwort } from '../src/auth.js';
 
 async function artikelAnlegen(admin, daten = {}) {
   return (await admin.post('/api/artikel').send({
@@ -69,7 +70,7 @@ test('Ersteinrichtung wird protokolliert', async () => {
   const { app, db } = frischeApp();
   const stand = auditStand(db);
   const antwort = await request(app).post('/api/ersteinrichtung')
-    .send({ benutzername: 'erster-admin', passwort: 'sehr-geheim-123' });
+    .send({ benutzername: 'erster-admin', passwort: 'sehr-geheim-123', einrichtungsKennwort: einrichtungsKennwort() });
   assert.equal(antwort.status, 200);
 
   const eintraege = auditSeit(db, stand);

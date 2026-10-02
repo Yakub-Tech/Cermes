@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import request from 'supertest';
 import bcrypt from 'bcryptjs';
 import { frischeApp, auditStand, auditSeit, angemeldeterAgent } from './helfer.js';
+import { einrichtungsKennwort } from '../src/auth.js';
 
 function kontoAnlegen(db, benutzername, rolle = 'kasse') {
   db.prepare('INSERT INTO benutzer (benutzername, passwort_hash, rolle, erstellt_am) VALUES (?, ?, ?, ?)')
@@ -159,7 +160,7 @@ test('Passwort ändern: Altkonto mit Passwort über 72 Bytes, gekürzte Fassung 
 test('Ersteinrichtung: Passwort über 72 Bytes wird abgelehnt', async () => {
   const { app } = frischeApp();
   const antwort = await request(app).post('/api/ersteinrichtung')
-    .send({ benutzername: 'chef', passwort: 'a'.repeat(73) });
+    .send({ benutzername: 'chef', passwort: 'a'.repeat(73), einrichtungsKennwort: einrichtungsKennwort() });
   assert.equal(antwort.status, 400);
   assert.match(antwort.body.fehler, /zu lang/);
 });

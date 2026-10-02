@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { oeffneDatenbank, schliesseDatenbank } from './db.js';
-import { authEinbinden } from './auth.js';
+import { authEinbinden, einrichtungsKennwort } from './auth.js';
 import { websocketEinbinden } from './broadcast.js';
 import tvRouter from './routen/tv.js';
 import kundeRouter from './routen/kunde.js';
@@ -88,6 +88,10 @@ export function starteServer() {
   const app = erstelleApp();
   const server = app.listen(8080, () => {
     console.log('Cermes läuft auf Port 8080');
+    const anzahlBenutzer = oeffneDatenbank().prepare('SELECT COUNT(*) AS n FROM benutzer').get().n;
+    if (anzahlBenutzer === 0) {
+      console.log(`Einrichtungskennwort für das erste Admin-Konto: ${einrichtungsKennwort()}`);
+    }
   });
   websocketEinbinden(server);
   return server;

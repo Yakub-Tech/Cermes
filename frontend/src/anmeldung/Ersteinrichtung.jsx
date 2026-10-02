@@ -5,6 +5,7 @@ import Urheberrechtshinweis from '../komponenten/Urheberrechtshinweis.jsx';
 
 export default function Ersteinrichtung() {
   const navigiere = useNavigate();
+  const [einrichtungsKennwort, setEinrichtungsKennwort] = useState('');
   const [benutzername, setBenutzername] = useState('');
   const [passwort, setPasswort] = useState('');
   const [wiederholung, setWiederholung] = useState('');
@@ -20,7 +21,7 @@ export default function Ersteinrichtung() {
     setLaeuft(true);
     setFehler('');
     try {
-      await apiPost('/api/ersteinrichtung', { benutzername, passwort });
+      await apiPost('/api/ersteinrichtung', { einrichtungsKennwort, benutzername, passwort });
       navigiere('/admin', { replace: true });
     } catch (f) {
       setFehler(f.message);
@@ -40,10 +41,22 @@ export default function Ersteinrichtung() {
             später Artikel, Benutzer und Statistik.
           </p>
 
+          <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="einrichtungsKennwort">
+            Einrichtungskennwort
+          </label>
+          <input id="einrichtungsKennwort" value={einrichtungsKennwort} autoFocus autoComplete="off"
+            onChange={(e) => setEinrichtungsKennwort(e.target.value)}
+            aria-describedby="einrichtungsKennwortHinweis"
+            className="mb-1 w-full rounded border border-linie bg-grund px-3 py-3 font-mono text-lg outline-none focus:border-blau-hell" />
+          <p id="einrichtungsKennwortHinweis" className="mb-4 text-sm text-schrift-gedimmt">
+            Steht beim Start des Servers im Container-Log (Befehl: docker compose logs cermes)
+            und in der Datei data/einrichtungs-kennwort.
+          </p>
+
           <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="benutzername">
             Benutzername
           </label>
-          <input id="benutzername" value={benutzername} autoFocus autoComplete="username"
+          <input id="benutzername" value={benutzername} autoComplete="username"
             onChange={(e) => setBenutzername(e.target.value)}
             className="mb-4 w-full rounded border border-linie bg-grund px-3 py-3 text-lg outline-none focus:border-blau-hell" />
 

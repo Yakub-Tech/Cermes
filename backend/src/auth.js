@@ -27,6 +27,20 @@ function sessionGeheimnis() {
   return fs.readFileSync(datei, 'utf8');
 }
 
+export function einrichtungsKennwort() {
+  const datei = path.join(datenVerzeichnis(), 'einrichtungs-kennwort');
+  if (!fs.existsSync(datei)) {
+    fs.writeFileSync(datei, crypto.randomBytes(8).toString('hex'));
+  }
+  return fs.readFileSync(datei, 'utf8').trim();
+}
+
+function einrichtungsKennwortStimmt(eingabe) {
+  if (typeof eingabe !== 'string') return false;
+  const sha = (text) => crypto.createHash('sha256').update(text).digest();
+  return crypto.timingSafeEqual(sha(eingabe), sha(einrichtungsKennwort()));
+}
+
 const SITZUNG_DAUER_MS = 24 * 60 * 60 * 1000;
 
 const FEHLVERSUCHE_BIS_PAUSE = 10;
@@ -107,6 +121,11 @@ export function authEinbinden(app) {
       return antwort.status(409).json({ fehler: 'Die Ersteinrichtung wurde bereits durchgeführt.' });
     }
     const { benutzername, passwort } = anfrage.body;
+    if (!einrichtungsKennwortStimmt(anfrage.body.einrichtungsKennwort)) {
+      return antwort.status(403).json({
+        fehler: 'Das Einrichtungskennwort fehlt oder ist falsch. Es steht beim Start des Servers im Container-Log.',
+      });
+    }
     if (!benutzername || !passwort || passwort.length < 8) {
       return antwort.status(400).json({ fehler: 'Benutzername und ein Passwort mit mindestens 8 Zeichen sind nötig.' });
     }

@@ -2,12 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import { frischeApp, angemeldeterAgent } from './helfer.js';
+import { einrichtungsKennwort } from '../src/auth.js';
 
 test('Ersteinrichtung nur ohne Benutzer möglich', async () => {
   const { app } = frischeApp();
   assert.equal((await request(app).get('/api/ersteinrichtung')).body.noetig, true);
   const antwort = await request(app).post('/api/ersteinrichtung')
-    .send({ benutzername: 'chef', passwort: 'sehr-geheim' });
+    .send({ benutzername: 'chef', passwort: 'sehr-geheim', einrichtungsKennwort: einrichtungsKennwort() });
   assert.equal(antwort.status, 200);
   const zweite = await request(app).post('/api/ersteinrichtung')
     .send({ benutzername: 'x', passwort: 'y' });
