@@ -2,6 +2,11 @@ import { useState } from 'react';
 import { apiGet, apiPost, apiPut, apiDelete } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
+import Hinweiskasten from '../komponenten/Hinweiskasten.jsx';
+import Pillenschalter from '../komponenten/Pillenschalter.jsx';
+import { Button } from '@/komponenten/ui/button';
+import { Input } from '@/komponenten/ui/input';
+import { EINGABE_DICHT } from './eingabeKlasse.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import Kontrollkaestchen from '../komponenten/Kontrollkaestchen.jsx';
@@ -66,30 +71,27 @@ export default function BeilagenSeite({ sprache = 'de' }) {
 
   return (
     <div>
-      <h2 className="mb-4 font-display text-base text-navy">{texte.titel}</h2>
+      <h2 className="mb-4 font-display text-base font-semibold tracking-tight text-schrift">{texte.titel}</h2>
 
       <form onSubmit={anlegen} className="mb-4 flex max-w-md flex-wrap items-center gap-2">
-        <input value={neuerName} onChange={(e) => setNeuerName(e.target.value)}
-          placeholder={texte.neuePlatzhalter}
-          className="flex-1 rounded border border-linie bg-flaeche px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
+        <Input value={neuerName} onChange={(e) => setNeuerName(e.target.value)}
+          placeholder={texte.neuePlatzhalter} className={`w-auto flex-1 ${EINGABE_DICHT}`} />
         {!neuerNurDeutsch && (
-          <input value={neuerNameTr} onChange={(e) => setNeuerNameTr(e.target.value)}
-            placeholder={texte.nameTuerkisch}
-            className="flex-1 rounded border border-linie bg-flaeche px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
+          <Input value={neuerNameTr} onChange={(e) => setNeuerNameTr(e.target.value)}
+            placeholder={texte.nameTuerkisch} className={`w-auto flex-1 ${EINGABE_DICHT}`} />
         )}
         <label className="flex items-center gap-1.5 text-xs text-schrift-gedimmt">
           <Kontrollkaestchen markiert={neuerNurDeutsch} onWahl={setNeuerNurDeutsch} />
           {texte.nurAufDeutsch}
         </label>
-        <button type="submit" disabled={neuerName.trim() === '' || legtGeradeAn}
-          className="kaertchen-schatten cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
+        <Button type="submit" disabled={neuerName.trim() === '' || legtGeradeAn} className="px-4 text-sm font-bold">
           {texte.anlegen}
-        </button>
+        </Button>
       </form>
 
       {ladefehler && <LadefehlerHinweis sprache={sprache} onErneut={laden} />}
 
-      {fehler && <p className="mb-2.5 max-w-md rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
+      {fehler && <Hinweiskasten art="fehler" className="mb-2.5 max-w-md px-2 py-1.5 text-sm">{fehler}</Hinweiskasten>}
 
       <ul className="kaertchen-schatten max-w-md divide-y divide-linie rounded-lg border border-linie bg-flaeche text-sm">
         {beilagen.length === 0 && !ladefehler && (
@@ -100,51 +102,47 @@ export default function BeilagenSeite({ sprache = 'de' }) {
             <span className={`flex-1 text-sm ${beilage.aktiv ? '' : 'text-schrift-gedimmt line-through'}`}>
               {beideSprachenName(beilage.name, beilage.name_tr)}
             </span>
-            <button
+            <Pillenschalter an={!!beilage.aktiv}
               onClick={() => apiPut(`/api/beilagen/${beilage.id}`, {
                 name: beilage.name, aktiv: beilage.aktiv ? 0 : 1,
-              }).catch((f) => setFehler(f.message))}
-              className={`cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold ${
-                beilage.aktiv ? 'bg-navy text-grund' : 'border border-linie text-schrift-gedimmt'
-              }`}>
+              }).catch((f) => setFehler(f.message))}>
               {beilage.aktiv ? texte.aktiv : texte.inaktiv}
-            </button>
-            <button onClick={() => setBearbeitung({ ...beilage, nurDeutsch: !beilage.name_tr })}
-              className="cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
+            </Pillenschalter>
+            <Button variant="outline" size="sm" onClick={() => setBearbeitung({ ...beilage, nurDeutsch: !beilage.name_tr })}
+              className="px-2 text-sm text-schrift-gedimmt">
               {texte.umbenennen}
-            </button>
-            <button onClick={() => setLoeschung(beilage)}
-              className="cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-weinrot hover:bg-flaeche-hell">
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setLoeschung(beilage)}
+              className="px-2 text-sm text-gefahr-schrift">
               {texte.loeschen}
-            </button>
+            </Button>
           </li>
         ))}
       </ul>
 
       {bearbeitung && (
         <Dialog titel={texte.umbenennenTitel} onSchliessen={() => setBearbeitung(null)}>
-          <input value={bearbeitung.name} autoFocus
+          <Input value={bearbeitung.name} autoFocus
             onChange={(e) => setBearbeitung({ ...bearbeitung, name: e.target.value })}
-            className="mb-2.5 w-full rounded border border-linie bg-grund px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
+            className={`mb-2.5 ${EINGABE_DICHT}`} />
           <label className="mb-1 flex items-center gap-1.5 text-xs text-schrift-gedimmt">
             <Kontrollkaestchen markiert={bearbeitung.nurDeutsch}
               onWahl={(wert) => setBearbeitung({ ...bearbeitung, nurDeutsch: wert })} />
             {texte.nurAufDeutsch}
           </label>
           {!bearbeitung.nurDeutsch && (
-            <input value={bearbeitung.name_tr ?? ''} placeholder={texte.nameTuerkisch}
+            <Input value={bearbeitung.name_tr ?? ''} placeholder={texte.nameTuerkisch}
               onChange={(e) => setBearbeitung({ ...bearbeitung, name_tr: e.target.value })}
-              className="mb-2.5 w-full rounded border border-linie bg-grund px-2 py-1.5 text-sm outline-none focus:border-blau-hell" />
+              className={`mb-2.5 ${EINGABE_DICHT}`} />
           )}
           <div className="flex gap-2">
-            <button onClick={() => setBearbeitung(null)}
-              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
+            <Button variant="outline" onClick={() => setBearbeitung(null)}
+              className="flex-1 text-sm text-schrift-gedimmt">
               {texte.abbrechen}
-            </button>
-            <button onClick={speichern}
-              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
+            </Button>
+            <Button onClick={speichern} className="flex-1 text-sm font-bold">
               {texte.speichern}
-            </button>
+            </Button>
           </div>
         </Dialog>
       )}
@@ -155,17 +153,17 @@ export default function BeilagenSeite({ sprache = 'de' }) {
             {texte.loeschenVorspann}{beideSprachenName(loeschung.name, loeschung.name_tr)}{texte.loeschenNachspann}
           </p>
           <div className="flex gap-2">
-            <button onClick={() => setLoeschung(null)}
-              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
+            <Button variant="outline" onClick={() => setLoeschung(null)}
+              className="flex-1 text-sm text-schrift-gedimmt">
               {texte.abbrechen}
-            </button>
-            <button
+            </Button>
+            <Button variant="gefahr"
               onClick={() => apiDelete(`/api/beilagen/${loeschung.id}`)
                 .then(() => setLoeschung(null))
                 .catch((f) => { setFehler(f.message); setLoeschung(null); })}
-              className="flex-1 cursor-pointer rounded-full bg-weinrot py-1.5 text-sm font-bold text-flaeche hover:bg-weinrot-hell">
+              className="flex-1 text-sm font-bold">
               {texte.jaLoeschen}
-            </button>
+            </Button>
           </div>
         </Dialog>
       )}

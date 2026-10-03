@@ -32,6 +32,8 @@ const DATEIEN = [
   'admin/ArtikelSeite.jsx',
   'admin/StartnummerDialog.jsx',
   'admin/ArtikelFormular.jsx',
+  'admin/BeilagenSeite.jsx',
+  'admin/WerbungSeite.jsx',
 ];
 
 const ALTE_FARBNAMEN = /-(blau|navy|weinrot|gruen|akzent)(-hell|-blass|-text)?(\/\d+)?(?![\w-])/;
