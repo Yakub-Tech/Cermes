@@ -9,6 +9,9 @@ import { lesbareSchriftfarbe } from '../komponenten/farbe.js';
 import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/stornoTab.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
+import { Input } from '@/komponenten/ui/input';
+import Hinweiskasten from '../komponenten/Hinweiskasten.jsx';
+import { KNOPF_NEBEN, KNOPF_GEFAHR } from './knopfKlassen.js';
 
 export default function StornoTab({ sprache }) {
   const { neueste, ladefehler } = useNeuesteAntwort(laden);
@@ -44,10 +47,10 @@ export default function StornoTab({ sprache }) {
   return (
     <div className="flex-1 overflow-y-auto p-4">
       {ladefehler && <LadefehlerHinweis sprache={sprache} onErneut={laden} />}
-      <div className="mb-4 flex gap-3">
-        <input value={nummernFilter} onChange={(e) => setNummernFilter(e.target.value)}
+      <div className="mb-4 flex items-center gap-3">
+        <Input value={nummernFilter} onChange={(e) => setNummernFilter(e.target.value)}
           placeholder={texte.nummerSuchen} inputMode="numeric"
-          className="w-48 rounded border border-linie bg-flaeche px-3 py-3 text-lg outline-none focus:border-blau-hell" />
+          className="w-48 px-2 py-1.5" />
         <Auswahlmenue wert={artikelFilter} onWahl={setArtikelFilter}
           optionen={[
             { wert: '', text: texte.alleArtikel },
@@ -56,7 +59,7 @@ export default function StornoTab({ sprache }) {
           klasse="text-lg" />
       </div>
 
-      {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
+      {fehler && <Hinweiskasten art="fehler" className="mb-4">{fehler}</Hinweiskasten>}
 
       {gefiltert.length === 0 && !ladefehler && (
         <p className="text-schrift-gedimmt">{texte.keineKaertchen}</p>
@@ -66,7 +69,7 @@ export default function StornoTab({ sprache }) {
         {gefiltert.map((kaertchen) => (
           <li key={kaertchen.id}>
             <button onClick={() => setAuswahl(kaertchen)}
-              className="flex w-full cursor-pointer items-center gap-3 rounded-lg border border-linie bg-flaeche p-3 text-left hover:bg-flaeche-hell">
+              className="kaertchen-schatten flex w-full cursor-pointer items-center gap-3 rounded-lg border border-linie bg-flaeche p-3 text-left text-schrift hover:bg-flaeche-hell">
               <span className="nummer rounded-lg px-3 py-2 text-2xl"
                 style={{
                   backgroundColor: kaertchen.artikel_farbe,
@@ -93,18 +96,18 @@ export default function StornoTab({ sprache }) {
 
       {auswahl && (
         <Dialog titel={texte.stornieren} onSchliessen={() => setAuswahl(null)}>
-          <p className="mb-6 text-lg">
+          <p className="mb-6 text-lg text-schrift">
             {zweisprachigerName(auswahl.artikel_name, auswahl.artikel_name_tr, sprache)} {texte.nrPraefix} {auswahl.nummer} {texte.stornierenVorspann}{' '}
             <strong>{formatEuro(auswahl.preis_cent)} {texte.zurueckgeben}</strong> {texte.stornierenNachspann}{' '}
             {auswahl.nummer} {texte.einziehenSuffix}
           </p>
           <div className="flex gap-3">
             <button onClick={() => setAuswahl(null)}
-              className="flex-1 cursor-pointer rounded-full border border-linie py-3 text-schrift-gedimmt hover:bg-flaeche-hell">
+              className={`${KNOPF_NEBEN} flex-1 py-3 text-schrift-gedimmt`}>
               {texte.abbrechen}
             </button>
             <button onClick={stornieren}
-              className="flex-1 cursor-pointer rounded-full bg-blau py-3 text-lg font-bold text-flaeche hover:bg-blau-hell">
+              className={`${KNOPF_GEFAHR} flex-1 py-3 text-lg font-bold`}>
               {texte.jaStornieren}
             </button>
           </div>
