@@ -12,7 +12,7 @@ export default function SprachSchalter({ sprache, onWahl }) {
       {OPTIONEN.map(([land, name]) => (
         <button key={land} type="button" onClick={() => onWahl(land)}
           aria-label={name} aria-pressed={sprache === land} title={name}
-          className={`cursor-pointer rounded-full px-2.5 py-1.5 transition-opacity ${
+          className={`cursor-pointer rounded-full px-2.5 py-2.5 transition-opacity ${
             sprache === land ? 'bg-flaeche shadow-sm' : 'opacity-50 hover:opacity-80'
           }`}>
           <Flagge land={land} />
