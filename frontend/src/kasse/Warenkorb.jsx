@@ -2,6 +2,8 @@ import { formatEuro } from '../api.js';
 import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 import { de, tr } from '../sprache/warenkorb.js';
 import { de as geparktDe, tr as geparktTr } from '../sprache/geparkt.js';
+import Hinweiskasten from '../komponenten/Hinweiskasten.jsx';
+import { KNOPF_NEBEN, KNOPF_HAUPT } from './knopfKlassen.js';
 
 export default function Warenkorb({ positionen, onMengeAendern, onKassieren, laeuft, fehler, sprache,
   geparktAnzahl, onParken, onGeparkteOeffnen }) {
@@ -11,16 +13,16 @@ export default function Warenkorb({ positionen, onMengeAendern, onKassieren, lae
 
   return (
     <aside className="flex w-96 shrink-0 flex-col border-l border-linie bg-flaeche">
-      <h2 className="border-b border-linie px-4 py-3 font-display text-xl text-navy">{texte.titel}</h2>
+      <h2 className="border-b border-linie px-4 py-3 font-display text-xl font-semibold tracking-tight text-schrift">{texte.titel}</h2>
 
       <div className="flex gap-2 border-b border-linie px-4 py-3">
         <button onClick={onParken} disabled={laeuft || positionen.length === 0} title={geparktTexte.parkenErklaerung}
-          className="flex-1 cursor-pointer rounded-full border border-linie py-3 text-lg text-navy hover:bg-flaeche-hell disabled:cursor-not-allowed disabled:opacity-40">
+          className={`${KNOPF_NEBEN} flex-1 py-3 text-lg text-schrift`}>
           {geparktTexte.parken}
         </button>
         <button onClick={onGeparkteOeffnen} disabled={laeuft}
-          className={`flex-1 cursor-pointer rounded-full border py-3 text-lg disabled:cursor-not-allowed disabled:opacity-40 ${
-            geparktAnzahl > 0 ? 'border-blau bg-blau font-bold text-flaeche hover:bg-blau-hell' : 'border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
+          className={`flex-1 py-3 text-lg ${
+            geparktAnzahl > 0 ? `${KNOPF_HAUPT} font-bold` : `${KNOPF_NEBEN} text-schrift-gedimmt`
           }`}>
           {geparktTexte.knopf} ({geparktAnzahl})
         </button>
@@ -38,7 +40,7 @@ export default function Warenkorb({ positionen, onMengeAendern, onKassieren, lae
             <span className="w-1.5 shrink-0 rounded"
               style={{ backgroundColor: position.artikel.farbe }} />
             <div className="min-w-0 flex-1 self-center">
-              <p className="truncate text-lg">
+              <p className="truncate text-lg text-schrift">
                 {zweisprachigerName(position.artikel.name, position.artikel.name_tr, sprache)}
               </p>
               {position.beilagen.length > 0 && (
@@ -47,22 +49,22 @@ export default function Warenkorb({ positionen, onMengeAendern, onKassieren, lae
                 </p>
               )}
               {position.sonderwunsch && (
-                <p className="break-words text-sm font-semibold text-weinrot">{position.sonderwunsch}</p>
+                <p className="break-words text-sm font-semibold text-gefahr-schrift">{position.sonderwunsch}</p>
               )}
             </div>
-            <span className="nummer self-center text-lg">
+            <span className="nummer self-center text-lg text-schrift">
               {formatEuro(position.artikel.preis_cent * position.menge)}
             </span>
             <div className="flex shrink-0 items-center gap-2 self-center">
               <button onClick={() => onMengeAendern(position.schluessel, -1)} disabled={laeuft}
                 aria-label={`${position.artikel.name} Menge verringern`}
-                className="cursor-pointer rounded-full border border-linie px-3 py-2 text-blau-hell hover:bg-flaeche-hell disabled:cursor-not-allowed disabled:opacity-40">
+                className={`${KNOPF_NEBEN} px-3 py-2 text-schrift`}>
                 −
               </button>
-              <span className="nummer w-6 text-center text-lg">{position.menge}</span>
+              <span className="nummer w-6 text-center text-lg text-schrift">{position.menge}</span>
               <button onClick={() => onMengeAendern(position.schluessel, 1)} disabled={laeuft}
                 aria-label={`${position.artikel.name} Menge erhöhen`}
-                className="cursor-pointer rounded-full border border-linie px-3 py-2 text-blau-hell hover:bg-flaeche-hell disabled:cursor-not-allowed disabled:opacity-40">
+                className={`${KNOPF_NEBEN} px-3 py-2 text-schrift`}>
                 +
               </button>
             </div>
@@ -71,16 +73,16 @@ export default function Warenkorb({ positionen, onMengeAendern, onKassieren, lae
       </ul>
 
       {fehler && (
-        <p className="mx-4 mb-2 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>
+        <Hinweiskasten art="fehler" className="mx-4 mb-2">{fehler}</Hinweiskasten>
       )}
 
       <div className="border-t border-linie p-4">
         <div className="mb-3 flex items-baseline justify-between">
           <span className="text-schrift-gedimmt">{texte.gesamt}</span>
-          <span className="nummer text-4xl text-navy">{formatEuro(summe)}</span>
+          <span className="nummer text-4xl text-schrift">{formatEuro(summe)}</span>
         </div>
         <button onClick={onKassieren} disabled={laeuft || positionen.length === 0}
-          className="w-full cursor-pointer rounded-full bg-blau py-5 text-2xl font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
+          className={`${KNOPF_HAUPT} w-full py-5 text-2xl font-bold`}>
           {laeuft ? texte.wirdGebucht : texte.kassieren}
         </button>
       </div>

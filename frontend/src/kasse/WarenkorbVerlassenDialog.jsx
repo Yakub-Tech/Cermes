@@ -1,5 +1,6 @@
 import Dialog from '../komponenten/Dialog.jsx';
 import { de, tr } from '../sprache/warenkorbVerlassenDialog.js';
+import { KNOPF_NEBEN, KNOPF_GEFAHR } from './knopfKlassen.js';
 
 export default function WarenkorbVerlassenDialog({ onVerlassen, onZurueck, sprache = 'de' }) {
   const texte = sprache === 'tr' ? tr : de;
@@ -10,11 +11,11 @@ export default function WarenkorbVerlassenDialog({ onVerlassen, onZurueck, sprac
       </p>
       <div className="flex gap-3">
         <button onClick={onZurueck}
-          className="flex-1 cursor-pointer rounded-full border border-linie py-2 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
+          className={`${KNOPF_NEBEN} flex-1 py-2 text-sm text-schrift-gedimmt`}>
           {texte.zurueckZurKasse}
         </button>
         <button onClick={onVerlassen}
-          className="flex-1 cursor-pointer rounded-full bg-weinrot py-2 text-sm font-bold text-flaeche hover:bg-weinrot-hell">
+          className={`${KNOPF_GEFAHR} flex-1 py-2 text-sm font-bold`}>
           {texte.verwerfenUndVerlassen}
         </button>
       </div>

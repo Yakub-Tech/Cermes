@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Dialog from '../komponenten/Dialog.jsx';
 import { formatEuro } from '../api.js';
 import { de, tr } from '../sprache/geparkt.js';
+import { KNOPF_NEBEN, KNOPF_HAUPT, KNOPF_GEFAHR } from './knopfKlassen.js';
 
 function uhrzeit(zeitpunkt) {
   return new Date(zeitpunkt).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
@@ -15,14 +16,14 @@ export default function GeparkteDialog({ geparkte, sprache, onZurueckholen, onVe
     <Dialog titel={texte.titel} onSchliessen={onSchliessen}>
       {geparkte.length === 0 && <p className="mb-4 text-schrift-gedimmt">{texte.keine}</p>}
       <ul className={`mb-4 flex max-h-[50vh] flex-col gap-3 overflow-y-auto ${
-        geparkte.length > 2 ? 'border-b border-linie pb-1 shadow-[inset_0_-14px_10px_-10px_rgba(0,0,0,0.45)]' : ''
+        geparkte.length > 2 ? 'border-b border-linie pb-1 shadow-[inset_0_-14px_10px_-10px_var(--schattenfarbe)]' : ''
       }`}>
         {geparkte.map((eintrag, index) => {
           const portionen = eintrag.positionen.reduce((s, p) => s + p.menge, 0);
           const summe = eintrag.positionen.reduce((s, p) => s + p.preis_cent * p.menge, 0);
           return (
-            <li key={eintrag.id} className="rounded-2xl border border-linie p-3">
-              <p className="text-lg font-semibold">{texte.bestellung} {index + 1}</p>
+            <li key={eintrag.id} className="rounded-lg border border-linie bg-flaeche-hell/50 p-3">
+              <p className="text-lg font-semibold text-schrift">{texte.bestellung} {index + 1}</p>
               <p className="text-base text-schrift-gedimmt">
                 {uhrzeit(eintrag.zeitpunkt)} {texte.uhr}, {texte.portionen}: {portionen}, <span className="whitespace-nowrap">{formatEuro(summe)}</span>
               </p>
@@ -31,14 +32,14 @@ export default function GeparkteDialog({ geparkte, sprache, onZurueckholen, onVe
               </p>
               {verwerfenId === eintrag.id ? (
                 <div>
-                  <p className="mb-2 text-sm text-weinrot">{texte.verwerfenFrage}</p>
+                  <p className="mb-2 text-sm text-gefahr-schrift">{texte.verwerfenFrage}</p>
                   <div className="flex gap-2">
                     <button onClick={() => setVerwerfenId(null)}
-                      className="flex-1 cursor-pointer rounded-full border border-linie py-3 text-base text-schrift-gedimmt hover:bg-flaeche-hell">
+                      className={`${KNOPF_NEBEN} flex-1 py-3 text-base text-schrift-gedimmt`}>
                       {texte.abbrechen}
                     </button>
                     <button onClick={() => { onVerwerfen(eintrag); setVerwerfenId(null); }}
-                      className="flex-1 cursor-pointer rounded-full bg-weinrot py-3 text-base font-bold text-flaeche hover:bg-weinrot-hell">
+                      className={`${KNOPF_GEFAHR} flex-1 py-3 text-base font-bold`}>
                       {texte.verwerfen}
                     </button>
                   </div>
@@ -46,11 +47,11 @@ export default function GeparkteDialog({ geparkte, sprache, onZurueckholen, onVe
               ) : (
                 <div className="flex gap-2">
                   <button onClick={() => setVerwerfenId(eintrag.id)}
-                    className="flex-1 cursor-pointer rounded-full border border-linie py-3 text-base text-weinrot hover:bg-flaeche-hell">
+                    className={`${KNOPF_NEBEN} flex-1 py-3 text-base text-gefahr-schrift`}>
                     {texte.verwerfen}
                   </button>
                   <button onClick={() => onZurueckholen(eintrag)}
-                    className="flex-1 cursor-pointer rounded-full bg-blau py-3 text-base font-bold text-flaeche hover:bg-blau-hell">
+                    className={`${KNOPF_HAUPT} flex-1 py-3 text-base font-bold`}>
                     {texte.zurueckholen}
                   </button>
                 </div>
@@ -60,7 +61,7 @@ export default function GeparkteDialog({ geparkte, sprache, onZurueckholen, onVe
         })}
       </ul>
       <button onClick={onSchliessen}
-        className="w-full cursor-pointer rounded-full border border-linie py-3 text-base text-schrift-gedimmt hover:bg-flaeche-hell">
+        className={`${KNOPF_NEBEN} w-full py-3 text-base text-schrift-gedimmt`}>
         {texte.schliessen}
       </button>
     </Dialog>
