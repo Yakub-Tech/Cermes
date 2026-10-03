@@ -5,6 +5,9 @@ import { useLiveUpdate } from '../useLiveUpdate.js';
 import Zahlenfeld from '../komponenten/Zahlenfeld.jsx';
 import DateiAuswahl from '../komponenten/DateiAuswahl.jsx';
 import Dialog from '../komponenten/Dialog.jsx';
+import Hinweiskasten from '../komponenten/Hinweiskasten.jsx';
+import Pillenschalter from '../komponenten/Pillenschalter.jsx';
+import { Button } from '@/komponenten/ui/button';
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/einstellungen.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
@@ -75,11 +78,11 @@ export default function EinstellungenSeite({ sprache = 'de' }) {
 
   return (
     <div>
-      <h2 className="mb-4 font-display text-base text-navy">{texte.titel}</h2>
+      <h2 className="mb-4 font-display text-base font-semibold tracking-tight text-schrift">{texte.titel}</h2>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <form onSubmit={speichern} className="kaertchen-schatten rounded-lg border border-linie bg-flaeche p-4">
-          <h3 className="mb-1.5 font-display text-sm text-navy">{texte.warnzeitUeberschrift}</h3>
+          <h3 className="mb-1.5 font-display text-sm font-semibold text-schrift">{texte.warnzeitUeberschrift}</h3>
           <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="warnminuten">
             {texte.warnzeitLabel}
           </label>
@@ -88,16 +91,15 @@ export default function EinstellungenSeite({ sprache = 'de' }) {
           </p>
           <Zahlenfeld id="warnminuten" min="0" wert={warnminuten} onWahl={setWarnminuten}
             klasse="mb-2.5 w-20" />
-          {meldung && <p className="mb-2 text-sm text-navy">{meldung}</p>}
-          {fehler && <p className="mb-2 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
-          <button type="submit"
-            className="block cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
+          {meldung && <Hinweiskasten art="erfolg" className="mb-2 px-2 py-1.5 text-sm">{meldung}</Hinweiskasten>}
+          {fehler && <Hinweiskasten art="fehler" className="mb-2 px-2 py-1.5 text-sm">{fehler}</Hinweiskasten>}
+          <Button type="submit" className="px-4 text-sm font-bold">
             {texte.speichern}
-          </button>
+          </Button>
         </form>
 
         <form onSubmit={abmeldezeitSpeichern} className="kaertchen-schatten rounded-lg border border-linie bg-flaeche p-4">
-          <h3 className="mb-1.5 font-display text-sm text-navy">{texte.abmeldungUeberschrift}</h3>
+          <h3 className="mb-1.5 font-display text-sm font-semibold text-schrift">{texte.abmeldungUeberschrift}</h3>
           <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="abmeldeminuten">
             {texte.abmeldungLabel}
           </label>
@@ -106,21 +108,20 @@ export default function EinstellungenSeite({ sprache = 'de' }) {
           </p>
           <Zahlenfeld id="abmeldeminuten" min="1" wert={abmeldeMinuten} onWahl={setAbmeldeMinuten}
             klasse="mb-2.5 w-20" />
-          {abmeldeMeldung && <p className="mb-2 text-sm text-navy">{abmeldeMeldung}</p>}
-          {abmeldeFehler && <p className="mb-2 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{abmeldeFehler}</p>}
-          <button type="submit"
-            className="block cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
+          {abmeldeMeldung && <Hinweiskasten art="erfolg" className="mb-2 px-2 py-1.5 text-sm">{abmeldeMeldung}</Hinweiskasten>}
+          {abmeldeFehler && <Hinweiskasten art="fehler" className="mb-2 px-2 py-1.5 text-sm">{abmeldeFehler}</Hinweiskasten>}
+          <Button type="submit" className="px-4 text-sm font-bold">
             {texte.speichern}
-          </button>
+          </Button>
         </form>
 
         <div className="kaertchen-schatten rounded-lg border border-linie bg-flaeche p-4">
-          <h3 className="mb-1.5 font-display text-sm text-navy">{texte.logoUeberschrift}</h3>
+          <h3 className="mb-1.5 font-display text-sm font-semibold text-schrift">{texte.logoUeberschrift}</h3>
           <p className="mb-2.5 text-xs text-schrift-gedimmt">
             {texte.logoErklaerung}
           </p>
 
-          {logoFehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{logoFehler}</p>}
+          {logoFehler && <Hinweiskasten art="fehler" className="mb-2.5 px-2 py-1.5 text-sm">{logoFehler}</Hinweiskasten>}
 
           {logos.length === 0 && (
             <p className="mb-2.5 text-sm text-schrift-gedimmt">
@@ -136,20 +137,17 @@ export default function EinstellungenSeite({ sprache = 'de' }) {
             {logos.map((logo) => (
               <div key={logo.id} className="kaertchen-schatten rounded-lg border border-linie p-2">
                 <img src={logo.url} alt={texte.logoAlt}
-                  className={`mb-2 h-16 w-full rounded-lg object-contain ${logo.aktiv ? '' : 'opacity-40'}`} />
+                  className={`mb-2 h-16 w-full rounded-lg bg-white object-contain ${logo.aktiv ? '' : 'opacity-40'}`} />
                 <div className="flex items-center justify-between">
-                  <button
+                  <Pillenschalter an={!!logo.aktiv}
                     onClick={() => apiPut(`/api/logo/${logo.id}`, { aktiv: logo.aktiv ? 0 : 1 })
-                      .catch((f) => setLogoFehler(f.message))}
-                    className={`cursor-pointer rounded-full px-2 py-1 text-xs font-semibold ${
-                      logo.aktiv ? 'bg-navy text-grund' : 'border border-linie text-schrift-gedimmt'
-                    }`}>
+                      .catch((f) => setLogoFehler(f.message))}>
                     {logo.aktiv ? texte.aktiv : texte.inaktiv}
-                  </button>
-                  <button onClick={() => setLogoLoeschung(logo)}
-                    className="cursor-pointer rounded-full border border-linie px-1.5 py-1 text-xs text-blau-hell hover:bg-flaeche-hell">
+                  </Pillenschalter>
+                  <Button variant="outline" size="sm" onClick={() => setLogoLoeschung(logo)}
+                    className="px-1.5 text-xs text-gefahr-schrift">
                     {texte.entfernen}
-                  </button>
+                  </Button>
                 </div>
               </div>
             ))}
@@ -159,20 +157,21 @@ export default function EinstellungenSeite({ sprache = 'de' }) {
 
       {logoLoeschung && (
         <Dialog titel={texte.logoEntfernenTitel} onSchliessen={() => setLogoLoeschung(null)}>
-          <img src={logoLoeschung.url} alt={texte.logoAlt} className="mb-2.5 max-h-32 w-full rounded-lg object-contain" />
+          <img src={logoLoeschung.url} alt={texte.logoAlt}
+            className="mb-2.5 max-h-32 w-full rounded-lg bg-white object-contain" />
           <p className="mb-4 text-sm">{texte.logoWirdGeloescht}</p>
           <div className="flex gap-2">
-            <button onClick={() => setLogoLoeschung(null)}
-              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
+            <Button variant="outline" onClick={() => setLogoLoeschung(null)}
+              className="flex-1 text-sm text-schrift-gedimmt">
               {texte.abbrechen}
-            </button>
-            <button
+            </Button>
+            <Button variant="gefahr"
               onClick={() => apiDelete(`/api/logo/${logoLoeschung.id}`)
                 .then(() => setLogoLoeschung(null))
                 .catch((f) => { setLogoFehler(f.message); setLogoLoeschung(null); })}
-              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
+              className="flex-1 text-sm font-bold">
               {texte.jaEntfernen}
-            </button>
+            </Button>
           </div>
         </Dialog>
       )}

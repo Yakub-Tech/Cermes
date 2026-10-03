@@ -34,6 +34,9 @@ const DATEIEN = [
   'admin/ArtikelFormular.jsx',
   'admin/BeilagenSeite.jsx',
   'admin/WerbungSeite.jsx',
+  'admin/BackupSeite.jsx',
+  'admin/BenutzerSeite.jsx',
+  'admin/EinstellungenSeite.jsx',
 ];
 
 const ALTE_FARBNAMEN = /-(blau|navy|weinrot|gruen|akzent)(-hell|-blass|-text)?(\/\d+)?(?![\w-])/;
