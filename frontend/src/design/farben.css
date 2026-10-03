@@ -16,6 +16,13 @@
   --gefahr-hover: #cf3b40;
   --gefahr-schrift: #ff8a8f;
   --tv-grund: #0c0c0e;
+  --diagramm-stueck: #3b9eff;
+  --diagramm-umsatz: #12a594;
+  --diagramm-gewinn: #30a46c;
+  --diagramm-ohne-kosten: #696e77;
+  --diagramm-gewinn-neutral: #9a9fa7;
+  --diagramm-achse: #9a9fa7;
+  --diagramm-gitter: #363a3f;
   --schattenfarbe: rgba(0, 0, 0, 0.45);
   --radius: 0.625rem;
 }
@@ -37,6 +44,13 @@
   --gefahr-hover: #b02529;
   --gefahr-schrift: #ce2c31;
   --tv-grund: #eceef2;
+  --diagramm-stueck: #2563a6;
+  --diagramm-umsatz: #0f8b8d;
+  --diagramm-gewinn: #218358;
+  --diagramm-ohne-kosten: #8b8d98;
+  --diagramm-gewinn-neutral: #60646c;
+  --diagramm-achse: #60646c;
+  --diagramm-gitter: #d9d9e0;
   --schattenfarbe: rgba(0, 0, 0, 0.18);
   --radius: 0.625rem;
 }
