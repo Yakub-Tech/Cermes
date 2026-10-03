@@ -61,6 +61,7 @@ const DATEIEN = [
   'kasse/BeilagenDialog.jsx',
   'kasse/KassierenAbschluss.jsx',
   'kasse/StornoTab.jsx',
+  'kasse/KundenanzeigeSchalter.jsx',
   'komponenten/StationsSpalte.jsx',
   'komponenten/KaertchenKarte.jsx',
   'komponenten/Snackbar.jsx',

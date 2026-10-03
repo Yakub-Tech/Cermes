@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  DESIGN_SCHLUESSEL, STANDARD_DESIGN, gueltigesDesign, designLesen, designSpeichern,
+  DESIGN_SCHLUESSEL, KUNDENDESIGN_SCHLUESSEL, STANDARD_DESIGN, gueltigesDesign, designLesen, designSpeichern,
 } from '../src/design/designSpeicher.js';
 
 function ersatzSpeicher(anfangswert) {
@@ -63,4 +63,26 @@ test('ein anderer Schlüssel arbeitet unabhängig (Kundenanzeige der Kasse)', ()
   assert.equal(speicher.inhalt['cermes-kundendesign'], 'dunkel');
   assert.equal(designLesen(() => speicher, 'cermes-kundendesign'), 'dunkel');
   assert.equal(designLesen(() => speicher), 'hell');
+});
+
+test('der Schlüssel der Kundenanzeige ist eigenständig und weicht vom Gerät ab', () => {
+  assert.equal(KUNDENDESIGN_SCHLUESSEL, 'cermes-kundendesign');
+  assert.notEqual(KUNDENDESIGN_SCHLUESSEL, DESIGN_SCHLUESSEL);
+});
+
+test('Gerät und Kundenanzeige speichern unabhängig voneinander', () => {
+  const speicher = ersatzSpeicher();
+  designSpeichern(() => speicher, 'hell', KUNDENDESIGN_SCHLUESSEL);
+  assert.equal(designLesen(() => speicher, KUNDENDESIGN_SCHLUESSEL), 'hell');
+  assert.equal(designLesen(() => speicher), 'dunkel');
+  designSpeichern(() => speicher, 'hell');
+  designSpeichern(() => speicher, 'dunkel', KUNDENDESIGN_SCHLUESSEL);
+  assert.equal(designLesen(() => speicher), 'hell');
+  assert.equal(designLesen(() => speicher, KUNDENDESIGN_SCHLUESSEL), 'dunkel');
+});
+
+test('ein gesperrter Speicher ergibt für die Kundenanzeige Dunkel', () => {
+  const gesperrt = () => { throw new Error('SecurityError'); };
+  assert.equal(designLesen(gesperrt, KUNDENDESIGN_SCHLUESSEL), 'dunkel');
+  assert.doesNotThrow(() => designSpeichern(gesperrt, 'hell', KUNDENDESIGN_SCHLUESSEL));
 });

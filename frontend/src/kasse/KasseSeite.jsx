@@ -4,6 +4,7 @@ import Kopfzeile from '../komponenten/Kopfzeile.jsx';
 import Fusszeile from '../komponenten/Fusszeile.jsx';
 import SprachSchalter from '../komponenten/SprachSchalter.jsx';
 import Reiterleiste from '../komponenten/Reiterleiste.jsx';
+import KundenanzeigeSchalter from './KundenanzeigeSchalter.jsx';
 import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { apiGet, apiPost, apiPut } from '../api.js';
@@ -22,6 +23,7 @@ import { useGeparkte } from './useGeparkte.js';
 import WarenkorbVerlassenDialog from './WarenkorbVerlassenDialog.jsx';
 import { de, tr } from '../sprache/kasse.js';
 import { kassenNummerDiesesGeraets } from '../kassenNummer.js';
+import { useKundenDesign } from '../design/useKundenDesign.js';
 
 export default function KasseSeite() {
   const { neueste, ladefehler } = useNeuesteAntwort(laden);
@@ -40,6 +42,7 @@ export default function KasseSeite() {
   const [warenkorbVerlassenAktiv, setWarenkorbVerlassenAktiv] = useState(false);
   const [sprache, setSprache] = useState('de');
   const texte = sprache === 'tr' ? tr : de;
+  const [kundenDesign, setKundenDesign] = useKundenDesign();
   const naechsterSchluessel = useRef(1);
   const vorgangKennung = useRef(null);
   const [buchungUnklar, setBuchungUnklar] = useState(false);
@@ -138,8 +141,9 @@ export default function KasseSeite() {
       fokus,
       summe_cent: ergebnis ? ergebnis.summe_cent : null,
       sprache,
+      design: kundenDesign,
     });
-  }, [positionen, beilagenArtikel, fokusAuswahl, ergebnis, sprache]);
+  }, [positionen, beilagenArtikel, fokusAuswahl, ergebnis, sprache, kundenDesign]);
 
   async function kassierenVorschauAnzeigen() {
     setLaeuft(true);
@@ -193,6 +197,7 @@ export default function KasseSeite() {
             <SprachSchalter sprache={sprache} onWahl={setSprache} />
             <Reiterleiste reiter={[['verkauf', texte.verkauf], ['storno', texte.storno]]} aktiv={tab} onWahl={setTab}
               betont knopfKlasse="px-5 py-2 text-lg" />
+            <KundenanzeigeSchalter design={kundenDesign} onWahl={setKundenDesign} sprache={sprache} texte={texte} />
           </>
         } />
 

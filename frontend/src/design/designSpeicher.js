@@ -1,4 +1,5 @@
 export const DESIGN_SCHLUESSEL = 'cermes-design';
+export const KUNDENDESIGN_SCHLUESSEL = 'cermes-kundendesign';
 export const STANDARD_DESIGN = 'dunkel';
 
 export function gueltigesDesign(wert) {
