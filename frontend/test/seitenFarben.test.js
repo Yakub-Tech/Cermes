@@ -29,6 +29,8 @@ const DATEIEN = [
   'admin/AdminLayout.jsx',
   'komponenten/Fusszeile.jsx',
   'komponenten/NichtGefundenInhalt.jsx',
+  'admin/ArtikelSeite.jsx',
+  'admin/StartnummerDialog.jsx',
 ];
 
 const ALTE_FARBNAMEN = /-(blau|navy|weinrot|gruen|akzent)(-hell|-blass|-text)?(\/\d+)?(?![\w-])/;

@@ -2,6 +2,10 @@ import { useState } from 'react';
 import { apiGet, apiPost, apiPut, apiDelete, formatEuro } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
+import Hinweiskasten from '../komponenten/Hinweiskasten.jsx';
+import Pillenschalter from '../komponenten/Pillenschalter.jsx';
+import { Button } from '@/komponenten/ui/button';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/komponenten/ui/table';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import Dialog from '../komponenten/Dialog.jsx';
 import ArtikelFormular from './ArtikelFormular.jsx';
@@ -54,104 +58,97 @@ export default function ArtikelSeite({ rolle, sprache = 'de' }) {
 
   return (
     <div>
-      <h2 className="mb-4 font-display text-base text-navy">{texte.titel}</h2>
+      <h2 className="mb-4 font-display text-base font-semibold tracking-tight text-schrift">{texte.titel}</h2>
 
-      <button onClick={() => setFormular({ artikel: null })}
-        className="kaertchen-schatten mb-4 cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
+      <Button onClick={() => setFormular({ artikel: null })} className="mb-4 px-4 text-sm font-bold">
         {texte.artikelAnlegen}
-      </button>
+      </Button>
 
       {ladefehler && <LadefehlerHinweis sprache={sprache} onErneut={laden} />}
 
-      {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
+      {fehler && <Hinweiskasten art="fehler" className="mb-2.5 px-2 py-1.5 text-sm">{fehler}</Hinweiskasten>}
 
-      <div className="kaertchen-schatten overflow-x-auto rounded-lg border border-linie bg-flaeche">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="border-b border-linie text-xs text-schrift-gedimmt">
-              <th className="px-2.5 py-2">{texte.spalteArtikel}</th>
-              <th className="px-2.5 py-2">{texte.spaltePreis}</th>
-              {rolle === 'admin' && <th className="px-2.5 py-2">{texte.spalteKosten}</th>}
-              <th className="px-2.5 py-2">{texte.spalteBeilagen}</th>
-              <th className="px-2.5 py-2">{texte.spalteWeiterBeiNr}</th>
-              <th className="px-2.5 py-2">{texte.spalteAktiv}</th>
-              <th className="px-2.5 py-2">{texte.spalteAusverkauft}</th>
-              <th className="px-2.5 py-2"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-linie text-sm">
-            {artikelListe.length === 0 && !ladefehler && (
-              <tr><td colSpan={rolle === 'admin' ? 8 : 7} className="px-2.5 py-4 text-schrift-gedimmt">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{texte.spalteArtikel}</TableHead>
+            <TableHead>{texte.spaltePreis}</TableHead>
+            {rolle === 'admin' && <TableHead>{texte.spalteKosten}</TableHead>}
+            <TableHead>{texte.spalteBeilagen}</TableHead>
+            <TableHead>{texte.spalteWeiterBeiNr}</TableHead>
+            <TableHead>{texte.spalteAktiv}</TableHead>
+            <TableHead>{texte.spalteAusverkauft}</TableHead>
+            <TableHead></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {artikelListe.length === 0 && !ladefehler && (
+            <TableRow>
+              <TableCell colSpan={rolle === 'admin' ? 8 : 7} className="py-4 text-schrift-gedimmt">
                 {texte.keineArtikel}
-              </td></tr>
-            )}
-            {artikelListe.map((artikel) => (
-              <tr key={artikel.id} className={artikel.aktiv ? '' : 'opacity-50'}>
-                <td className="px-2.5 py-2">
-                  <span className="mr-1.5 inline-block h-4 w-4 rounded-full align-middle"
-                    style={{ backgroundColor: artikel.farbe }} />
-                  {artikel.bild_url && (
-                    <img src={artikel.bild_url} alt="" className="mr-1.5 inline-block h-6 w-6 rounded object-cover align-middle" />
-                  )}
-                  <span className="text-sm">{beideSprachenName(artikel.name, artikel.name_tr)}</span>
-                </td>
-                <td className="nummer px-2.5 py-2">{formatEuro(artikel.preis_cent)}</td>
-                {rolle === 'admin' && (
-                  <td className="nummer px-2.5 py-2">
-                    {artikel.einkaufskosten_cent != null
-                      ? formatEuro(artikel.einkaufskosten_cent)
-                      : <span className="text-schrift-gedimmt">—</span>}
-                  </td>
+              </TableCell>
+            </TableRow>
+          )}
+          {artikelListe.map((artikel) => (
+            <TableRow key={artikel.id} className={artikel.aktiv ? '' : 'opacity-50'}>
+              <TableCell>
+                <span className="mr-1.5 inline-block h-4 w-4 rounded-full align-middle ring-1 ring-linie"
+                  style={{ backgroundColor: artikel.farbe }} />
+                {artikel.bild_url && (
+                  <img src={artikel.bild_url} alt="" className="mr-1.5 inline-block h-6 w-6 rounded object-cover align-middle" />
                 )}
-                <td className="max-w-40 truncate px-2.5 py-2 text-schrift-gedimmt">
-                  {beilagenNamen(artikel.beilagen_ids) || '—'}
-                </td>
-                <td className="px-2.5 py-2">
-                  <button onClick={() => setStartnummer(artikel)}
-                    className="nummer cursor-pointer rounded-full border border-linie px-2 py-1 text-sm hover:bg-flaeche-hell">
-                    {artikel.naechste_nummer}
-                  </button>
-                  {artikel.hinweis && (
-                    <p className="mt-1 max-w-48 text-xs text-weinrot">{artikel.hinweis}</p>
-                  )}
-                </td>
-                <td className="px-2.5 py-2">
-                  <button
-                    onClick={() => apiPut(`/api/artikel/${artikel.id}/aktiv`, {
-                      aktiv: artikel.aktiv ? 0 : 1,
-                    }).catch((f) => setFehler(f.message))}
-                    className={`cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold ${
-                      artikel.aktiv ? 'bg-navy text-grund' : 'border border-linie text-schrift-gedimmt'
-                    }`}>
-                    {artikel.aktiv ? texte.aktiv : texte.inaktiv}
-                  </button>
-                </td>
-                <td className="px-2.5 py-2">
-                  <button
-                    onClick={() => apiPut(`/api/artikel/${artikel.id}/ausverkauft`, {
-                      ausverkauft: artikel.ausverkauft ? 0 : 1,
-                    }).catch((f) => setFehler(f.message))}
-                    className={`cursor-pointer rounded-full px-2.5 py-1 text-xs font-semibold ${
-                      artikel.ausverkauft ? 'bg-weinrot text-flaeche' : 'border border-linie text-schrift-gedimmt'
-                    }`}>
-                    {artikel.ausverkauft ? texte.ausverkauft : texte.verfuegbar}
-                  </button>
-                </td>
-                <td className="px-2.5 py-2 text-right whitespace-nowrap">
-                  <button onClick={() => setFormular({ artikel })}
-                    className="mr-1.5 cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
-                    {texte.bearbeiten}
-                  </button>
-                  <button onClick={() => setLoeschung(artikel)}
-                    className="cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-weinrot hover:bg-flaeche-hell">
-                    {texte.loeschen}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                <span className="text-sm">{beideSprachenName(artikel.name, artikel.name_tr)}</span>
+              </TableCell>
+              <TableCell className="nummer">{formatEuro(artikel.preis_cent)}</TableCell>
+              {rolle === 'admin' && (
+                <TableCell className="nummer">
+                  {artikel.einkaufskosten_cent != null
+                    ? formatEuro(artikel.einkaufskosten_cent)
+                    : <span className="text-schrift-gedimmt">—</span>}
+                </TableCell>
+              )}
+              <TableCell className="max-w-40 truncate text-schrift-gedimmt">
+                {beilagenNamen(artikel.beilagen_ids) || '—'}
+              </TableCell>
+              <TableCell>
+                <Button variant="outline" size="sm" onClick={() => setStartnummer(artikel)}
+                  className="nummer px-2 text-sm">
+                  {artikel.naechste_nummer}
+                </Button>
+                {artikel.hinweis && (
+                  <p className="mt-1 max-w-48 text-xs text-gefahr-schrift">{artikel.hinweis}</p>
+                )}
+              </TableCell>
+              <TableCell>
+                <Pillenschalter an={!!artikel.aktiv}
+                  onClick={() => apiPut(`/api/artikel/${artikel.id}/aktiv`, {
+                    aktiv: artikel.aktiv ? 0 : 1,
+                  }).catch((f) => setFehler(f.message))}>
+                  {artikel.aktiv ? texte.aktiv : texte.inaktiv}
+                </Pillenschalter>
+              </TableCell>
+              <TableCell>
+                <Pillenschalter an={!!artikel.ausverkauft} art="gefahr"
+                  onClick={() => apiPut(`/api/artikel/${artikel.id}/ausverkauft`, {
+                    ausverkauft: artikel.ausverkauft ? 0 : 1,
+                  }).catch((f) => setFehler(f.message))}>
+                  {artikel.ausverkauft ? texte.ausverkauft : texte.verfuegbar}
+                </Pillenschalter>
+              </TableCell>
+              <TableCell className="text-right whitespace-nowrap">
+                <Button variant="outline" size="sm" onClick={() => setFormular({ artikel })}
+                  className="mr-1.5 px-2 text-sm text-schrift-gedimmt">
+                  {texte.bearbeiten}
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setLoeschung(artikel)}
+                  className="px-2 text-sm text-gefahr-schrift">
+                  {texte.loeschen}
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
 
       {formular && (
         <ArtikelFormular artikel={formular.artikel} beilagen={beilagen} rolle={rolle}
@@ -170,17 +167,17 @@ export default function ArtikelSeite({ rolle, sprache = 'de' }) {
             {texte.loeschenVorspann}{beideSprachenName(loeschung.name, loeschung.name_tr)}{texte.loeschenNachspann}
           </p>
           <div className="flex gap-2">
-            <button onClick={() => setLoeschung(null)}
-              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
+            <Button variant="outline" onClick={() => setLoeschung(null)}
+              className="flex-1 text-sm text-schrift-gedimmt">
               {texte.abbrechen}
-            </button>
-            <button
+            </Button>
+            <Button variant="gefahr"
               onClick={() => apiDelete(`/api/artikel/${loeschung.id}`)
                 .then(() => setLoeschung(null))
                 .catch((f) => { setFehler(f.message); setLoeschung(null); })}
-              className="flex-1 cursor-pointer rounded-full bg-weinrot py-1.5 text-sm font-bold text-flaeche hover:bg-weinrot-hell">
+              className="flex-1 text-sm font-bold">
               {texte.jaLoeschen}
-            </button>
+            </Button>
           </div>
         </Dialog>
       )}
