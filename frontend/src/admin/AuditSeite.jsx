@@ -68,7 +68,7 @@ export default function AuditSeite({ sprache = 'de' }) {
 
   return (
     <div>
-      <h2 className="mb-4 font-display text-base text-navy">{texte.titel}</h2>
+      <h2 className="mb-4 font-display text-base font-semibold tracking-tight text-schrift">{texte.titel}</h2>
 
       {ladefehler && <LadefehlerHinweis sprache={sprache} onErneut={neuLaden} />}
 

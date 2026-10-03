@@ -37,6 +37,11 @@ const DATEIEN = [
   'admin/BackupSeite.jsx',
   'admin/BenutzerSeite.jsx',
   'admin/EinstellungenSeite.jsx',
+  'admin/AuditSeite.jsx',
+  'admin/AuditFilter.jsx',
+  'admin/AuditReiter.jsx',
+  'admin/AuditSeitenwahl.jsx',
+  'admin/AuditTabelle.jsx',
 ];
 
 const ALTE_FARBNAMEN = /-(blau|navy|weinrot|gruen|akzent)(-hell|-blass|-text)?(\/\d+)?(?![\w-])/;

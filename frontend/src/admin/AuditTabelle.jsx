@@ -1,3 +1,4 @@
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/komponenten/ui/table';
 import { zeitpunktAnzeigen } from './datum.js';
 import { detailZeilen } from './auditDetails.js';
 
@@ -12,31 +13,29 @@ export default function AuditTabelle({ eintraege, texte, rollenTexte }) {
   }
 
   return (
-    <div className="kaertchen-schatten overflow-x-auto rounded-lg border border-linie bg-flaeche">
-      <table className="w-full min-w-[640px] text-left">
-        <thead>
-          <tr className="border-b border-linie text-xs text-schrift-gedimmt">
-            <th className="px-2.5 py-1.5">{texte.spalteZeit}</th>
-            <th className="px-2.5 py-1.5">{texte.spalteBenutzer}</th>
-            <th className="px-2.5 py-1.5">{texte.spalteAktion}</th>
-            <th className="px-2.5 py-1.5">{texte.spalteDetails}</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-linie text-sm">
-          {eintraege.map((eintrag) => (
-            <tr key={eintrag.id}>
-              <td className="whitespace-nowrap px-2.5 py-1.5">{zeitpunktAnzeigen(eintrag.zeitpunkt)}</td>
-              <td className="whitespace-nowrap px-2.5 py-1.5">{benutzerText(eintrag, rollenTexte)}</td>
-              <td className="whitespace-nowrap px-2.5 py-1.5">{texte.aktionen[eintrag.aktion] ?? eintrag.aktion}</td>
-              <td className="px-2.5 py-1.5">
-                {detailZeilen(eintrag.details, texte).map((zeile, index) => (
-                  <div key={index}>{zeile}</div>
-                ))}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Table className="min-w-[640px]">
+      <TableHeader>
+        <TableRow>
+          <TableHead className="py-1.5">{texte.spalteZeit}</TableHead>
+          <TableHead className="py-1.5">{texte.spalteBenutzer}</TableHead>
+          <TableHead className="py-1.5">{texte.spalteAktion}</TableHead>
+          <TableHead className="py-1.5">{texte.spalteDetails}</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {eintraege.map((eintrag) => (
+          <TableRow key={eintrag.id}>
+            <TableCell className="py-1.5 whitespace-nowrap">{zeitpunktAnzeigen(eintrag.zeitpunkt)}</TableCell>
+            <TableCell className="py-1.5 whitespace-nowrap">{benutzerText(eintrag, rollenTexte)}</TableCell>
+            <TableCell className="py-1.5 whitespace-nowrap">{texte.aktionen[eintrag.aktion] ?? eintrag.aktion}</TableCell>
+            <TableCell className="py-1.5">
+              {detailZeilen(eintrag.details, texte).map((zeile, index) => (
+                <div key={index}>{zeile}</div>
+              ))}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
