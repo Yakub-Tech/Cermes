@@ -61,6 +61,13 @@ const DATEIEN = [
   'kasse/BeilagenDialog.jsx',
   'kasse/KassierenAbschluss.jsx',
   'kasse/StornoTab.jsx',
+  'komponenten/StationsSpalte.jsx',
+  'komponenten/KaertchenKarte.jsx',
+  'komponenten/Snackbar.jsx',
+  'belegen/BelegenSeite.jsx',
+  'belegen/StornoHinweis.jsx',
+  'belegen/OffeneMengenLeiste.jsx',
+  'ausgabe/AusgabeSeite.jsx',
 ];
 
 const ALTE_FARBNAMEN = /-(blau|navy|weinrot|gruen|akzent)(-hell|-blass|-text)?(\/\d+)?(?![\w-])/;

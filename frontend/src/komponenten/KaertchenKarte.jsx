@@ -24,7 +24,7 @@ export default function KaertchenKarte({ kaertchen, zeitText, warnung, onTippen,
         </span>
       )}
       {kaertchen.sonderwunsch && (
-        <span className="mt-1 block break-words rounded-lg bg-grund/90 px-2 py-1 text-sm font-semibold text-navy">
+        <span className="mt-1 block break-words rounded-lg bg-grund/90 px-2 py-1 text-sm font-semibold text-schrift">
           {kaertchen.sonderwunsch}
         </span>
       )}

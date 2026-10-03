@@ -5,6 +5,7 @@ import { useStationsSprache } from '../sprache/useStationsSprache.js';
 import Fusszeile from '../komponenten/Fusszeile.jsx';
 import Snackbar from '../komponenten/Snackbar.jsx';
 import KaertchenKarte from '../komponenten/KaertchenKarte.jsx';
+import StationsSpalte from '../komponenten/StationsSpalte.jsx';
 import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { apiGet, apiPost } from '../api.js';
@@ -68,7 +69,7 @@ export default function AusgabeSeite() {
   const spalten = [
     {
       id: 'abholbereit',
-      kopfstil: 'stark',
+      betont: true,
       kaertchen: listen.abholbereit,
       karte: (k) => {
         const wartet = minutenSeit(k.abholbereit_am, jetzt);
@@ -85,7 +86,7 @@ export default function AusgabeSeite() {
     },
     {
       id: 'zuletztAbgeholt',
-      kopfstil: 'blass',
+      betont: false,
       kaertchen: listen.zuletzt_abgeholt,
       karte: (k) => (
         <div key={k.id} className="flex items-center gap-2">
@@ -94,7 +95,7 @@ export default function AusgabeSeite() {
           </div>
           <button
             onClick={() => apiPost(`/api/ausgabe/status/${k.id}`, { status: 'abholbereit' }).catch(aktionAbgelehnt)}
-            className="cursor-pointer rounded-lg border border-linie px-3 py-6 text-schrift-gedimmt hover:bg-flaeche-hell">
+            className="cursor-pointer rounded-lg border border-schrift-gedimmt/35 px-3 py-6 text-schrift-gedimmt hover:bg-flaeche-hell">
             {texte.rueckgaengig}
           </button>
         </div>
@@ -116,17 +117,10 @@ export default function AusgabeSeite() {
 
       <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 bg-grund p-3">
         {spalten.map((spalte) => (
-          <section key={spalte.id}
-            className="flex min-h-0 flex-col overflow-hidden rounded-lg bg-flaeche shadow-sm">
-            <h2 className={`px-4 py-3 text-center font-display text-xl ${
-              spalte.kopfstil === 'stark' ? 'bg-blau text-flaeche' : 'bg-blau-blass text-navy'
-            }`}>
-              {texte[spalte.id]} ({spalte.kaertchen.length})
-            </h2>
-            <div className="flex-1 space-y-3 overflow-y-auto px-4 pt-2 pb-4">
-              {spalte.kaertchen.map(spalte.karte)}
-            </div>
-          </section>
+          <StationsSpalte key={spalte.id} titel={texte[spalte.id]} anzahl={spalte.kaertchen.length}
+            betont={spalte.betont}>
+            {spalte.kaertchen.map(spalte.karte)}
+          </StationsSpalte>
         ))}
       </div>
 

@@ -5,6 +5,7 @@ import { useStationsSprache } from '../sprache/useStationsSprache.js';
 import Fusszeile from '../komponenten/Fusszeile.jsx';
 import Snackbar from '../komponenten/Snackbar.jsx';
 import KaertchenKarte from '../komponenten/KaertchenKarte.jsx';
+import StationsSpalte from '../komponenten/StationsSpalte.jsx';
 import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
 import { apiGet, apiPost } from '../api.js';
@@ -64,7 +65,7 @@ export default function BelegenSeite() {
   const spalten = [
     {
       id: 'inBearbeitung',
-      kopfstil: 'stark',
+      betont: true,
       kaertchen: listen.in_bearbeitung,
       karte: (k) => (
         <KaertchenKarte key={k.id} kaertchen={k} zeitText={alterText(k.erstellt_am, jetzt, sprache)} sprache={sprache}
@@ -73,7 +74,7 @@ export default function BelegenSeite() {
     },
     {
       id: 'abholbereit',
-      kopfstil: 'blass',
+      betont: false,
       kaertchen: listen.abholbereit,
       karte: (k) => (
         <div key={k.id} className="flex items-center gap-2">
@@ -82,7 +83,7 @@ export default function BelegenSeite() {
           </div>
           <button
             onClick={() => statusWechsel(k, 'in_bearbeitung', 'abholbereit', texte.meldungZurueckInBearbeitung)}
-            className="kaertchen-schatten cursor-pointer rounded-lg border border-linie px-3 py-6 text-schrift-gedimmt hover:bg-flaeche-hell">
+            className="kaertchen-schatten cursor-pointer rounded-lg border border-schrift-gedimmt/35 px-3 py-6 text-schrift-gedimmt hover:bg-flaeche-hell">
             {texte.rueckgaengig}
           </button>
         </div>
@@ -108,17 +109,10 @@ export default function BelegenSeite() {
 
       <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 bg-grund p-3">
         {spalten.map((spalte) => (
-          <section key={spalte.id}
-            className="flex min-h-0 flex-col overflow-hidden rounded-lg bg-flaeche shadow-sm">
-            <h2 className={`px-4 py-3 text-center font-display text-xl ${
-              spalte.kopfstil === 'stark' ? 'bg-blau text-flaeche' : 'bg-blau-blass text-navy'
-            }`}>
-              {texte[spalte.id]} ({spalte.kaertchen.length})
-            </h2>
-            <div className="flex-1 space-y-3 overflow-y-auto px-4 pt-2 pb-4">
-              {spalte.kaertchen.map(spalte.karte)}
-            </div>
-          </section>
+          <StationsSpalte key={spalte.id} titel={texte[spalte.id]} anzahl={spalte.kaertchen.length}
+            betont={spalte.betont}>
+            {spalte.kaertchen.map(spalte.karte)}
+          </StationsSpalte>
         ))}
       </div>
 
