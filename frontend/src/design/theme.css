@@ -1,78 +1,13 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "./farben.css";
 
-:root,
-:root[data-design='dunkel'] {
-  color-scheme: dark;
-  --grund: #111113;
-  --flaeche: #18191b;
-  --flaeche-hell: #212225;
-  --linie: #2e3135;
-  --schrift: #edeef0;
-  --schrift-gedimmt: #9a9fa7;
-  --haupt: #edeef0;
-  --haupt-hover: #d7d9dc;
-  --haupt-text: #111113;
-  --erfolg: #30a46c;
-  --erfolg-schrift: #3dd68c;
-  --gefahr: #e5484d;
-  --gefahr-hover: #cf3b40;
-  --gefahr-schrift: #ff8a8f;
-  --tv-grund: #0c0c0e;
-  --schattenfarbe: rgba(0, 0, 0, 0.45);
-}
+@custom-variant dark (&:where([data-design='dunkel'], [data-design='dunkel'] *));
 
-:root[data-design='hell'] {
-  color-scheme: light;
-  --grund: #f9f9fb;
-  --flaeche: #ffffff;
-  --flaeche-hell: #f0f0f3;
-  --linie: #e0e1e6;
-  --schrift: #1c2024;
-  --schrift-gedimmt: #60646c;
-  --haupt: #1c2024;
-  --haupt-hover: #3a3f45;
-  --haupt-text: #fcfcfd;
-  --erfolg: #218358;
-  --erfolg-schrift: #218358;
-  --gefahr: #ce2c31;
-  --gefahr-hover: #b02529;
-  --gefahr-schrift: #ce2c31;
-  --tv-grund: #eceef2;
-  --schattenfarbe: rgba(0, 0, 0, 0.18);
-}
-
-@theme {
-  --font-sans: "Geist Variable", system-ui, sans-serif;
-  --font-display: "Geist Variable", system-ui, sans-serif;
-}
-
-@theme inline {
-  --color-grund: var(--grund);
-  --color-flaeche: var(--flaeche);
-  --color-flaeche-hell: var(--flaeche-hell);
-  --color-linie: var(--linie);
-  --color-schrift: var(--schrift);
-  --color-schrift-gedimmt: var(--schrift-gedimmt);
-  --color-haupt: var(--haupt);
-  --color-haupt-hover: var(--haupt-hover);
-  --color-haupt-text: var(--haupt-text);
-  --color-erfolg: var(--erfolg);
-  --color-erfolg-schrift: var(--erfolg-schrift);
-  --color-gefahr: var(--gefahr);
-  --color-gefahr-hover: var(--gefahr-hover);
-  --color-gefahr-schrift: var(--gefahr-schrift);
-  --color-tv-grund: var(--tv-grund);
-
-  --color-blau: var(--haupt);
-  --color-blau-hell: var(--haupt-hover);
-  --color-blau-blass: var(--flaeche-hell);
-  --color-navy: var(--schrift);
-  --color-gruen: var(--erfolg);
-  --color-akzent: var(--haupt);
-  --color-akzent-hell: var(--schrift-gedimmt);
-  --color-akzent-text: var(--schrift);
-  --color-weinrot: var(--gefahr);
-  --color-weinrot-hell: var(--gefahr-hover);
+@layer base {
+  [data-slot] {
+    border-color: var(--linie);
+  }
 }
 
 .verwaltung {

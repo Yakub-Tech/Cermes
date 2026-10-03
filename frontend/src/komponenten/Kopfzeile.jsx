@@ -6,6 +6,7 @@ import { useInaktivitaetsAbmeldung } from '../anmeldung/useInaktivitaetsAbmeldun
 import { formatiereCountdown } from '../anmeldung/inaktivitaet.js';
 import { useGeraeteDesign } from '../design/useGeraeteDesign.js';
 import { de, tr } from '../sprache/kopfzeile.js';
+import { Button } from '@/komponenten/ui/button';
 import DesignSchalter from './DesignSchalter.jsx';
 
 export default function Kopfzeile({ titel, benutzername, rechts, aufLogoKlick, sprache = 'de' }) {
@@ -36,12 +37,9 @@ export default function Kopfzeile({ titel, benutzername, rechts, aufLogoKlick, s
               <span className="text-xs text-schrift-gedimmt">
                 {texte.abmeldungIn} {formatiereCountdown(verbleibendeSekunden)}
               </span>
-              <button
-                onClick={abmelden}
-                className="cursor-pointer rounded-full border border-linie px-2 py-1 text-xs text-schrift-gedimmt hover:bg-flaeche-hell"
-              >
+              <Button variant="outline" size="sm" onClick={abmelden} className="cursor-pointer text-schrift-gedimmt">
                 {texte.abmelden}
-              </button>
+              </Button>
             </div>
           )}
         </div>

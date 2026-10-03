@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const css = readFileSync(new URL('../src/design/theme.css', import.meta.url), 'utf8');
+const css = readFileSync(new URL('../src/design/farben.css', import.meta.url), 'utf8');
 const DUNKEL_BLOCK = ":root,\n:root[data-design='dunkel'] {";
 const HELL_BLOCK = ":root[data-design='hell'] {";
 
