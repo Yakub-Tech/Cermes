@@ -1,6 +1,7 @@
 import { StrictMode, Suspense, lazy, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import '@fontsource-variable/geist';
 import './design/theme.css';
 import { designLesen } from './design/designSpeicher.js';
 import { designAnwenden } from './design/designAnwenden.js';

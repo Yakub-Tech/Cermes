@@ -1,25 +1,78 @@
 @import "tailwindcss";
 
-@theme {
-  --color-grund: #f4f7fa;
-  --color-flaeche: #ffffff;
-  --color-flaeche-hell: #e9eff6;
-  --color-linie: #ccd8e4;
-  --color-blau: #10538f;
-  --color-blau-hell: #1f74c0;
-  --color-blau-blass: #cfe3f2;
-  --color-navy: #0f2a44;
-  --color-gruen: #1f7a4d;
-  --color-akzent: #d97a06;
-  --color-akzent-hell: #f2a52c;
-  --color-akzent-text: #a85c02;
-  --color-weinrot: #7a1a2f;
-  --color-weinrot-hell: #96233d;
-  --color-schrift: #16202b;
-  --color-schrift-gedimmt: #5a6b7d;
-  --color-tv-grund: #454545;
+:root,
+:root[data-design='dunkel'] {
+  color-scheme: dark;
+  --grund: #111113;
+  --flaeche: #18191b;
+  --flaeche-hell: #212225;
+  --linie: #2e3135;
+  --schrift: #edeef0;
+  --schrift-gedimmt: #9a9fa7;
+  --haupt: #edeef0;
+  --haupt-hover: #d7d9dc;
+  --haupt-text: #111113;
+  --erfolg: #30a46c;
+  --erfolg-schrift: #3dd68c;
+  --gefahr: #e5484d;
+  --gefahr-hover: #cf3b40;
+  --gefahr-schrift: #ff8a8f;
+  --tv-grund: #0c0c0e;
+  --schattenfarbe: rgba(0, 0, 0, 0.45);
+}
 
-  --font-display: "Palatino", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+:root[data-design='hell'] {
+  color-scheme: light;
+  --grund: #f9f9fb;
+  --flaeche: #ffffff;
+  --flaeche-hell: #f0f0f3;
+  --linie: #e0e1e6;
+  --schrift: #1c2024;
+  --schrift-gedimmt: #60646c;
+  --haupt: #1c2024;
+  --haupt-hover: #3a3f45;
+  --haupt-text: #fcfcfd;
+  --erfolg: #218358;
+  --erfolg-schrift: #218358;
+  --gefahr: #ce2c31;
+  --gefahr-hover: #b02529;
+  --gefahr-schrift: #ce2c31;
+  --tv-grund: #eceef2;
+  --schattenfarbe: rgba(0, 0, 0, 0.18);
+}
+
+@theme {
+  --font-sans: "Geist Variable", system-ui, sans-serif;
+  --font-display: "Geist Variable", system-ui, sans-serif;
+}
+
+@theme inline {
+  --color-grund: var(--grund);
+  --color-flaeche: var(--flaeche);
+  --color-flaeche-hell: var(--flaeche-hell);
+  --color-linie: var(--linie);
+  --color-schrift: var(--schrift);
+  --color-schrift-gedimmt: var(--schrift-gedimmt);
+  --color-haupt: var(--haupt);
+  --color-haupt-hover: var(--haupt-hover);
+  --color-haupt-text: var(--haupt-text);
+  --color-erfolg: var(--erfolg);
+  --color-erfolg-schrift: var(--erfolg-schrift);
+  --color-gefahr: var(--gefahr);
+  --color-gefahr-hover: var(--gefahr-hover);
+  --color-gefahr-schrift: var(--gefahr-schrift);
+  --color-tv-grund: var(--tv-grund);
+
+  --color-blau: var(--haupt);
+  --color-blau-hell: var(--haupt-hover);
+  --color-blau-blass: var(--flaeche-hell);
+  --color-navy: var(--schrift);
+  --color-gruen: var(--erfolg);
+  --color-akzent: var(--haupt);
+  --color-akzent-hell: var(--schrift-gedimmt);
+  --color-akzent-text: var(--schrift);
+  --color-weinrot: var(--gefahr);
+  --color-weinrot-hell: var(--gefahr-hover);
 }
 
 .verwaltung {
@@ -48,9 +101,9 @@
 }
 
 body {
-  background-color: var(--color-grund);
-  color: var(--color-schrift);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  background-color: var(--grund);
+  color: var(--schrift);
+  font-family: var(--font-sans);
 }
 
 :root {
@@ -63,21 +116,20 @@ body {
 }
 
 .akzentrand {
-  background-image: linear-gradient(90deg,
-    var(--color-blau), var(--color-blau-hell), var(--color-blau));
+  background-color: var(--linie);
 }
 
 .kaertchen-schatten {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 2px 5px var(--schattenfarbe);
 }
 
 .kaertchen-schatten-vertieft {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18), inset 0 2px 5px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 2px 5px var(--schattenfarbe), inset 0 2px 5px var(--schattenfarbe);
 }
 
 @keyframes warn-puls {
-  0%, 100% { box-shadow: 0 0 0 2px var(--color-akzent); }
-  50% { box-shadow: 0 0 0 6px var(--color-akzent-hell); }
+  0%, 100% { box-shadow: 0 0 0 2px var(--haupt); }
+  50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--haupt) 45%, transparent); }
 }
 .warn-puls {
   animation: warn-puls 1.2s ease-in-out infinite;
@@ -185,4 +237,9 @@ body {
   mix-blend-mode: multiply;
   pointer-events: none;
   background-image: var(--putz-relief);
+}
+
+:root[data-design='dunkel'] .putz-textur-hell::before {
+  mix-blend-mode: soft-light;
+  opacity: 0.5;
 }
