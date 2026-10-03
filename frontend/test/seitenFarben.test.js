@@ -58,6 +58,8 @@ const DATEIEN = [
   'kasse/Warenkorb.jsx',
   'kasse/GeparkteDialog.jsx',
   'kasse/WarenkorbVerlassenDialog.jsx',
+  'kasse/BeilagenDialog.jsx',
+  'kasse/KassierenAbschluss.jsx',
 ];
 
 const ALTE_FARBNAMEN = /-(blau|navy|weinrot|gruen|akzent)(-hell|-blass|-text)?(\/\d+)?(?![\w-])/;
