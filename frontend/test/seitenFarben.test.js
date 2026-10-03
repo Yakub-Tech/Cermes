@@ -26,6 +26,9 @@ const DATEIEN = [
   'komponenten/ui/table.jsx',
   'komponenten/Urheberrechtshinweis.jsx',
   'admin/eingabeKlasse.js',
+  'admin/AdminLayout.jsx',
+  'komponenten/Fusszeile.jsx',
+  'komponenten/NichtGefundenInhalt.jsx',
 ];
 
 const ALTE_FARBNAMEN = /-(blau|navy|weinrot|gruen|akzent)(-hell|-blass|-text)?(\/\d+)?(?![\w-])/;
