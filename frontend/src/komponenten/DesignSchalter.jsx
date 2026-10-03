@@ -12,7 +12,7 @@ export default function DesignSchalter({ design, onWahl, texte }) {
       {optionen.map(([wert, Icon, beschriftung]) => (
         <button key={wert} type="button" onClick={() => onWahl(wert)}
           aria-label={beschriftung} aria-pressed={design === wert} title={beschriftung}
-          className={`cursor-pointer rounded-full p-1.5 ${
+          className={`cursor-pointer rounded-full p-2 ${
             design === wert ? 'bg-flaeche text-schrift shadow-sm' : 'text-schrift-gedimmt hover:text-schrift'
           }`}>
           <Icon className="h-3.5 w-3.5" />

@@ -49,6 +49,11 @@ const DATEIEN = [
   'admin/StatistikZeitraum.jsx',
   'admin/ExportKnoepfe.jsx',
   'admin/ExportAuswahlDialog.jsx',
+  'komponenten/DesignSchalter.jsx',
+  'komponenten/SprachSchalter.jsx',
+  'kasse/KasseSeite.jsx',
+  'kasse/ArtikelKachel.jsx',
+  'kasse/ArtikelRaster.jsx',
 ];
 
 const ALTE_FARBNAMEN = /-(blau|navy|weinrot|gruen|akzent)(-hell|-blass|-text)?(\/\d+)?(?![\w-])/;

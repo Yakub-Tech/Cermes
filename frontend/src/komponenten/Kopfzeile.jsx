@@ -23,18 +23,18 @@ export default function Kopfzeile({ titel, benutzername, rechts, aufLogoKlick, s
 
   return (
     <header>
-      <div className="flex items-center gap-2.5 bg-flaeche px-2.5 py-1.5">
+      <div className="flex flex-wrap items-center gap-2.5 bg-flaeche px-2.5 py-1.5">
         <Link to="/" onClick={aufLogoKlick} className="transition-opacity hover:opacity-80">
           <img src={`/logo/aktuell?v=${logoVersion}`} alt={texte.vereinslogo} className="h-8 w-8 rounded-lg ring-1 ring-linie" />
         </Link>
         <h1 className="font-display text-base font-semibold tracking-tight text-schrift">{titel}</h1>
-        <div className="ml-auto flex items-center gap-2.5">
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2.5">
           {rechts}
           <DesignSchalter design={design} onWahl={setDesign} texte={texte} />
           {benutzername && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-schrift-gedimmt">{benutzername}</span>
-              <span className="text-xs text-schrift-gedimmt">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="whitespace-nowrap text-xs text-schrift-gedimmt">{benutzername}</span>
+              <span className="whitespace-nowrap text-xs text-schrift-gedimmt">
                 {texte.abmeldungIn} {formatiereCountdown(verbleibendeSekunden)}
               </span>
               <Button variant="outline" size="sm" onClick={abmelden} className="cursor-pointer text-schrift-gedimmt">
