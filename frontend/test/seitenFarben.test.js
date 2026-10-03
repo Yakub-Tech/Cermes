@@ -13,6 +13,11 @@ const DATEIEN = [
   'komponenten/Hinweiskasten.jsx',
   'komponenten/ui/input.jsx',
   'komponenten/ui/label.jsx',
+  'start/ZielKaertchen.jsx',
+  'start/StartSeite.jsx',
+  'start/NetzwerkAdresse.jsx',
+  'start/NetzwerkHilfeDialog.jsx',
+  'komponenten/Kopfzeile.jsx',
 ];
 
 const ALTE_FARBNAMEN = /-(blau|navy|weinrot|gruen|akzent)(-hell|-blass|-text)?(\/\d+)?(?![\w-])/;

@@ -25,9 +25,9 @@ export default function Kopfzeile({ titel, benutzername, rechts, aufLogoKlick, s
     <header>
       <div className="flex items-center gap-2.5 bg-flaeche px-2.5 py-1.5">
         <Link to="/" onClick={aufLogoKlick} className="transition-opacity hover:opacity-80">
-          <img src={`/logo/aktuell?v=${logoVersion}`} alt={texte.vereinslogo} className="h-8 w-8" />
+          <img src={`/logo/aktuell?v=${logoVersion}`} alt={texte.vereinslogo} className="h-8 w-8 rounded-lg ring-1 ring-linie" />
         </Link>
-        <h1 className="font-display text-base text-navy">{titel}</h1>
+        <h1 className="font-display text-base font-semibold tracking-tight text-schrift">{titel}</h1>
         <div className="ml-auto flex items-center gap-2.5">
           {rechts}
           <DesignSchalter design={design} onWahl={setDesign} texte={texte} />

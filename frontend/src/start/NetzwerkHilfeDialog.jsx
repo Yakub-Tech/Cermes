@@ -1,4 +1,5 @@
 import Dialog from '../komponenten/Dialog.jsx';
+import { Button } from '@/komponenten/ui/button';
 import { de, tr } from '../sprache/netzwerkHilfeDialog.js';
 
 export default function NetzwerkHilfeDialog({ adresse, onSchliessen, sprache = 'de' }) {
@@ -10,7 +11,7 @@ export default function NetzwerkHilfeDialog({ adresse, onSchliessen, sprache = '
       </p>
       {adresse ? (
         <p className="mb-4 text-schrift-gedimmt">
-          {texte.mitAdresseVorspann} <strong>http://{adresse}</strong>{' '}
+          {texte.mitAdresseVorspann} <strong className="text-schrift">http://{adresse}</strong>{' '}
           {texte.mitAdresseNachspann}
         </p>
       ) : (
@@ -28,16 +29,13 @@ export default function NetzwerkHilfeDialog({ adresse, onSchliessen, sprache = '
           </ul>
           <p className="mb-4 text-schrift-gedimmt">
             {texte.abschlussVorspann}
-            <code>:8080</code> {texte.abschlussNachspann} <code>http://192.168.1.50:8080</code>.
+            <code className="rounded bg-flaeche-hell px-1">:8080</code> {texte.abschlussNachspann} <code className="rounded bg-flaeche-hell px-1">http://192.168.1.50:8080</code>.
           </p>
         </>
       )}
-      <button
-        onClick={onSchliessen}
-        className="mt-2 w-full cursor-pointer rounded-full border border-linie py-2 text-sm text-schrift-gedimmt hover:bg-flaeche-hell"
-      >
+      <Button variant="outline" onClick={onSchliessen} className="mt-2 w-full cursor-pointer text-schrift-gedimmt">
         {texte.verstanden}
-      </button>
+      </Button>
     </Dialog>
   );
 }
