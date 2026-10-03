@@ -21,6 +21,11 @@ const DATEIEN = [
   'anmeldung/LoginSeite.jsx',
   'anmeldung/PasswortAendernFormular.jsx',
   'anmeldung/Ersteinrichtung.jsx',
+  'komponenten/Pillenschalter.jsx',
+  'komponenten/Reiterleiste.jsx',
+  'komponenten/ui/table.jsx',
+  'komponenten/Urheberrechtshinweis.jsx',
+  'admin/eingabeKlasse.js',
 ];
 
 const ALTE_FARBNAMEN = /-(blau|navy|weinrot|gruen|akzent)(-hell|-blass|-text)?(\/\d+)?(?![\w-])/;

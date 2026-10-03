@@ -6,7 +6,7 @@ export default function Zahlenfeld({ wert, onWahl, min, id, autoFokus = false, k
   }
 
   return (
-    <div className={`flex items-stretch overflow-hidden rounded-lg border border-linie bg-flaeche-hell focus-within:border-schrift-gedimmt focus-within:ring-3 focus-within:ring-schrift/10 ${klasse}`}>
+    <div className={`flex items-stretch overflow-hidden rounded-lg border border-schrift-gedimmt/35 bg-flaeche-hell focus-within:border-schrift-gedimmt focus-within:ring-3 focus-within:ring-schrift/10 ${klasse}`}>
       <input id={id} type="number" min={min} value={wert} autoFocus={autoFokus}
         onChange={(e) => onWahl(e.target.value)}
         className="w-full min-w-0 border-none bg-transparent px-2 py-1.5 text-sm text-schrift outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />

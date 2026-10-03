@@ -1,6 +1,6 @@
 import * as Checkbox from '@radix-ui/react-checkbox';
 
-export default function Kontrollkaestchen({ markiert, onWahl, groesse = 'h-4 w-4', rand = 'border-linie' }) {
+export default function Kontrollkaestchen({ markiert, onWahl, groesse = 'h-4 w-4', rand = 'border-schrift-gedimmt/60' }) {
   return (
     <Checkbox.Root checked={markiert} onCheckedChange={onWahl}
       className={`flex ${groesse} shrink-0 cursor-pointer items-center justify-center rounded-md border ${rand} bg-flaeche-hell outline-none focus-visible:ring-3 focus-visible:ring-schrift/10 data-[state=checked]:border-haupt data-[state=checked]:bg-haupt`}>
