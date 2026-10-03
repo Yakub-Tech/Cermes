@@ -4,18 +4,28 @@ import Dialog from '../komponenten/Dialog.jsx';
 import Zahlenfeld from '../komponenten/Zahlenfeld.jsx';
 import DateiAuswahl from '../komponenten/DateiAuswahl.jsx';
 import Kontrollkaestchen from '../komponenten/Kontrollkaestchen.jsx';
+import Hinweiskasten from '../komponenten/Hinweiskasten.jsx';
+import Pillenschalter from '../komponenten/Pillenschalter.jsx';
+import { Button } from '@/komponenten/ui/button';
+import { Input } from '@/komponenten/ui/input';
+import { Label } from '@/komponenten/ui/label';
+import { EINGABE_DICHT } from './eingabeKlasse.js';
+import { STANDARD_ARTIKELFARBE } from './artikelStandardFarbe.js';
 import { beideSprachenName } from '../sprache/zweisprachigerName.js';
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/artikelFormular.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
 
 const NAME_MAX_LAENGE = 24;
 
+const LABEL = 'text-xs font-normal';
+const EINGABE = `mb-2.5 ${EINGABE_DICHT}`;
+
 export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern, onAbbrechen, sprache = 'de' }) {
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
   const [name, setName] = useState(artikel?.name ?? '');
   const [nameTr, setNameTr] = useState(artikel?.name_tr ?? '');
   const [nurDeutsch, setNurDeutsch] = useState(artikel ? !artikel.name_tr : false);
-  const [farbe, setFarbe] = useState(artikel?.farbe ?? '#b53030');
+  const [farbe, setFarbe] = useState(artikel?.farbe ?? STANDARD_ARTIKELFARBE);
   const [preisText, setPreisText] = useState(
     artikel ? formatEuro(artikel.preis_cent).replace(' €', '') : ''
   );
@@ -121,59 +131,56 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
     if (!speichertGerade) onAbbrechen();
   }
 
-  const eingabeKlasse =
-    'mb-2.5 w-full rounded border border-linie bg-grund px-2 py-1.5 text-sm outline-none focus:border-blau-hell';
-
   return (
     <Dialog titel={artikel ? `${beideSprachenName(artikel.name, artikel.name_tr)} ${texte.bearbeitenSuffix}` : texte.titelNeu}
       onSchliessen={abbrechenVersuchen}>
-      <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.name}</label>
-      <input value={name} autoFocus maxLength={NAME_MAX_LAENGE} onChange={(e) => setName(e.target.value)}
-        className={eingabeKlasse.replace('mb-2.5', 'mb-1')} />
+      <Label className={LABEL}>{texte.name}</Label>
+      <Input value={name} autoFocus maxLength={NAME_MAX_LAENGE} onChange={(e) => setName(e.target.value)}
+        className={`mb-1 ${EINGABE_DICHT}`} />
       <p className="mb-2.5 text-right text-xs text-schrift-gedimmt">
         {name.length}/{NAME_MAX_LAENGE} {texte.zeichen}
       </p>
 
-      <label className="mb-1 flex items-center gap-1.5 text-xs text-schrift-gedimmt">
+      <Label className="flex items-center gap-1.5 text-xs font-normal">
         <Kontrollkaestchen markiert={nurDeutsch} onWahl={setNurDeutsch} />
         {texte.nurAufDeutsch}
-      </label>
+      </Label>
       {!nurDeutsch && (
         <>
-          <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.nameTuerkisch}</label>
-          <input value={nameTr} maxLength={NAME_MAX_LAENGE} onChange={(e) => setNameTr(e.target.value)}
-            className={eingabeKlasse} />
+          <Label className={LABEL}>{texte.nameTuerkisch}</Label>
+          <Input value={nameTr} maxLength={NAME_MAX_LAENGE} onChange={(e) => setNameTr(e.target.value)}
+            className={EINGABE} />
         </>
       )}
 
       <div className="flex gap-2.5">
         <div className="flex-1">
-          <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.verkaufspreis}</label>
-          <input value={preisText} inputMode="decimal" placeholder="3,50"
-            onChange={(e) => setPreisText(e.target.value)} className={eingabeKlasse} />
+          <Label className={LABEL}>{texte.verkaufspreis}</Label>
+          <Input value={preisText} inputMode="decimal" placeholder="3,50"
+            onChange={(e) => setPreisText(e.target.value)} className={EINGABE} />
         </div>
         {rolle === 'admin' && (
           <div className="flex-1">
-            <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.einkaufskosten}</label>
-            <input value={kostenText} inputMode="decimal" placeholder={texte.einkaufskostenPlatzhalter}
-              onChange={(e) => setKostenText(e.target.value)} className={eingabeKlasse} />
+            <Label className={LABEL}>{texte.einkaufskosten}</Label>
+            <Input value={kostenText} inputMode="decimal" placeholder={texte.einkaufskostenPlatzhalter}
+              onChange={(e) => setKostenText(e.target.value)} className={EINGABE} />
           </div>
         )}
       </div>
 
       <div className="mb-2.5 flex items-center gap-2.5">
         <div>
-          <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.kaertchenfarbe}</label>
+          <Label className={LABEL}>{texte.kaertchenfarbe}</Label>
           <input type="color" value={farbe} onChange={(e) => setFarbe(e.target.value)}
-            className="h-8 w-14 cursor-pointer rounded border border-linie bg-grund" />
+            className="h-8 w-14 cursor-pointer rounded-lg border border-schrift-gedimmt/35 bg-flaeche-hell" />
         </div>
         <div>
-          <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.sortierung}</label>
+          <Label className={LABEL}>{texte.sortierung}</Label>
           <Zahlenfeld wert={sortierung} onWahl={setSortierung} klasse="w-16" />
         </div>
       </div>
 
-      <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.beilagenLabel}</label>
+      <Label className={LABEL}>{texte.beilagenLabel}</Label>
       <div className="mb-2.5 flex flex-wrap gap-1.5">
         {beilagen.length === 0 && (
           <p className="text-xs text-schrift-gedimmt">
@@ -181,20 +188,14 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
           </p>
         )}
         {beilagen.map((beilage) => (
-          <button key={beilage.id} type="button" onClick={() => beilageUmschalten(beilage.id)}
-            className={`cursor-pointer rounded-full px-2.5 py-1 text-sm ${
-              beilagenIds.includes(beilage.id)
-                ? 'bg-navy font-semibold text-grund'
-                : 'border border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
-            }`}>
+          <Pillenschalter key={beilage.id} an={beilagenIds.includes(beilage.id)} art="haupt"
+            onClick={() => beilageUmschalten(beilage.id)} className="text-sm">
             {beideSprachenName(beilage.name, beilage.name_tr)}
-          </button>
+          </Pillenschalter>
         ))}
       </div>
 
-      <label className="mb-1 block text-xs text-schrift-gedimmt">
-        {texte.nummernbloecke}
-      </label>
+      <Label className={LABEL}>{texte.nummernbloecke}</Label>
       <p className="mb-2 text-xs text-schrift-gedimmt">
         {texte.nummernbloeckeErklaerung}
       </p>
@@ -205,18 +206,18 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
           <span className="text-xs text-schrift-gedimmt">{texte.bis}</span>
           <Zahlenfeld min="1" wert={block.bis} klasse="w-24"
             onWahl={(wert) => blockAendern(index, 'bis', wert)} />
-          <button type="button" onClick={() => blockEntfernen(index)}
-            className="cursor-pointer rounded-full border border-linie px-2 py-1 text-xs text-weinrot hover:bg-flaeche-hell">
+          <Button type="button" variant="outline" size="sm" onClick={() => blockEntfernen(index)}
+            className="px-2 text-xs text-gefahr-schrift">
             {texte.entfernen}
-          </button>
+          </Button>
         </div>
       ))}
-      <button type="button" onClick={blockHinzufuegen}
-        className="mb-2.5 cursor-pointer rounded-full border border-linie px-2.5 py-1 text-xs text-schrift-gedimmt hover:bg-flaeche-hell">
+      <Button type="button" variant="outline" size="sm" onClick={blockHinzufuegen}
+        className="mb-2.5 px-2.5 text-xs text-schrift-gedimmt">
         {texte.nummernblockHinzufuegen}
-      </button>
+      </Button>
 
-      <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.artikelbild}</label>
+      <Label className={LABEL}>{texte.artikelbild}</Label>
       <p className="mb-2 text-xs text-schrift-gedimmt">
         {texte.artikelbildErklaerung}
       </p>
@@ -228,10 +229,10 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
       {artikel && bildUrl && (
         <div className="mb-2.5 flex items-center gap-2.5">
           <img src={bildUrl} alt={artikel.name} className="h-20 w-20 rounded-lg border border-linie object-cover" />
-          <button type="button" onClick={bildEntfernen}
-            className="cursor-pointer rounded-full border border-linie px-2.5 py-1.5 text-sm text-weinrot hover:bg-flaeche-hell">
+          <Button type="button" variant="outline" size="sm" onClick={bildEntfernen}
+            className="px-2.5 text-sm text-gefahr-schrift">
             {texte.bildEntfernen}
-          </button>
+          </Button>
         </div>
       )}
       {artikel && !bildUrl && (
@@ -241,17 +242,16 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
         </div>
       )}
 
-      {fehler && <p className="mb-2.5 rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
+      {fehler && <Hinweiskasten art="fehler" className="mb-2.5 px-2 py-1.5 text-sm">{fehler}</Hinweiskasten>}
 
       <div className="flex gap-2">
-        <button onClick={abbrechenVersuchen} disabled={speichertGerade}
-          className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell disabled:cursor-not-allowed disabled:opacity-40">
+        <Button variant="outline" onClick={abbrechenVersuchen} disabled={speichertGerade}
+          className="flex-1 text-sm text-schrift-gedimmt">
           {texte.abbrechen}
-        </button>
-        <button onClick={speichern} disabled={speichertGerade}
-          className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-40">
+        </Button>
+        <Button onClick={speichern} disabled={speichertGerade} className="flex-1 text-sm font-bold">
           {texte.speichern}
-        </button>
+        </Button>
       </div>
     </Dialog>
   );
