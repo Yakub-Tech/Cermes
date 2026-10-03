@@ -2,6 +2,8 @@ import { StrictMode, Suspense, lazy, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import './design/theme.css';
+import { designLesen } from './design/designSpeicher.js';
+import { designAnwenden } from './design/designAnwenden.js';
 import { apiGet } from './api.js';
 import LoginSeite from './anmeldung/LoginSeite.jsx';
 import Ersteinrichtung from './anmeldung/Ersteinrichtung.jsx';
@@ -52,6 +54,8 @@ function App() {
     </>
   );
 }
+
+designAnwenden(designLesen(() => localStorage));
 
 createRoot(document.getElementById('wurzel')).render(
   <StrictMode>

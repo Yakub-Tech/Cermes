@@ -5,6 +5,13 @@
     <link rel="icon" type="image/png" href="/src/design/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cermes</title>
+    <script>
+      try {
+        document.documentElement.dataset.design = localStorage.getItem('cermes-design') === 'hell' ? 'hell' : 'dunkel';
+      } catch (fehler) {
+        document.documentElement.dataset.design = 'dunkel';
+      }
+    </script>
   </head>
   <body>
     <div id="wurzel"></div>
