@@ -26,6 +26,7 @@ function wertText(feld, wert, texte) {
   if (feld === 'aktiv') return wert ? texte.aktiv : texte.inaktiv;
   if (feld === 'status') return texte.status[wert] ?? wert;
   if (feld === 'warnung_bestaetigt') return wert ? texte.ja : texte.nein;
+  if (feld === 'tv_design') return texte.tvDesign[wert] ?? wert;
   if (feld.endsWith('_cent')) return formatEuro(wert);
   if (Array.isArray(wert)) return wert.length === 0 ? texte.keine : wert.join(', ');
   return String(wert);

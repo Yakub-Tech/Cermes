@@ -7,6 +7,7 @@ import DateiAuswahl from '../komponenten/DateiAuswahl.jsx';
 import Dialog from '../komponenten/Dialog.jsx';
 import Hinweiskasten from '../komponenten/Hinweiskasten.jsx';
 import Pillenschalter from '../komponenten/Pillenschalter.jsx';
+import TvDesignKarte from './TvDesignKarte.jsx';
 import { Button } from '@/komponenten/ui/button';
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/einstellungen.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
@@ -114,6 +115,8 @@ export default function EinstellungenSeite({ sprache = 'de' }) {
             {texte.speichern}
           </Button>
         </form>
+
+        <TvDesignKarte texte={texte} />
 
         <div className="kaertchen-schatten rounded-lg border border-linie bg-flaeche p-4">
           <h3 className="mb-1.5 font-display text-sm font-semibold text-schrift">{texte.logoUeberschrift}</h3>

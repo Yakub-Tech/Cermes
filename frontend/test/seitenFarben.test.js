@@ -37,6 +37,7 @@ const DATEIEN = [
   'admin/BackupSeite.jsx',
   'admin/BenutzerSeite.jsx',
   'admin/EinstellungenSeite.jsx',
+  'admin/TvDesignKarte.jsx',
   'admin/AuditSeite.jsx',
   'admin/AuditFilter.jsx',
   'admin/AuditReiter.jsx',

@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { detailZeilen } from '../src/admin/auditDetails.js';
-import { de as auditDe } from '../src/sprache/audit.js';
-import { de as gemeinsamDe } from '../src/sprache/gemeinsam.js';
+import { de as auditDe, tr as auditTr } from '../src/sprache/audit.js';
+import { de as gemeinsamDe, tr as gemeinsamTr } from '../src/sprache/gemeinsam.js';
 
 const texte = { ...gemeinsamDe, ...auditDe };
 
@@ -79,4 +79,15 @@ test('unbekannte Felder fallen auf ihren Rohnamen zurück, ohne abzustürzen', (
 test('leere Details ergeben eine leere Zeilenliste', () => {
   assert.deepEqual(detailZeilen({}, texte), []);
   assert.deepEqual(detailZeilen({ werte: {}, aenderungen: {} }, texte), []);
+});
+
+test('die Darstellung der TV-Anzeige erscheint mit Feldnamen und lesbaren Werten', () => {
+  const aenderung = { aenderungen: { tv_design: { vorher: 'dunkel', nachher: 'hell' } } };
+  assert.deepEqual(detailZeilen(aenderung, texte), ['Darstellung der TV-Anzeige: dunkel → hell']);
+});
+
+test('die Darstellung der TV-Anzeige erscheint auf Türkisch übersetzt', () => {
+  const texteTuerkisch = { ...gemeinsamTr, ...auditTr };
+  const aenderung = { aenderungen: { tv_design: { vorher: 'hell', nachher: 'dunkel' } } };
+  assert.deepEqual(detailZeilen(aenderung, texteTuerkisch), ['TV ekranının görünümü: açık → koyu']);
 });
