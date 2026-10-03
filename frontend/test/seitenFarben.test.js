@@ -44,6 +44,11 @@ const DATEIEN = [
   'admin/AuditTabelle.jsx',
   'admin/statistikAnsichtFarben.js',
   'admin/statistikKomponenten.jsx',
+  'admin/StatistikSeite.jsx',
+  'admin/StatistikEinzeltag.jsx',
+  'admin/StatistikZeitraum.jsx',
+  'admin/ExportKnoepfe.jsx',
+  'admin/ExportAuswahlDialog.jsx',
 ];
 
 const ALTE_FARBNAMEN = /-(blau|navy|weinrot|gruen|akzent)(-hell|-blass|-text)?(\/\d+)?(?![\w-])/;
