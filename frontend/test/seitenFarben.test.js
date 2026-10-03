@@ -18,6 +18,8 @@ const DATEIEN = [
   'start/NetzwerkAdresse.jsx',
   'start/NetzwerkHilfeDialog.jsx',
   'komponenten/Kopfzeile.jsx',
+  'anmeldung/LoginSeite.jsx',
+  'anmeldung/PasswortAendernFormular.jsx',
 ];
 
 const ALTE_FARBNAMEN = /-(blau|navy|weinrot|gruen|akzent)(-hell|-blass|-text)?(\/\d+)?(?![\w-])/;
