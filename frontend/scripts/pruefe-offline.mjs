@@ -13,11 +13,11 @@ if (!existsSync(dist)) {
 
 const dateien = [join(dist, 'index.html')];
 for (const name of readdirSync(assets)) {
-  if (name.endsWith('.css')) dateien.push(join(assets, name));
+  if (name.endsWith('.css') || name.endsWith('.js')) dateien.push(join(assets, name));
 }
 
 for (const datei of dateien) {
-  for (const adresse of externeAdressenFinden(readFileSync(datei, 'utf8'))) {
+  for (const adresse of externeAdressenFinden(readFileSync(datei, 'utf8'), { istJs: datei.endsWith('.js') })) {
     fehler.push(`${datei.replace(dist, '')}: externe Adresse ${adresse}`);
   }
 }
