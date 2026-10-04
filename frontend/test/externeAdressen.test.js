@@ -106,3 +106,15 @@ test('JS-Modus: protokollrelative Adresse mit Hostname und Punkt wird gefunden, 
   assert.deepEqual(externeAdressenFinden('"//192.168.1.50/tv" "//www.aiim.org/x"', js), []);
   assert.deepEqual(externeAdressenFinden('"//192.168.1.50/tv"'), ['//192.168.1.50/tv']);
 });
+
+test('JS-Modus: Backtick beendet eine Adresse, aneinandergehängte Template-Strings verstecken nichts', () => {
+  const js = { istJs: true };
+  assert.deepEqual(externeAdressenFinden('a=`http://${h}/x`,b=`https://cdn.evil.com/a.js`', js), ['https://cdn.evil.com/a.js']);
+  assert.deepEqual(externeAdressenFinden('a=`http://localhost/`+`https://cdn.evil.com/a.js`', js), ['https://cdn.evil.com/a.js']);
+});
+
+test('JS-Modus: fb.me-Adresse ist am Ende verankert', () => {
+  assert.deepEqual(externeAdressenFinden('"https://fb.me/use-check-prop-typesBOESE"', { istJs: true }), [
+    'https://fb.me/use-check-prop-typesBOESE',
+  ]);
+});

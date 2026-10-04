@@ -54,7 +54,7 @@ export default function Ersteinrichtung() {
           <div className="absolute right-3 top-3">
             <DesignSchalter design={design} onWahl={setDesign} texte={designTexte} />
           </div>
-          <img src="/logo/aktuell" alt={texte.vereinslogo} className="mx-auto mb-4 mt-4 h-28 w-28 rounded-2xl ring-1 ring-linie" />
+          <img src="/logo/aktuell" alt={texte.vereinslogo} className="mx-auto mb-4 mt-8 h-28 w-28 rounded-2xl ring-1 ring-linie" />
           <h1 className="mb-1 text-center font-display text-3xl font-bold tracking-tight text-schrift">{texte.willkommen}</h1>
           <p className="mb-6 text-center text-schrift-gedimmt">
             {texte.einleitung}
