@@ -5,7 +5,7 @@ export default function TvKarte({ kaertchen, neu }) {
   const schrift = lesbareSchriftfarbe(kaertchen.artikel_farbe);
   const artikelSchriftgroesse = schriftgroesseFuerArtikelname(kaertchen.artikel_name);
   return (
-    <div className={`putz-textur ${neu ? 'neu-leuchten' : ''} kaertchen-schatten flex aspect-[2/1] flex-col justify-between rounded-[18px] border px-3 py-2`}
+    <div className={`putz-textur ${neu ? 'neu-leuchten' : ''} kaertchen-schatten flex aspect-[2/1] flex-col justify-between rounded-[18px] border outline outline-1 outline-schrift/25 px-3 py-2`}
       style={{
         backgroundColor: kaertchen.artikel_farbe,
         borderColor: dunklereFarbe(kaertchen.artikel_farbe),

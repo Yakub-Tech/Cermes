@@ -28,7 +28,7 @@ export default function WerbeBand({ bilder }) {
             style={{ width: bildBreite }}
             className="flex h-full shrink-0 items-center justify-center p-2">
             <img src={bild.url} alt="Werbung"
-              className="max-h-full max-w-full rounded-xl object-contain" />
+              className="max-h-full max-w-full rounded-xl border border-schrift/25 object-contain" />
           </div>
         ))}
       </div>
