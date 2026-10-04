@@ -26,7 +26,7 @@ export default function ArtikelKarte({ artikel, sprache }) {
         </div>
       </div>
       {ausverkauft && (
-        <p className="pointer-events-none absolute inset-x-2 bottom-3 whitespace-nowrap rounded-full bg-gefahr px-2 py-1 text-center text-xs font-bold text-white shadow-md ring-2 ring-white/70 @[9rem]:inset-x-4 @[9rem]:bottom-4 @[9rem]:px-4 @[9rem]:text-lg">
+        <p className="pointer-events-none absolute inset-x-2 bottom-3 whitespace-nowrap rounded-full bg-gefahr-fuellung px-2 py-1 text-center text-xs font-bold text-white shadow-md ring-2 ring-white/70 @[9rem]:inset-x-4 @[9rem]:bottom-4 @[9rem]:px-4 @[9rem]:text-lg">
           {texte.ausverkauft}
         </p>
       )}

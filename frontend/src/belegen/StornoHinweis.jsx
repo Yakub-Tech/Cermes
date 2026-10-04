@@ -12,7 +12,7 @@ export default function StornoHinweis({ kaertchen, sprache, texte, onVerstanden 
           .join(', ');
         return (
           <div key={k.id}
-            className="warn-puls flex items-center gap-3 rounded-lg bg-gefahr px-4 py-1.5 text-white">
+            className="warn-puls flex items-center gap-3 rounded-lg bg-gefahr-fuellung px-4 py-1.5 text-white">
             <p className="min-w-0 flex-1 break-words text-sm">
               <span className="font-display text-lg font-semibold">
                 {texte.stornoTitel} {texte.nrPraefix} {k.nummer}

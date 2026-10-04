@@ -24,7 +24,7 @@ export default function ArtikelKachel({ artikel, sprache, texte, laeuft, onTippe
           )}
         </button>
         {!!artikel.ausverkauft && (
-          <p className="pointer-events-none absolute inset-x-3 bottom-3 rounded-full bg-gefahr px-2 py-0.5 text-center text-xs font-bold text-white shadow-md @[9rem]:text-sm ring-2 ring-white/70">
+          <p className="pointer-events-none absolute inset-x-3 bottom-3 rounded-full bg-gefahr-fuellung px-2 py-0.5 text-center text-xs font-bold text-white shadow-md @[9rem]:text-sm ring-2 ring-white/70">
             {texte.ausverkauft}
           </p>
         )}

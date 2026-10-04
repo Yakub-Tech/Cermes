@@ -6,7 +6,7 @@ function beilageKlasse(beilage, hatBild) {
     if (hatBild) return 'border-white/30 text-white/70 opacity-40';
     return 'border-linie text-schrift-gedimmt opacity-40';
   }
-  if (beilage.ausgewaehlt) return 'border-erfolg bg-erfolg text-white';
+  if (beilage.ausgewaehlt) return 'border-erfolg-fuellung bg-erfolg-fuellung text-white';
   if (hatBild) return 'border-white/60 bg-white/20 text-white';
   return 'border-linie bg-flaeche-hell text-schrift';
 }

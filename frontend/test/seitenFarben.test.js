@@ -37,3 +37,17 @@ for (const datei of DATEIEN) {
     }
   });
 }
+
+const WEISS_AUF_GEFUELLT = /bg-(erfolg|gefahr)(?![\w/-])[^"'`]*text-white|text-white[^"'`]*bg-(erfolg|gefahr)(?![\w/-])/;
+
+for (const datei of DATEIEN) {
+  test(`${datei} setzt weiße Schrift nur auf die Füllungs-Tokens`, () => {
+    const text = readFileSync(new URL(datei, QUELLORDNER), 'utf8');
+    assert.doesNotMatch(text, WEISS_AUF_GEFUELLT);
+  });
+}
+
+test('der Urheberrechtshinweis wird nicht zusätzlich abgedunkelt', () => {
+  const text = readFileSync(new URL('komponenten/Urheberrechtshinweis.jsx', QUELLORDNER), 'utf8');
+  assert.doesNotMatch(text, /opacity-/);
+});

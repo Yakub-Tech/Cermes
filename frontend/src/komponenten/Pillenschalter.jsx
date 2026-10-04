@@ -1,8 +1,8 @@
 import { cn } from '@/hilfen/utils';
 
 const AN_FARBEN = {
-  erfolg: 'bg-erfolg text-white',
-  gefahr: 'bg-gefahr text-white',
+  erfolg: 'bg-erfolg-fuellung text-white',
+  gefahr: 'bg-gefahr-fuellung text-white',
   haupt: 'bg-haupt text-haupt-text',
 };
 
