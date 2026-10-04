@@ -89,64 +89,67 @@ export default function ArtikelSeite({ rolle, sprache = 'de' }) {
               </TableCell>
             </TableRow>
           )}
-          {artikelListe.map((artikel) => (
-            <TableRow key={artikel.id} className={artikel.aktiv ? '' : 'opacity-50'}>
-              <TableCell>
-                <span className="mr-1.5 inline-block h-4 w-4 rounded-full align-middle ring-1 ring-linie"
-                  style={{ backgroundColor: artikel.farbe }} />
-                {artikel.bild_url && (
-                  <img src={artikel.bild_url} alt="" className="mr-1.5 inline-block h-6 w-6 rounded object-cover align-middle" />
-                )}
-                <span className="text-sm">{beideSprachenName(artikel.name, artikel.name_tr)}</span>
-              </TableCell>
-              <TableCell className="nummer">{formatEuro(artikel.preis_cent)}</TableCell>
-              {rolle === 'admin' && (
-                <TableCell className="nummer">
-                  {artikel.einkaufskosten_cent != null
-                    ? formatEuro(artikel.einkaufskosten_cent)
-                    : <span className="text-schrift-gedimmt">—</span>}
+          {artikelListe.map((artikel) => {
+            const gedimmt = artikel.aktiv ? '' : 'opacity-50';
+            return (
+              <TableRow key={artikel.id}>
+                <TableCell className={gedimmt}>
+                  <span className="mr-1.5 inline-block h-4 w-4 rounded-full align-middle ring-1 ring-linie"
+                    style={{ backgroundColor: artikel.farbe }} />
+                  {artikel.bild_url && (
+                    <img src={artikel.bild_url} alt="" className="mr-1.5 inline-block h-6 w-6 rounded object-cover align-middle" />
+                  )}
+                  <span className="text-sm">{beideSprachenName(artikel.name, artikel.name_tr)}</span>
                 </TableCell>
-              )}
-              <TableCell className="max-w-40 truncate text-schrift-gedimmt">
-                {beilagenNamen(artikel.beilagen_ids) || '—'}
-              </TableCell>
-              <TableCell>
-                <Button variant="outline" size="sm" onClick={() => setStartnummer(artikel)}
-                  className="nummer px-2 text-sm">
-                  {artikel.naechste_nummer}
-                </Button>
-                {artikel.hinweis && (
-                  <p className="mt-1 max-w-48 text-xs text-gefahr-schrift">{artikel.hinweis}</p>
+                <TableCell className={`nummer ${gedimmt}`}>{formatEuro(artikel.preis_cent)}</TableCell>
+                {rolle === 'admin' && (
+                  <TableCell className={`nummer ${gedimmt}`}>
+                    {artikel.einkaufskosten_cent != null
+                      ? formatEuro(artikel.einkaufskosten_cent)
+                      : <span className="text-schrift-gedimmt">—</span>}
+                  </TableCell>
                 )}
-              </TableCell>
-              <TableCell>
-                <Pillenschalter an={!!artikel.aktiv}
-                  onClick={() => apiPut(`/api/artikel/${artikel.id}/aktiv`, {
-                    aktiv: artikel.aktiv ? 0 : 1,
-                  }).catch((f) => setFehler(f.message))}>
-                  {artikel.aktiv ? texte.aktiv : texte.inaktiv}
-                </Pillenschalter>
-              </TableCell>
-              <TableCell>
-                <Pillenschalter an={!!artikel.ausverkauft} art="gefahr"
-                  onClick={() => apiPut(`/api/artikel/${artikel.id}/ausverkauft`, {
-                    ausverkauft: artikel.ausverkauft ? 0 : 1,
-                  }).catch((f) => setFehler(f.message))}>
-                  {artikel.ausverkauft ? texte.ausverkauft : texte.verfuegbar}
-                </Pillenschalter>
-              </TableCell>
-              <TableCell className="text-right whitespace-nowrap">
-                <Button variant="outline" size="sm" onClick={() => setFormular({ artikel })}
-                  className="mr-1.5 px-2 text-sm text-schrift-gedimmt">
-                  {texte.bearbeiten}
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setLoeschung(artikel)}
-                  className="px-2 text-sm text-gefahr-schrift">
-                  {texte.loeschen}
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
+                <TableCell className={`max-w-40 truncate text-schrift-gedimmt ${gedimmt}`}>
+                  {beilagenNamen(artikel.beilagen_ids) || '—'}
+                </TableCell>
+                <TableCell>
+                  <Button variant="outline" size="sm" onClick={() => setStartnummer(artikel)}
+                    className="nummer px-2 text-sm">
+                    {artikel.naechste_nummer}
+                  </Button>
+                  {artikel.hinweis && (
+                    <p className="mt-1 max-w-48 text-xs text-gefahr-schrift">{artikel.hinweis}</p>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Pillenschalter an={!!artikel.aktiv}
+                    onClick={() => apiPut(`/api/artikel/${artikel.id}/aktiv`, {
+                      aktiv: artikel.aktiv ? 0 : 1,
+                    }).catch((f) => setFehler(f.message))}>
+                    {artikel.aktiv ? texte.aktiv : texte.inaktiv}
+                  </Pillenschalter>
+                </TableCell>
+                <TableCell>
+                  <Pillenschalter an={!!artikel.ausverkauft} art="gefahr"
+                    onClick={() => apiPut(`/api/artikel/${artikel.id}/ausverkauft`, {
+                      ausverkauft: artikel.ausverkauft ? 0 : 1,
+                    }).catch((f) => setFehler(f.message))}>
+                    {artikel.ausverkauft ? texte.ausverkauft : texte.verfuegbar}
+                  </Pillenschalter>
+                </TableCell>
+                <TableCell className="text-right whitespace-nowrap">
+                  <Button variant="outline" size="sm" onClick={() => setFormular({ artikel })}
+                    className="mr-1.5 px-2 text-sm text-schrift-gedimmt">
+                    {texte.bearbeiten}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setLoeschung(artikel)}
+                    className="px-2 text-sm text-gefahr-schrift">
+                    {texte.loeschen}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
 

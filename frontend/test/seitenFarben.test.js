@@ -51,3 +51,27 @@ test('der Urheberrechtshinweis wird nicht zusätzlich abgedunkelt', () => {
   const text = readFileSync(new URL('komponenten/Urheberrechtshinweis.jsx', QUELLORDNER), 'utf8');
   assert.doesNotMatch(text, /opacity-/);
 });
+
+const FELDER = [
+  'komponenten/ui/input.jsx',
+  'komponenten/Zahlenfeld.jsx',
+  'komponenten/Auswahlmenue.jsx',
+  'komponenten/Kontrollkaestchen.jsx',
+  'admin/ExportAuswahlDialog.jsx',
+  'admin/ArtikelFormular.jsx',
+  'kasse/BeilagenDialog.jsx',
+];
+
+for (const datei of FELDER) {
+  test(`${datei} zeichnet den Rand mit dem Token feldrahmen`, () => {
+    const text = readFileSync(new URL(datei, QUELLORDNER), 'utf8');
+    assert.match(text, /border-feldrahmen/);
+    assert.doesNotMatch(text, /border-schrift-gedimmt\/(35|60)/);
+  });
+}
+
+test('Kontrollkästchen sind eckig und keine Kreise', () => {
+  const text = readFileSync(new URL('komponenten/Kontrollkaestchen.jsx', QUELLORDNER), 'utf8');
+  assert.match(text, /rounded-\[3px\]/);
+  assert.doesNotMatch(text, /rounded-md/);
+});

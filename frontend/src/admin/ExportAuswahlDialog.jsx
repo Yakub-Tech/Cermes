@@ -31,7 +31,7 @@ export default function ExportAuswahlDialog({ art, eingabe, sprache = 'de', onHe
             <div className="grid grid-cols-2">
               {gruppe.eintraege.map((eintrag) => (
                 <label key={eintrag.id} className="flex min-h-[44px] cursor-pointer items-center gap-2.5 text-base">
-                  <Kontrollkaestchen markiert={gewaehlt.includes(eintrag.id)} groesse="h-[22px] w-[22px]" rand="border-schrift-gedimmt"
+                  <Kontrollkaestchen markiert={gewaehlt.includes(eintrag.id)} groesse="h-[22px] w-[22px]" rand="border-feldrahmen"
                     onWahl={(markiert) => umschalten(eintrag.id, markiert)} />
                   <span>{eintrag.beschriftung}</span>
                 </label>

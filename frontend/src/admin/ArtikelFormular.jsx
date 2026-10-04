@@ -172,7 +172,7 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
         <div>
           <Label className={LABEL}>{texte.kaertchenfarbe}</Label>
           <input type="color" value={farbe} onChange={(e) => setFarbe(e.target.value)}
-            className="h-8 w-14 cursor-pointer rounded-lg border border-schrift-gedimmt/35 bg-flaeche-hell" />
+            className="h-8 w-14 cursor-pointer rounded-lg border border-feldrahmen bg-flaeche-hell" />
         </div>
         <div>
           <Label className={LABEL}>{texte.sortierung}</Label>
@@ -201,10 +201,10 @@ export default function ArtikelFormular({ artikel, beilagen, rolle, onSpeichern,
       </p>
       {bloecke.map((block, index) => (
         <div key={index} className="mb-1.5 flex items-center gap-1.5">
-          <Zahlenfeld min="1" wert={block.von} klasse="w-24"
+          <Zahlenfeld min="1" wert={block.von} klasse="w-32"
             onWahl={(wert) => blockAendern(index, 'von', wert)} />
           <span className="text-xs text-schrift-gedimmt">{texte.bis}</span>
-          <Zahlenfeld min="1" wert={block.bis} klasse="w-24"
+          <Zahlenfeld min="1" wert={block.bis} klasse="w-32"
             onWahl={(wert) => blockAendern(index, 'bis', wert)} />
           <Button type="button" variant="outline" size="sm" onClick={() => blockEntfernen(index)}
             className="px-2 text-xs text-gefahr-schrift">

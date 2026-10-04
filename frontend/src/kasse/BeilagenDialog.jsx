@@ -8,7 +8,7 @@ import { KNOPF_NEBEN, KNOPF_HAUPT } from './knopfKlassen.js';
 
 const WAHL_KNOPF = 'cursor-pointer rounded-lg border px-4 py-4 text-center text-lg';
 const WAHL_AN = 'border-transparent bg-haupt font-bold text-haupt-text';
-const WAHL_AUS = 'border-schrift-gedimmt/35 bg-flaeche-hell text-schrift hover:border-schrift-gedimmt';
+const WAHL_AUS = 'border-feldrahmen bg-flaeche-hell text-schrift hover:border-schrift-gedimmt';
 
 export default function BeilagenDialog({ artikel, onBestaetigen, onAbbrechen, onAuswahlAendern, sprache }) {
   const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };

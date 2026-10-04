@@ -7,6 +7,7 @@ export default function TvDesignKarte({ texte }) {
   const [design, setDesign] = useState(null);
   const [meldung, setMeldung] = useState('');
   const [fehler, setFehler] = useState('');
+  const [speichert, setSpeichert] = useState(false);
 
   useEffect(() => {
     apiGet('/api/einstellungen')
@@ -15,6 +16,8 @@ export default function TvDesignKarte({ texte }) {
   }, []);
 
   async function waehlen(neuesDesign) {
+    if (speichert) return;
+    setSpeichert(true);
     setMeldung('');
     setFehler('');
     try {
@@ -23,6 +26,8 @@ export default function TvDesignKarte({ texte }) {
       setMeldung(texte.gespeichert);
     } catch (f) {
       setFehler(f.message);
+    } finally {
+      setSpeichert(false);
     }
   }
 

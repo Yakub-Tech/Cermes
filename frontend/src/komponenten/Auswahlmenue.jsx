@@ -23,7 +23,7 @@ export default function Auswahlmenue({ wert, onWahl, optionen, klasse = 'text-sm
   return (
     <Select.Root value={radixWert} onValueChange={wahlGeaendert}>
       <Select.Trigger ref={triggerRefGesetzt}
-        className={`group inline-flex cursor-pointer items-center justify-between gap-1.5 rounded-lg border border-schrift-gedimmt/35 bg-flaeche-hell px-2 py-1.5 text-left text-schrift outline-none focus:border-schrift-gedimmt focus:ring-3 focus:ring-schrift/10 data-[state=open]:border-schrift-gedimmt data-[state=open]:ring-3 data-[state=open]:ring-schrift/10 ${klasse}`}>
+        className={`group inline-flex cursor-pointer items-center justify-between gap-1.5 rounded-lg border border-feldrahmen bg-flaeche-hell px-2 py-1.5 text-left text-schrift outline-none focus:border-schrift-gedimmt focus:ring-3 focus:ring-schrift/10 data-[state=open]:border-schrift-gedimmt data-[state=open]:ring-3 data-[state=open]:ring-schrift/10 ${klasse}`}>
         <Select.Value />
         <Select.Icon className="auswahlmenue-chevron text-schrift-gedimmt transition-transform duration-150 group-data-[state=open]:rotate-180">
           ▾

@@ -18,6 +18,7 @@
   --erfolg-fuellung: #218358;
   --gefahr-fuellung: #ce2c31;
   --tv-grund: #0c0c0e;
+  --feldrahmen: #6b7077;
   --diagramm-stueck: #3b9eff;
   --diagramm-umsatz: #12a594;
   --diagramm-gewinn: #30a46c;
@@ -48,6 +49,7 @@
   --erfolg-fuellung: #218358;
   --gefahr-fuellung: #ce2c31;
   --tv-grund: #eceef2;
+  --feldrahmen: #80838d;
   --diagramm-stueck: #2563a6;
   --diagramm-umsatz: #0f8b8d;
   --diagramm-gewinn: #218358;
@@ -82,6 +84,7 @@
   --color-gefahr-fuellung: var(--gefahr-fuellung);
   --color-gefahr-schrift: var(--gefahr-schrift);
   --color-tv-grund: var(--tv-grund);
+  --color-feldrahmen: var(--feldrahmen);
 
   --color-background: var(--grund);
   --color-foreground: var(--schrift);

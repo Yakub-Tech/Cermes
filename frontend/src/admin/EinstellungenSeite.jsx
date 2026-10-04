@@ -81,7 +81,7 @@ export default function EinstellungenSeite({ sprache = 'de' }) {
     <div>
       <h2 className="mb-4 font-display text-base font-semibold tracking-tight text-schrift">{texte.titel}</h2>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
         <form onSubmit={speichern} className="kaertchen-schatten rounded-lg border border-linie bg-flaeche p-4">
           <h3 className="mb-1.5 font-display text-sm font-semibold text-schrift">{texte.warnzeitUeberschrift}</h3>
           <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="warnminuten">

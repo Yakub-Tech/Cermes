@@ -11,6 +11,7 @@ export default function ArtikelKachel({ artikel, sprache, texte, laeuft, onTippe
     <div className="@container flex flex-col gap-1">
       <div className="relative flex flex-1">
         <button onClick={() => onTippen(artikel)} disabled={laeuft || !!artikel.ausverkauft}
+          aria-describedby={artikel.ausverkauft ? `ausverkauft-${artikel.id}` : undefined}
           className={`putz-textur-hell kaertchen-schatten-vertieft min-h-32 flex-1 cursor-pointer rounded-[24px] border border-linie bg-flaeche p-3 text-left hover:bg-flaeche-hell active:scale-[0.98] disabled:cursor-not-allowed @[9rem]:p-4 ${
             artikel.ausverkauft ? 'pb-11 opacity-50 grayscale @[9rem]:pb-11' : 'disabled:opacity-40'
           }`}
@@ -24,7 +25,7 @@ export default function ArtikelKachel({ artikel, sprache, texte, laeuft, onTippe
           )}
         </button>
         {!!artikel.ausverkauft && (
-          <p className="pointer-events-none absolute inset-x-3 bottom-3 rounded-full bg-gefahr-fuellung px-2 py-0.5 text-center text-xs font-bold text-white shadow-md @[9rem]:text-sm ring-2 ring-white/70">
+          <p id={`ausverkauft-${artikel.id}`} className="pointer-events-none absolute inset-x-3 bottom-3 rounded-full bg-gefahr-fuellung px-2 py-0.5 text-center text-xs font-bold text-white shadow-md @[9rem]:text-sm ring-2 ring-white/70">
             {texte.ausverkauft}
           </p>
         )}

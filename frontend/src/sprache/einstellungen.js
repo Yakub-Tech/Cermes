@@ -15,7 +15,7 @@ export const de = {
   logoEntfernenTitel: 'Logo entfernen?',
   logoWirdGeloescht: 'Das Logo wird dauerhaft gelöscht.',
   tvDesignUeberschrift: 'Darstellung der TV-Anzeige',
-  tvDesignErklaerung: 'Gilt sofort für alle TV-Bildschirme, unabhängig von Kasse und Gerät.',
+  tvDesignErklaerung: 'Gilt sofort für alle TV-Bildschirme. Kasse, Kundenanzeige und Geräte haben ihre eigene Wahl.',
   tvDesignDunkel: 'Dunkel',
   tvDesignHell: 'Hell',
 };
@@ -36,7 +36,7 @@ export const tr = {
   logoEntfernenTitel: 'Logo kaldırılsın mı?',
   logoWirdGeloescht: 'Logo kalıcı olarak silinecek.',
   tvDesignUeberschrift: 'TV ekranının görünümü',
-  tvDesignErklaerung: 'Tüm TV ekranları için hemen geçerli olur, kasadan ve cihazdan bağımsızdır.',
+  tvDesignErklaerung: 'Tüm TV ekranları için hemen geçerli olur. Kasa, müşteri ekranı ve cihazların kendi seçimi vardır.',
   tvDesignDunkel: 'Koyu',
   tvDesignHell: 'Açık',
 };

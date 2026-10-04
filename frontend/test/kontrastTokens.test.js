@@ -29,3 +29,12 @@ for (const [name, blockAnfang] of Object.entries(THEMES)) {
     }
   });
 }
+
+for (const [name, blockAnfang] of Object.entries(THEMES)) {
+  test(`${name}: der Rand von Eingabefeldern hat mindestens 3 zu 1`, () => {
+    const werte = farbwerte(blockAnfang);
+    assert.ok(werte['--feldrahmen'], '--feldrahmen fehlt');
+    assert.ok(kontrastverhaeltnis(werte['--feldrahmen'], werte['--flaeche']) >= 3, 'zu wenig gegen die Karte');
+    assert.ok(kontrastverhaeltnis(werte['--feldrahmen'], werte['--flaeche-hell']) >= 3, 'zu wenig gegen die Feldfläche');
+  });
+}
