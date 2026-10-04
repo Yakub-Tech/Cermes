@@ -18,7 +18,7 @@ export default function Fusszeile({ sprache = 'de' }) {
 
   return (
     <footer>
-      <div className="akzentrand h-px" />
+      <div className="trennlinie h-px" />
       <div className="flex items-center justify-end gap-x-8 bg-flaeche px-2.5 py-1.5 text-xs text-schrift-gedimmt">
         <span className={`flex items-center gap-1.5 ${verbunden ? '' : 'font-semibold text-gefahr-schrift'}`}>
           <span

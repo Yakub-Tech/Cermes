@@ -44,7 +44,7 @@ export default function Kopfzeile({ titel, benutzername, rechts, aufLogoKlick, s
           )}
         </div>
       </div>
-      <div className="akzentrand h-px" />
+      <div className="trennlinie h-px" />
     </header>
   );
 }

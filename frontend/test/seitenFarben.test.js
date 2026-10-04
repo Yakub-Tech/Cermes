@@ -1,95 +1,39 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 
-const DATEIEN = [
-  'komponenten/Dialog.jsx',
-  'komponenten/SprachSchalter.jsx',
-  'komponenten/Zahlenfeld.jsx',
-  'komponenten/Auswahlmenue.jsx',
-  'komponenten/Kontrollkaestchen.jsx',
-  'komponenten/DateiAuswahl.jsx',
-  'komponenten/LadefehlerHinweis.jsx',
-  'komponenten/Hinweiskasten.jsx',
-  'komponenten/ui/input.jsx',
-  'komponenten/ui/label.jsx',
-  'start/ZielKaertchen.jsx',
-  'start/StartSeite.jsx',
-  'start/NetzwerkAdresse.jsx',
-  'start/NetzwerkHilfeDialog.jsx',
-  'komponenten/Kopfzeile.jsx',
-  'anmeldung/LoginSeite.jsx',
-  'anmeldung/PasswortAendernFormular.jsx',
-  'anmeldung/Ersteinrichtung.jsx',
-  'komponenten/Pillenschalter.jsx',
-  'komponenten/Reiterleiste.jsx',
-  'komponenten/ui/table.jsx',
-  'komponenten/Urheberrechtshinweis.jsx',
-  'admin/eingabeKlasse.js',
-  'admin/AdminLayout.jsx',
-  'komponenten/Fusszeile.jsx',
-  'komponenten/NichtGefundenInhalt.jsx',
-  'admin/ArtikelSeite.jsx',
-  'admin/StartnummerDialog.jsx',
-  'admin/ArtikelFormular.jsx',
-  'admin/BeilagenSeite.jsx',
-  'admin/WerbungSeite.jsx',
-  'admin/BackupSeite.jsx',
-  'admin/BenutzerSeite.jsx',
-  'admin/EinstellungenSeite.jsx',
-  'admin/TvDesignKarte.jsx',
-  'tv/TvSeite.jsx',
-  'tv/StatusSpalte.jsx',
-  'tv/TvKarte.jsx',
-  'admin/AuditSeite.jsx',
-  'admin/AuditFilter.jsx',
-  'admin/AuditReiter.jsx',
-  'admin/AuditSeitenwahl.jsx',
-  'admin/AuditTabelle.jsx',
-  'admin/statistikAnsichtFarben.js',
-  'admin/statistikKomponenten.jsx',
-  'admin/StatistikSeite.jsx',
-  'admin/StatistikEinzeltag.jsx',
-  'admin/StatistikZeitraum.jsx',
-  'admin/ExportKnoepfe.jsx',
-  'admin/ExportAuswahlDialog.jsx',
-  'komponenten/DesignSchalter.jsx',
-  'komponenten/SprachSchalter.jsx',
-  'kasse/KasseSeite.jsx',
-  'kasse/ArtikelKachel.jsx',
-  'kasse/ArtikelRaster.jsx',
-  'kasse/knopfKlassen.js',
-  'kasse/Warenkorb.jsx',
-  'kasse/GeparkteDialog.jsx',
-  'kasse/WarenkorbVerlassenDialog.jsx',
-  'kasse/BeilagenDialog.jsx',
-  'kasse/KassierenAbschluss.jsx',
-  'kasse/StornoTab.jsx',
-  'kasse/KundenanzeigeSchalter.jsx',
-  'design/useZustandsDesign.js',
-  'kunde/KundeSeite.jsx',
-  'kunde/ArtikelKarte.jsx',
-  'kunde/FokusAnsicht.jsx',
-  'kunde/WarenkorbListe.jsx',
-  'kunde/BestellUebersicht.jsx',
-  'komponenten/StationsSpalte.jsx',
-  'komponenten/KaertchenKarte.jsx',
-  'komponenten/Snackbar.jsx',
-  'belegen/BelegenSeite.jsx',
-  'belegen/StornoHinweis.jsx',
-  'belegen/OffeneMengenLeiste.jsx',
-  'ausgabe/AusgabeSeite.jsx',
-];
+const QUELLORDNER = new URL('../src/', import.meta.url);
 
-const ALTE_FARBNAMEN = /-(blau|navy|weinrot|gruen|akzent)(-hell|-blass|-text)?(\/\d+)?(?![\w-])/;
+const DATEIEN = readdirSync(QUELLORDNER, { recursive: true })
+  .filter((pfad) => /\.jsx?$/.test(pfad))
+  .sort();
+
+const FESTE_FARBEN_ERLAUBT = {
+  'admin/artikelStandardFarbe.js': 'Artikelfarbe ist ein Datenwert und unabhängig vom Theme',
+  'admin/statistikFarben.js': 'PDF und Excel sind Papier und bleiben immer hell',
+  'admin/statistikDiagramm.js': 'Diagrammbild für das PDF, immer hell',
+  'admin/statistikPdf.js': 'PDF ist Papier, immer hell',
+  'komponenten/Flagge.jsx': 'Flaggen haben feste Landesfarben',
+  'komponenten/farbe.js': 'rechnet mit Artikelfarben und nennt Schwarz oder Weiß als Schrift',
+};
+
+const ALTE_FARBNAMEN = /-(blau|navy|weinrot|gruen|akzent)(-hell|-blass|-text)?(\/\d+)?(?![\w-])|akzentrand/;
 const SCHRIFT_FLAECHE = /text-flaeche(?![\w-])/;
 const FESTE_FARBE = /rgba?\(|#[0-9a-fA-F]{3,8}\b/;
 
+test('die Ausnahmeliste nennt nur Dateien, die es gibt', () => {
+  for (const datei of Object.keys(FESTE_FARBEN_ERLAUBT)) {
+    assert.ok(existsSync(new URL(datei, QUELLORDNER)), `${datei} fehlt`);
+  }
+});
+
 for (const datei of DATEIEN) {
   test(`${datei} nutzt nur die neuen Tokens`, () => {
-    const text = readFileSync(new URL(`../src/${datei}`, import.meta.url), 'utf8');
-    assert.doesNotMatch(text, ALTE_FARBNAMEN, 'alter Farbname (Alias-Brücke)');
+    const text = readFileSync(new URL(datei, QUELLORDNER), 'utf8');
+    assert.doesNotMatch(text, ALTE_FARBNAMEN, 'alter Farbname');
     assert.doesNotMatch(text, SCHRIFT_FLAECHE, 'text-flaeche auf gefüllter Fläche');
-    assert.doesNotMatch(text, FESTE_FARBE, 'fester Farbwert statt Token');
+    if (!(datei in FESTE_FARBEN_ERLAUBT)) {
+      assert.doesNotMatch(text, FESTE_FARBE, 'fester Farbwert statt Token');
+    }
   });
 }

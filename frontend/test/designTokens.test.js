@@ -36,3 +36,16 @@ test('beide Themes setzen color-scheme, damit Bildlaufleisten und Eingaben passe
   assert.match(css, /data-design='dunkel'\]\s*\{[^}]*color-scheme:\s*dark/);
   assert.match(css, /data-design='hell'\]\s*\{[^}]*color-scheme:\s*light/);
 });
+
+const theme = readFileSync(new URL('../src/design/theme.css', import.meta.url), 'utf8');
+
+test('die alte Alias-Brücke ist gelöscht', () => {
+  const alteVariable = /--color-(blau|navy|gruen|akzent|weinrot)(-hell|-blass|-text)?\s*:/;
+  assert.doesNotMatch(css, alteVariable);
+  assert.doesNotMatch(css, /Alias-Brücke/);
+});
+
+test('theme.css kennt die alte Klasse akzentrand nicht mehr', () => {
+  assert.doesNotMatch(theme, /akzentrand/);
+  assert.match(theme, /\.trennlinie\s*\{/);
+});
