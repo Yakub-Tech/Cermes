@@ -1,0 +1,1 @@
+export const STANDARD_ARTIKELFARBE = '#b53030';

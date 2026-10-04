@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { apiPost } from '../api.js';
-
-const FELD = 'mb-4 w-full rounded border border-linie bg-grund px-3 py-3 text-lg outline-none focus:border-blau-hell';
-const BESCHRIFTUNG = 'mb-1 block text-sm text-schrift-gedimmt';
+import Hinweiskasten from '../komponenten/Hinweiskasten.jsx';
+import { Button } from '@/komponenten/ui/button';
+import { Input } from '@/komponenten/ui/input';
+import { Label } from '@/komponenten/ui/label';
 
 export default function PasswortAendernFormular({ texte, benutzernameVorbelegt, beiErfolg, beiZurueck }) {
   const [benutzername, setBenutzername] = useState(benutzernameVorbelegt);
@@ -34,32 +35,32 @@ export default function PasswortAendernFormular({ texte, benutzernameVorbelegt, 
 
   return (
     <form onSubmit={speichern}>
-      <label className={BESCHRIFTUNG} htmlFor="pw-benutzername">{texte.benutzername}</label>
-      <input id="pw-benutzername" value={benutzername} autoFocus autoComplete="username"
-        onChange={(e) => setBenutzername(e.target.value)} className={FELD} />
+      <Label htmlFor="pw-benutzername">{texte.benutzername}</Label>
+      <Input id="pw-benutzername" value={benutzername} autoFocus autoComplete="username"
+        onChange={(e) => setBenutzername(e.target.value)} className="mb-4" />
 
-      <label className={BESCHRIFTUNG} htmlFor="pw-aktuell">{texte.aktuellesPasswort}</label>
-      <input id="pw-aktuell" type="password" value={aktuell} autoComplete="current-password"
-        onChange={(e) => setAktuell(e.target.value)} className={FELD} />
+      <Label htmlFor="pw-aktuell">{texte.aktuellesPasswort}</Label>
+      <Input id="pw-aktuell" type="password" value={aktuell} autoComplete="current-password"
+        onChange={(e) => setAktuell(e.target.value)} className="mb-4" />
 
-      <label className={BESCHRIFTUNG} htmlFor="pw-neu">{texte.neuesPasswort}</label>
-      <input id="pw-neu" type="password" value={neu} autoComplete="new-password"
-        onChange={(e) => setNeu(e.target.value)} className={FELD} />
+      <Label htmlFor="pw-neu">{texte.neuesPasswort}</Label>
+      <Input id="pw-neu" type="password" value={neu} autoComplete="new-password"
+        onChange={(e) => setNeu(e.target.value)} className="mb-4" />
 
-      <label className={BESCHRIFTUNG} htmlFor="pw-wiederholt">{texte.neuesPasswortWiederholen}</label>
-      <input id="pw-wiederholt" type="password" value={wiederholt} autoComplete="new-password"
-        onChange={(e) => setWiederholt(e.target.value)} className={FELD} />
+      <Label htmlFor="pw-wiederholt">{texte.neuesPasswortWiederholen}</Label>
+      <Input id="pw-wiederholt" type="password" value={wiederholt} autoComplete="new-password"
+        onChange={(e) => setWiederholt(e.target.value)} className="mb-4" />
 
-      {fehler && <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>}
+      {fehler && <Hinweiskasten art="fehler" className="mb-4">{fehler}</Hinweiskasten>}
 
-      <button type="submit" disabled={laeuft}
-        className="w-full cursor-pointer rounded-full bg-blau py-3 text-lg font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-50">
+      <Button type="submit" disabled={laeuft}
+        className="h-auto w-full cursor-pointer py-3 text-lg font-semibold">
         {texte.passwortSpeichern}
-      </button>
-      <button type="button" onClick={beiZurueck}
-        className="mt-4 block w-full cursor-pointer text-center text-sm text-schrift-gedimmt underline hover:text-navy">
+      </Button>
+      <Button type="button" variant="link" onClick={beiZurueck}
+        className="mt-4 h-auto w-full cursor-pointer text-sm text-schrift-gedimmt hover:text-schrift">
         {texte.zurueckZurAnmeldung}
-      </button>
+      </Button>
     </form>
   );
 }

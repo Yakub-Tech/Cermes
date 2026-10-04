@@ -22,11 +22,11 @@ export default function Dialog({ titel, kinder, children, onSchliessen, breite =
   return (
     <dialog ref={dialogRef} onCancel={escapeGedrueckt} onClick={onSchliessen}
       className="fixed inset-0 m-0 flex h-full max-h-none w-full max-w-none items-center
-        justify-center bg-transparent p-2.5 backdrop:bg-black/70">
+        justify-center bg-transparent p-2.5 text-schrift backdrop:bg-black/60">
       <div className={`max-h-[90vh] w-full ${breite} overflow-y-auto rounded-lg border border-linie
-          bg-flaeche p-4 shadow-2xl`}
+          bg-flaeche p-4 shadow-[0_8px_30px_var(--schattenfarbe)]`}
         onClick={(ereignis) => ereignis.stopPropagation()}>
-        {titel && <h2 className="mb-2.5 font-display text-base text-navy">{titel}</h2>}
+        {titel && <h2 className="mb-2.5 font-display text-base font-semibold tracking-tight text-schrift">{titel}</h2>}
         {kinder ?? children}
       </div>
     </dialog>

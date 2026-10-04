@@ -23,7 +23,7 @@ export default function Auswahlmenue({ wert, onWahl, optionen, klasse = 'text-sm
   return (
     <Select.Root value={radixWert} onValueChange={wahlGeaendert}>
       <Select.Trigger ref={triggerRefGesetzt}
-        className={`group inline-flex cursor-pointer items-center justify-between gap-1.5 rounded-lg border border-linie bg-flaeche px-2 py-1.5 text-left outline-none focus:ring-2 focus:ring-blau-hell/40 data-[state=open]:ring-2 data-[state=open]:ring-blau-hell/40 ${klasse}`}>
+        className={`group inline-flex cursor-pointer items-center justify-between gap-1.5 rounded-lg border border-feldrahmen bg-flaeche-hell px-2 py-1.5 text-left text-schrift outline-none focus:border-schrift-gedimmt focus:ring-3 focus:ring-schrift/10 data-[state=open]:border-schrift-gedimmt data-[state=open]:ring-3 data-[state=open]:ring-schrift/10 ${klasse}`}>
         <Select.Value />
         <Select.Icon className="auswahlmenue-chevron text-schrift-gedimmt transition-transform duration-150 group-data-[state=open]:rotate-180">
           ▾
@@ -31,15 +31,15 @@ export default function Auswahlmenue({ wert, onWahl, optionen, klasse = 'text-sm
       </Select.Trigger>
       <Select.Portal container={portalContainer}>
         <Select.Content position="popper" sideOffset={4}
-          className={`auswahlmenue-panel z-50 overflow-hidden rounded-lg border border-linie bg-flaeche shadow-2xl data-[state=open]:animate-[dropdown-oeffnen_120ms_ease-out] ${textGroesse}`}>
+          className={`auswahlmenue-panel z-50 overflow-hidden rounded-lg border border-linie bg-flaeche text-schrift shadow-[0_8px_30px_var(--schattenfarbe)] data-[state=open]:animate-[dropdown-oeffnen_120ms_ease-out] ${textGroesse}`}>
           <Select.Viewport className="max-h-72 p-1">
             {optionen.map((option) => {
               const optionWert = option.wert === '' ? LEER_TOKEN : String(option.wert);
               return (
                 <Select.Item key={optionWert} value={optionWert}
-                  className="flex cursor-pointer items-center justify-between gap-1.5 rounded-lg px-2 py-1.5 outline-none data-[highlighted]:bg-flaeche-hell data-[state=checked]:bg-flaeche-hell">
+                  className="flex cursor-pointer items-center justify-between gap-1.5 rounded-md px-2 py-1.5 outline-none data-[highlighted]:bg-flaeche-hell data-[state=checked]:bg-flaeche-hell">
                   <Select.ItemText>{option.text}</Select.ItemText>
-                  <Select.ItemIndicator className="text-blau">✓</Select.ItemIndicator>
+                  <Select.ItemIndicator className="text-schrift">✓</Select.ItemIndicator>
                 </Select.Item>
               );
             })}

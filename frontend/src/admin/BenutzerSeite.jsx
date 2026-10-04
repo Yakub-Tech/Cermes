@@ -2,11 +2,20 @@ import { useEffect, useState } from 'react';
 import { apiGet, apiPost, apiDelete } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
+import Hinweiskasten from '../komponenten/Hinweiskasten.jsx';
 import Dialog from '../komponenten/Dialog.jsx';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
+import { Badge } from '@/komponenten/ui/badge';
+import { Button } from '@/komponenten/ui/button';
+import { Input } from '@/komponenten/ui/input';
+import { Label } from '@/komponenten/ui/label';
+import { EINGABE_DICHT } from './eingabeKlasse.js';
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/benutzer.js';
 import { de as rollenDe, tr as rollenTr } from '../sprache/rollen.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
+
+const LABEL = 'text-xs font-normal';
+const EINGABE = `mb-2.5 ${EINGABE_DICHT}`;
 
 export default function BenutzerSeite({ sprache = 'de' }) {
   const { neueste, ladefehler } = useNeuesteAntwort(nachladen);
@@ -59,52 +68,50 @@ export default function BenutzerSeite({ sprache = 'de' }) {
     }
   }
 
-  const eingabeKlasse =
-    'mb-2.5 w-full rounded border border-linie bg-grund px-2 py-1.5 text-sm outline-none focus:border-blau-hell';
-
   return (
     <div>
-      <h2 className="mb-4 font-display text-base text-navy">{texte.titel}</h2>
+      <h2 className="mb-4 font-display text-base font-semibold tracking-tight text-schrift">{texte.titel}</h2>
 
-      <button onClick={() => setAnlage({ benutzername: '', passwort: '', rolle: 'kasse' })}
-        className="kaertchen-schatten mb-4 cursor-pointer rounded-full bg-blau px-4 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
+      <Button onClick={() => setAnlage({ benutzername: '', passwort: '', rolle: 'kasse' })}
+        className="mb-4 px-4 text-sm font-bold">
         {texte.benutzerAnlegen}
-      </button>
+      </Button>
 
       {ladefehler && <LadefehlerHinweis sprache={sprache} onErneut={nachladen} />}
 
-      {fehler && <p className="mb-2.5 max-w-md rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{fehler}</p>}
+      {fehler && <Hinweiskasten art="fehler" className="mb-2.5 max-w-md px-2 py-1.5 text-sm">{fehler}</Hinweiskasten>}
 
       <ul className="kaertchen-schatten w-fit divide-y divide-linie rounded-lg border border-linie bg-flaeche text-sm">
         {benutzer.map((konto) => (
           <li key={konto.id} className="flex items-center gap-2.5 px-2.5 py-2">
             <span className="w-32 shrink-0 text-sm">{konto.benutzername}</span>
-            <span className="w-24 shrink-0 rounded-full border border-linie px-2 py-1 text-center text-xs text-schrift-gedimmt">
+            <Badge variant="outline" className="w-24 shrink-0 text-schrift-gedimmt">
               {texte[konto.rolle]}
-            </span>
-            <button onClick={() => setPasswortReset({ id: konto.id, benutzername: konto.benutzername, passwort: '' })}
-              className="shrink-0 cursor-pointer whitespace-nowrap rounded-full border border-linie px-2 py-1 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
+            </Badge>
+            <Button variant="outline" size="sm"
+              onClick={() => setPasswortReset({ id: konto.id, benutzername: konto.benutzername, passwort: '' })}
+              className="shrink-0 px-2 text-sm text-schrift-gedimmt">
               {texte.passwortZuruecksetzen}
-            </button>
-            <button onClick={() => setLoeschung(konto)}
-              className="shrink-0 cursor-pointer rounded-full border border-linie px-2 py-1 text-sm text-weinrot hover:bg-flaeche-hell">
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setLoeschung(konto)}
+              className="shrink-0 px-2 text-sm text-gefahr-schrift">
               {texte.loeschen}
-            </button>
+            </Button>
           </li>
         ))}
       </ul>
 
       {anlage && (
         <Dialog titel={texte.benutzerAnlegen} onSchliessen={() => setAnlage(null)}>
-          <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.benutzername}</label>
-          <input value={anlage.benutzername} autoFocus
+          <Label className={LABEL}>{texte.benutzername}</Label>
+          <Input value={anlage.benutzername} autoFocus
             onChange={(e) => setAnlage({ ...anlage, benutzername: e.target.value })}
-            className={eingabeKlasse} />
-          <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.passwortLabel}</label>
-          <input type="password" value={anlage.passwort}
+            className={EINGABE} />
+          <Label className={LABEL}>{texte.passwortLabel}</Label>
+          <Input type="password" value={anlage.passwort}
             onChange={(e) => setAnlage({ ...anlage, passwort: e.target.value })}
-            className={eingabeKlasse} />
-          <label className="mb-1 block text-xs text-schrift-gedimmt">{texte.rolle}</label>
+            className={EINGABE} />
+          <Label className={LABEL}>{texte.rolle}</Label>
           <Auswahlmenue wert={anlage.rolle}
             onWahl={(neueRolle) => setAnlage({ ...anlage, rolle: neueRolle })}
             optionen={[
@@ -116,14 +123,13 @@ export default function BenutzerSeite({ sprache = 'de' }) {
             ]}
             klasse="mb-2.5 w-full text-sm" />
           <div className="flex gap-2">
-            <button onClick={() => setAnlage(null)}
-              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
+            <Button variant="outline" onClick={() => setAnlage(null)}
+              className="flex-1 text-sm text-schrift-gedimmt">
               {texte.abbrechen}
-            </button>
-            <button onClick={anlegen}
-              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
+            </Button>
+            <Button onClick={anlegen} className="flex-1 text-sm font-bold">
               {texte.anlegen}
-            </button>
+            </Button>
           </div>
         </Dialog>
       )}
@@ -131,19 +137,18 @@ export default function BenutzerSeite({ sprache = 'de' }) {
       {passwortReset && (
         <Dialog titel={`${passwortReset.benutzername}: ${texte.neuesPasswortSuffix}`}
           onSchliessen={() => setPasswortReset(null)}>
-          <input type="password" value={passwortReset.passwort} autoFocus
+          <Input type="password" value={passwortReset.passwort} autoFocus
             placeholder={texte.neuesPasswortPlatzhalter}
             onChange={(e) => setPasswortReset({ ...passwortReset, passwort: e.target.value })}
-            className={eingabeKlasse} />
+            className={EINGABE} />
           <div className="flex gap-2">
-            <button onClick={() => setPasswortReset(null)}
-              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
+            <Button variant="outline" onClick={() => setPasswortReset(null)}
+              className="flex-1 text-sm text-schrift-gedimmt">
               {texte.abbrechen}
-            </button>
-            <button onClick={passwortSetzen}
-              className="flex-1 cursor-pointer rounded-full bg-blau py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
+            </Button>
+            <Button onClick={passwortSetzen} className="flex-1 text-sm font-bold">
               {texte.speichern}
-            </button>
+            </Button>
           </div>
         </Dialog>
       )}
@@ -154,14 +159,13 @@ export default function BenutzerSeite({ sprache = 'de' }) {
             {texte.loeschenVorspann}{loeschung.benutzername}{texte.loeschenNachspann}
           </p>
           <div className="flex gap-2">
-            <button onClick={() => setLoeschung(null)}
-              className="flex-1 cursor-pointer rounded-full border border-linie py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
+            <Button variant="outline" onClick={() => setLoeschung(null)}
+              className="flex-1 text-sm text-schrift-gedimmt">
               {texte.abbrechen}
-            </button>
-            <button onClick={loeschen}
-              className="flex-1 cursor-pointer rounded-full bg-weinrot py-1.5 text-sm font-bold text-flaeche hover:bg-weinrot-hell">
+            </Button>
+            <Button variant="gefahr" onClick={loeschen} className="flex-1 text-sm font-bold">
               {texte.jaLoeschen}
-            </button>
+            </Button>
           </div>
         </Dialog>
       )}

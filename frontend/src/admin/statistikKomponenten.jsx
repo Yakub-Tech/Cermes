@@ -7,7 +7,8 @@ import { artikelSortieren, sortierOptionen } from './artikelSortierung.js';
 import { kennzahlenBauen } from './statistikKennzahlen.js';
 import {
   stueckFarbe, umsatzFarbe, gewinnFarbe, farbeOhneKosten, gewinnNeutralFarbe, achsenFarbe, gitterFarbe,
-} from './statistikFarben.js';
+} from './statistikAnsichtFarben.js';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/komponenten/ui/table';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
 import { de as eigeneDe, tr as eigeneTr } from '../sprache/statistikKomponenten.js';
 import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
@@ -20,6 +21,7 @@ const ZEICHEN_BREITE = 5.3;
 const TEXT_ABSTAND = 10;
 const ZEILEN_HOEHE = 12;
 const BODEN_PUFFER = 6;
+const ACHSEN_TICK = { fontSize: 10, fill: achsenFarbe };
 
 function ArtikelAchsenTick({ x, y, payload }) {
   return (
@@ -71,16 +73,17 @@ export function BalkenDiagramm({
             <CartesianGrid stroke={gitterFarbe} vertical={false} />
             <XAxis dataKey={xSchluessel} stroke={achsenFarbe} tickLine={false}
               interval={alleBeschriftungen ? 0 : 'preserveEnd'} height={achsenHoehe}
-              tick={schraegeAchse ? <ArtikelAchsenTick /> : { fontSize: 10 }} />
+              tick={schraegeAchse ? <ArtikelAchsenTick /> : ACHSEN_TICK} />
             <YAxis stroke={achsenFarbe} tickLine={false} allowDecimals={false}
-              tickFormatter={werteFormat} width={60} tick={{ fontSize: 10 }} />
-            <Tooltip cursor={{ fill: 'rgba(16, 83, 143, 0.08)' }}
+              tickFormatter={werteFormat} width={60} tick={ACHSEN_TICK} />
+            <Tooltip cursor={{ fill: 'var(--flaeche-hell)', opacity: 0.6 }}
               contentStyle={{
-                backgroundColor: '#ffffff', border: '1px solid #ccd8e4',
-                borderRadius: 6, color: '#16202b', fontSize: 12, padding: '4px 8px',
+                backgroundColor: 'var(--flaeche)', border: '1px solid var(--linie)',
+                borderRadius: 6, color: 'var(--schrift)', fontSize: 12, padding: '4px 8px',
               }}
+              itemStyle={{ color: 'var(--schrift)' }}
               formatter={(wert) => [werteFormat ? werteFormat(wert) : wert, null]}
-              labelStyle={{ color: '#5a6b7d' }} />
+              labelStyle={{ color: 'var(--schrift-gedimmt)' }} />
             <Bar dataKey={ySchluessel} fill={farbe} radius={[3, 3, 0, 0]} maxBarSize={32}>
               {balkenFarbFunktion && daten.map((zeile) => (
                 <Cell key={zeile[xSchluessel]} fill={balkenFarbFunktion(zeile)} />
@@ -126,7 +129,7 @@ export function Kennzahlen({ gesamt, stosszeit, sprache = 'de' }) {
       <KennzahlZeile kennzahlen={kennzahlen} />
       {zeigtGeld && gesamt.stueck_ohne_kosten > 0 && (
         <div className="kaertchen-schatten rounded-lg border border-linie bg-flaeche px-4 py-2.5">
-          <p className="text-xs italic text-weinrot">
+          <p className="text-xs italic text-gefahr-schrift">
             {texte.stueckOhneKostenVorspann}{gesamt.stueck_ohne_kosten}{texte.stueckOhneKostenNachspann}
           </p>
         </div>
@@ -179,30 +182,30 @@ export function StornoTabelle({ stornos, mitDatum = false, sprache = 'de' }) {
       {stornos.length === 0 ? (
         <p className="text-sm text-schrift-gedimmt">{texte.keineStornos}</p>
       ) : (
-        <table className="w-full text-left">
-          <thead>
-            <tr className="border-b border-linie text-xs text-schrift-gedimmt">
-              {mitDatum && <th className="px-1.5 py-1.5">{texte.spalteDatum}</th>}
-              <th className="px-1.5 py-1.5">{texte.spalteUhrzeit}</th>
-              <th className="px-1.5 py-1.5">{texte.spalteNummer}</th>
-              <th className="px-1.5 py-1.5">{texte.spalteArtikel}</th>
-              <th className="px-1.5 py-1.5">{texte.spalteBetrag}</th>
-              <th className="px-1.5 py-1.5">{texte.spalteStorniertVon}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-linie text-sm">
+        <Table rahmenlos>
+          <TableHeader>
+            <TableRow>
+              {mitDatum && <TableHead className="px-1.5 py-1.5">{texte.spalteDatum}</TableHead>}
+              <TableHead className="px-1.5 py-1.5">{texte.spalteUhrzeit}</TableHead>
+              <TableHead className="px-1.5 py-1.5">{texte.spalteNummer}</TableHead>
+              <TableHead className="px-1.5 py-1.5">{texte.spalteArtikel}</TableHead>
+              <TableHead className="px-1.5 py-1.5">{texte.spalteBetrag}</TableHead>
+              <TableHead className="px-1.5 py-1.5">{texte.spalteStorniertVon}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {stornos.map((storno, index) => (
-              <tr key={index}>
-                {mitDatum && <td className="px-1.5 py-1.5">{datumAnzeigen(storno.datum)}</td>}
-                <td className="px-1.5 py-1.5">{storno.zeit}{texte.uhr ? ` ${texte.uhr}` : ''}</td>
-                <td className="nummer px-1.5 py-1.5">{storno.nummer}</td>
-                <td className="px-1.5 py-1.5">{storno.artikel_name}</td>
-                <td className="nummer px-1.5 py-1.5">{formatEuro(storno.preis_cent)}</td>
-                <td className="px-1.5 py-1.5">{storno.storniert_von}</td>
-              </tr>
+              <TableRow key={index}>
+                {mitDatum && <TableCell className="px-1.5 py-1.5">{datumAnzeigen(storno.datum)}</TableCell>}
+                <TableCell className="px-1.5 py-1.5">{storno.zeit}{texte.uhr ? ` ${texte.uhr}` : ''}</TableCell>
+                <TableCell className="nummer px-1.5 py-1.5">{storno.nummer}</TableCell>
+                <TableCell className="px-1.5 py-1.5">{storno.artikel_name}</TableCell>
+                <TableCell className="nummer px-1.5 py-1.5">{formatEuro(storno.preis_cent)}</TableCell>
+                <TableCell className="px-1.5 py-1.5">{storno.storniert_von}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       )}
     </section>
   );

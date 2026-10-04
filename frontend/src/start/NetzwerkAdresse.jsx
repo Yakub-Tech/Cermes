@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { HelpCircle, Wifi } from 'lucide-react';
 import { apiGet } from '../api.js';
+import { Button } from '@/komponenten/ui/button';
 import NetzwerkHilfeDialog from './NetzwerkHilfeDialog.jsx';
 import { de, tr } from '../sprache/netzwerkAdresse.js';
 
@@ -35,23 +36,22 @@ export default function NetzwerkAdresse({ sprache = 'de' }) {
 
   return (
     <>
-      <div className="flex items-center gap-3 rounded-2xl border border-linie bg-flaeche p-4 shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
+      <div className="flex items-center gap-3 rounded-2xl border border-linie bg-flaeche p-4 shadow-[0_1px_2px_var(--schattenfarbe)]">
         {qrCodeBild && (
-          <img src={qrCodeBild} alt={texte.qrCodeAlt} className="h-20 w-20" />
+          <img src={qrCodeBild} alt={texte.qrCodeAlt} className="h-20 w-20 rounded-md" />
         )}
         <div className="flex items-center gap-2">
           <Wifi className="h-5 w-5 shrink-0 text-schrift-gedimmt" strokeWidth={1.5} />
           <span className="text-sm text-schrift-gedimmt">
-            {adresse ? `${texte.erreichbarUnter} ${adresse}` : texte.nichtGefunden}
+            {adresse
+              ? <>{texte.erreichbarUnter} <span className="font-medium text-schrift">{adresse}</span></>
+              : texte.nichtGefunden}
           </span>
         </div>
-        <button
-          onClick={() => setZeigeHilfe(true)}
-          aria-label={texte.hilfeAriaLabel}
-          className="cursor-pointer text-schrift-gedimmt hover:text-navy"
-        >
-          <HelpCircle className="h-5 w-5" strokeWidth={1.5} />
-        </button>
+        <Button variant="ghost" size="icon" onClick={() => setZeigeHilfe(true)}
+          aria-label={texte.hilfeAriaLabel} className="cursor-pointer text-schrift-gedimmt">
+          <HelpCircle className="size-5" strokeWidth={1.5} />
+        </Button>
       </div>
       {zeigeHilfe && (
         <NetzwerkHilfeDialog adresse={adresse} sprache={sprache} onSchliessen={() => setZeigeHilfe(false)} />

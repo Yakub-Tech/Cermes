@@ -3,9 +3,11 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Kopfzeile from '../komponenten/Kopfzeile.jsx';
 import Fusszeile from '../komponenten/Fusszeile.jsx';
 import SprachSchalter from '../komponenten/SprachSchalter.jsx';
+import Reiterleiste from '../komponenten/Reiterleiste.jsx';
+import KundenanzeigeSchalter from './KundenanzeigeSchalter.jsx';
 import { useSession } from '../anmeldung/useSession.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
-import { apiGet, apiPost, apiPut, formatEuro } from '../api.js';
+import { apiGet, apiPost, apiPut } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import LadefehlerHinweis from '../komponenten/LadefehlerHinweis.jsx';
 import { erzeugeMeldungsFolge } from './meldungsFolge.js';
@@ -16,13 +18,12 @@ import Warenkorb from './Warenkorb.jsx';
 import KassierenAbschluss from './KassierenAbschluss.jsx';
 import StornoTab from './StornoTab.jsx';
 import GeparkteDialog from './GeparkteDialog.jsx';
+import ArtikelRaster from './ArtikelRaster.jsx';
 import { useGeparkte } from './useGeparkte.js';
 import WarenkorbVerlassenDialog from './WarenkorbVerlassenDialog.jsx';
-import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 import { de, tr } from '../sprache/kasse.js';
 import { kassenNummerDiesesGeraets } from '../kassenNummer.js';
-
-const knopfUnterKachel = 'h-12 cursor-pointer rounded-full border border-linie px-2 text-center text-[11px] leading-tight text-schrift-gedimmt hover:bg-flaeche-hell';
+import { useKundenDesign } from '../design/useKundenDesign.js';
 
 export default function KasseSeite() {
   const { neueste, ladefehler } = useNeuesteAntwort(laden);
@@ -41,6 +42,7 @@ export default function KasseSeite() {
   const [warenkorbVerlassenAktiv, setWarenkorbVerlassenAktiv] = useState(false);
   const [sprache, setSprache] = useState('de');
   const texte = sprache === 'tr' ? tr : de;
+  const [kundenDesign, setKundenDesign] = useKundenDesign();
   const naechsterSchluessel = useRef(1);
   const vorgangKennung = useRef(null);
   const [buchungUnklar, setBuchungUnklar] = useState(false);
@@ -139,8 +141,9 @@ export default function KasseSeite() {
       fokus,
       summe_cent: ergebnis ? ergebnis.summe_cent : null,
       sprache,
+      design: kundenDesign,
     });
-  }, [positionen, beilagenArtikel, fokusAuswahl, ergebnis, sprache]);
+  }, [positionen, beilagenArtikel, fokusAuswahl, ergebnis, sprache, kundenDesign]);
 
   async function kassierenVorschauAnzeigen() {
     setLaeuft(true);
@@ -192,16 +195,9 @@ export default function KasseSeite() {
         rechts={
           <>
             <SprachSchalter sprache={sprache} onWahl={setSprache} />
-            <nav className="flex gap-1 rounded-full border border-linie p-1">
-              {[['verkauf', texte.verkauf], ['storno', texte.storno]].map(([wert, beschriftung]) => (
-                <button key={wert} onClick={() => setTab(wert)}
-                  className={`cursor-pointer rounded-full px-5 py-2 text-lg ${
-                    tab === wert ? 'bg-blau font-bold text-flaeche' : 'text-schrift-gedimmt hover:bg-flaeche-hell'
-                  }`}>
-                  {beschriftung}
-                </button>
-              ))}
-            </nav>
+            <Reiterleiste reiter={[['verkauf', texte.verkauf], ['storno', texte.storno]]} aktiv={tab} onWahl={setTab}
+              betont knopfKlasse="px-5 py-2 text-lg" />
+            <KundenanzeigeSchalter design={kundenDesign} onWahl={setKundenDesign} sprache={sprache} texte={texte} />
           </>
         } />
 
@@ -213,48 +209,9 @@ export default function KasseSeite() {
 
       {tab === 'verkauf' ? (
         <div className="flex min-h-0 flex-1">
-          <div className="grid min-w-0 flex-1 auto-rows-min grid-cols-2 gap-4 overflow-y-auto p-4 md:grid-cols-3 xl:grid-cols-4">
-            {artikelListe.map((artikel) => (
-              <div key={artikel.id} className="flex flex-col gap-1">
-                <button onClick={() => artikelTippen(artikel)} disabled={laeuft || !!artikel.ausverkauft}
-                  className={`putz-textur-hell kaertchen-schatten-vertieft min-h-32 flex-1 cursor-pointer rounded-[24px] border border-linie bg-flaeche p-4 text-left hover:bg-flaeche-hell active:scale-[0.98] disabled:cursor-not-allowed ${
-                    artikel.ausverkauft ? 'opacity-50 grayscale' : 'disabled:opacity-40'
-                  }`}
-                  style={{ borderTop: `6px solid ${artikel.farbe}` }}>
-                  <p lang={sprache === 'tr' && artikel.name_tr ? 'tr' : 'de'} className="hyphens-auto break-words text-2xl font-semibold">
-                    {zweisprachigerName(artikel.name, artikel.name_tr, sprache)}
-                  </p>
-                  <p className="nummer mt-2 text-xl text-navy">{formatEuro(artikel.preis_cent)}</p>
-                  {artikel.ausverkauft ? (
-                    <p className="mt-1 inline-block rounded-full bg-weinrot px-3 py-0.5 text-sm font-bold text-flaeche">
-                      {texte.ausverkauft}
-                    </p>
-                  ) : (
-                    artikel.beilagen.length > 0 && (
-                      <p className="mt-1 text-sm text-schrift-gedimmt">{texte.mitBeilagenAuswahl}</p>
-                    )
-                  )}
-                </button>
-                <div className="grid grid-cols-2 gap-1">
-                  {artikel.beilagen.length === 0 && !artikel.ausverkauft && (
-                    <button onClick={() => sonderwunschOeffnen(artikel)} disabled={laeuft}
-                      className={`${knopfUnterKachel} disabled:cursor-not-allowed disabled:opacity-40`}>
-                      {texte.sonderwunsch}
-                    </button>
-                  )}
-                  <button onClick={() => ausverkauftUmschalten(artikel)}
-                    className={`${knopfUnterKachel} ${artikel.beilagen.length === 0 && !artikel.ausverkauft ? '' : 'col-span-2'}`}>
-                    {artikel.ausverkauft ? texte.wiederVerfuegbar : texte.ausverkauftMelden}
-                  </button>
-                </div>
-              </div>
-            ))}
-            {artikelListe.length === 0 && !ladefehler && (
-              <p className="col-span-full p-4 text-schrift-gedimmt">
-                {texte.keineArtikel}
-              </p>
-            )}
-          </div>
+          <ArtikelRaster artikelListe={artikelListe} sprache={sprache} texte={texte} laeuft={laeuft}
+            ladefehler={ladefehler}
+            onTippen={artikelTippen} onSonderwunsch={sonderwunschOeffnen} onAusverkauft={ausverkauftUmschalten} />
 
           <Warenkorb positionen={positionen} laeuft={laeuft} fehler={fehler} sprache={sprache}
             onMengeAendern={positionMengeAendern}

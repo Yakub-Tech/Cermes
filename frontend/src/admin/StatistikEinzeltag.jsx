@@ -6,6 +6,7 @@ import { useLiveUpdate } from '../useLiveUpdate.js';
 import { useNurAktivLaden } from '../useNurAktivLaden.js';
 import { heutigesDatum, datumAnzeigen } from './datum.js';
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
+import { Button } from '@/komponenten/ui/button';
 import ExportKnoepfe from './ExportKnoepfe.jsx';
 import { Kennzahlen, ArtikelDiagramme, BalkenDiagramm, StornoTabelle } from './statistikKomponenten.jsx';
 import { staerkstesElement } from './staerkstesElement.js';
@@ -79,12 +80,10 @@ export default function StatistikEinzeltag({ sprache = 'de', aktiv = true }) {
     <div className="space-y-8">
       {ladefehler && <LadefehlerHinweis sprache={sprache} onErneut={laden} />}
       <div className="flex flex-wrap items-center gap-2">
-        <button onClick={() => tagWaehlen(heutigesDatum())}
-          className={`kaertchen-schatten cursor-pointer rounded-full px-2.5 py-1.5 text-sm ${
-            datum === heutigesDatum() ? 'bg-blau font-bold text-flaeche' : 'border border-linie text-schrift-gedimmt hover:bg-flaeche-hell'
-          }`}>
+        <Button variant={datum === heutigesDatum() ? 'default' : 'outline'}
+          onClick={() => tagWaehlen(heutigesDatum())} className="px-2.5 text-sm font-semibold">
           {texte.heute}
-        </button>
+        </Button>
         <Auswahlmenue wert={datum} onWahl={tagWaehlen}
           optionen={[
             ...(!tage.includes(datum) ? [{ wert: datum, text: datumAnzeigen(datum) }] : []),

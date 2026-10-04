@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
 import { de, tr } from '../sprache/dateiAuswahl.js';
+import Hinweiskasten from './Hinweiskasten.jsx';
 
 const STANDARD_BUTTON_KLASSE =
-  'cursor-pointer rounded-full border border-linie px-2.5 py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell';
+  'cursor-pointer rounded-lg border border-linie px-2.5 py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell';
 
 function passtZuAkzeptiert(datei, akzeptiert) {
   if (!akzeptiert) return true;
@@ -60,7 +61,7 @@ export default function DateiAuswahl({
       className="sr-only" />
   );
 
-  const rahmenKlasse = ziehtDrueber ? 'border-blau bg-blau/10' : 'border-linie';
+  const rahmenKlasse = ziehtDrueber ? 'border-schrift-gedimmt bg-flaeche-hell' : 'border-linie';
 
   if (grossflaechig) {
     return (
@@ -72,10 +73,10 @@ export default function DateiAuswahl({
           onDrop={dateiAbgelegt}
           className={`flex min-h-24 flex-1 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed p-2 text-center text-sm text-schrift-gedimmt hover:bg-flaeche-hell ${rahmenKlasse}`}>
           {eingabe}
-          <span className="font-semibold text-navy">{beschriftungAngezeigt}</span>
+          <span className="font-semibold text-schrift">{beschriftungAngezeigt}</span>
           <span>{texte.hierherZiehen}</span>
         </div>
-        {typFehler && <p className="rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{typFehler}</p>}
+        {typFehler && <Hinweiskasten art="fehler" className="px-2 py-1.5 text-sm">{typFehler}</Hinweiskasten>}
       </div>
     );
   }
@@ -96,7 +97,7 @@ export default function DateiAuswahl({
           <span className="text-schrift-gedimmt">{wert ? wert.name : texte.keineDatei}</span>
         )}
       </div>
-      {typFehler && <p className="rounded bg-blau/30 px-2 py-1.5 text-sm text-blau">{typFehler}</p>}
+      {typFehler && <Hinweiskasten art="fehler" className="px-2 py-1.5 text-sm">{typFehler}</Hinweiskasten>}
     </div>
   );
 }

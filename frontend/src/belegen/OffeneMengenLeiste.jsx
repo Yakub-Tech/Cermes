@@ -6,14 +6,16 @@ export default function OffeneMengenLeiste({ kaertchen, sprache, texte }) {
   if (mengen.length === 0) return null;
 
   return (
-    <p className="bg-grund px-4 pt-3 text-sm text-schrift-gedimmt">
-      <span className="font-semibold">{texte.nochZuMachen}</span>{' '}
-      {mengen.map((menge, i) => (
-        <span key={menge.artikel_name}>
-          {menge.anzahl}× {zweisprachigerName(menge.artikel_name, menge.artikel_name_tr, sprache)}
-          {i < mengen.length - 1 ? ', ' : ''}{' '}
-        </span>
-      ))}
-    </p>
+    <div className="bg-grund px-3 pt-3">
+      <p className="rounded-lg border border-linie bg-flaeche px-4 py-2 text-sm text-schrift-gedimmt">
+        <span className="font-semibold text-schrift">{texte.nochZuMachen}</span>{' '}
+        {mengen.map((menge, i) => (
+          <span key={menge.artikel_name}>
+            {menge.anzahl}× {zweisprachigerName(menge.artikel_name, menge.artikel_name_tr, sprache)}
+            {i < mengen.length - 1 ? ', ' : ''}{' '}
+          </span>
+        ))}
+      </p>
+    </div>
   );
 }

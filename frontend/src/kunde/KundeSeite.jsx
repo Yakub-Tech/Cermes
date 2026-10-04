@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { apiGet } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
+import { useZustandsDesign } from '../design/useZustandsDesign.js';
 import Urheberrechtshinweis from '../komponenten/Urheberrechtshinweis.jsx';
 import ArtikelKarte from './ArtikelKarte.jsx';
 import WarenkorbListe from './WarenkorbListe.jsx';
@@ -16,8 +17,9 @@ export default function KundeSeite() {
   const [suchParameter] = useSearchParams();
   const kassenNummer = kassenNummerAusText(suchParameter.get('kasse')) ?? 1;
   const [artikelListe, setArtikelListe] = useState([]);
-  const [zustand, setZustand] = useState({ warenkorb: [], fokus: null, summe_cent: null, sprache: 'de' });
+  const [zustand, setZustand] = useState({ warenkorb: [], fokus: null, summe_cent: null, sprache: 'de', design: 'dunkel' });
   const texte = zustand.sprache === 'tr' ? tr : de;
+  useZustandsDesign(zustand.design);
 
   function artikelLaden() {
     neueste('/api/kunde/artikel', apiGet('/api/kunde/artikel'), setArtikelListe).catch(() => {});
@@ -42,7 +44,7 @@ export default function KundeSeite() {
   }
 
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex h-screen flex-col bg-grund text-schrift">
       <div className="flex min-h-0 flex-1">
         <div className="grid flex-1 auto-rows-min grid-cols-2 gap-4 overflow-y-auto px-4 pt-8 pb-4 sm:grid-cols-3 lg:grid-cols-4">
           {artikelListe.map((artikel) => (

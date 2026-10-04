@@ -7,18 +7,18 @@ import { frischeApp, angemeldeterAgent } from './helfer.js';
 const KASSENNUMMER_FEHLER = 'Die Kassennummer ist ungültig. Erlaubt sind die Zahlen 1 bis 9.';
 
 test('Kundenzustand: Standardwert leer, Schreiben und Lesen', () => {
-  assert.deepEqual(kundenzustandLesen(1), { warenkorb: [], fokus: null, summe_cent: null, sprache: 'de' });
+  assert.deepEqual(kundenzustandLesen(1), { warenkorb: [], fokus: null, summe_cent: null, sprache: 'de', design: 'dunkel' });
   kundenzustandSchreiben(1, {
-    warenkorb: [{ artikel_name: 'Pommes' }], fokus: { artikel_name: 'Pommes' }, summe_cent: 350, sprache: 'tr',
+    warenkorb: [{ artikel_name: 'Pommes' }], fokus: { artikel_name: 'Pommes' }, summe_cent: 350, sprache: 'tr', design: 'hell',
   });
   assert.deepEqual(kundenzustandLesen(1), {
-    warenkorb: [{ artikel_name: 'Pommes' }], fokus: { artikel_name: 'Pommes' }, summe_cent: 350, sprache: 'tr',
+    warenkorb: [{ artikel_name: 'Pommes' }], fokus: { artikel_name: 'Pommes' }, summe_cent: 350, sprache: 'tr', design: 'hell',
   });
 });
 
 test('Kundenzustand: unvollständige Daten werden robust auf leer/null abgebildet', () => {
   kundenzustandSchreiben(1, {});
-  assert.deepEqual(kundenzustandLesen(1), { warenkorb: [], fokus: null, summe_cent: null, sprache: 'de' });
+  assert.deepEqual(kundenzustandLesen(1), { warenkorb: [], fokus: null, summe_cent: null, sprache: 'de', design: 'dunkel' });
 });
 
 test('Kundenzustand: sprache nur bei "de" oder "tr" übernommen, sonst "de"', () => {
@@ -30,6 +30,21 @@ test('Kundenzustand: sprache nur bei "de" oder "tr" übernommen, sonst "de"', ()
   assert.equal(kundenzustandLesen(1).sprache, 'de');
   kundenzustandSchreiben(1, {});
   assert.equal(kundenzustandLesen(1).sprache, 'de');
+});
+
+test('Kundenzustand: design nur bei "dunkel" oder "hell" übernommen, sonst "dunkel"', () => {
+  kundenzustandSchreiben(1, { design: 'hell' });
+  assert.equal(kundenzustandLesen(1).design, 'hell');
+  kundenzustandSchreiben(1, { design: 'dunkel' });
+  assert.equal(kundenzustandLesen(1).design, 'dunkel');
+  for (const wert of ['blau', 'Hell', '', 123, null, {}, ['hell'], true]) {
+    kundenzustandSchreiben(1, { design: 'hell' });
+    kundenzustandSchreiben(1, { design: wert });
+    assert.equal(kundenzustandLesen(1).design, 'dunkel', `Wert ${JSON.stringify(wert)} müsste Dunkel ergeben`);
+  }
+  kundenzustandSchreiben(1, { design: 'hell' });
+  kundenzustandSchreiben(1, {});
+  assert.equal(kundenzustandLesen(1).design, 'dunkel');
 });
 
 test('Kundenzustand: summe_cent nur bei gültiger, nicht-negativer Zahl übernommen', () => {
@@ -61,13 +76,13 @@ test('kassenNummerPruefen: alles andere ist ein Fehler mit Status 400 und deutsc
 });
 
 test('Kundenzustand: zwei Kassen schreiben verschiedene Warenkörbe, jede liest nur ihren eigenen', () => {
-  kundenzustandSchreiben(3, { warenkorb: [{ artikel_name: 'Pommes' }], sprache: 'tr' });
+  kundenzustandSchreiben(3, { warenkorb: [{ artikel_name: 'Pommes' }], sprache: 'tr', design: 'hell' });
   kundenzustandSchreiben(4, { warenkorb: [{ artikel_name: 'Adana' }], summe_cent: 700 });
   assert.deepEqual(kundenzustandLesen(3), {
-    warenkorb: [{ artikel_name: 'Pommes' }], fokus: null, summe_cent: null, sprache: 'tr',
+    warenkorb: [{ artikel_name: 'Pommes' }], fokus: null, summe_cent: null, sprache: 'tr', design: 'hell',
   });
   assert.deepEqual(kundenzustandLesen(4), {
-    warenkorb: [{ artikel_name: 'Adana' }], fokus: null, summe_cent: 700, sprache: 'de',
+    warenkorb: [{ artikel_name: 'Adana' }], fokus: null, summe_cent: 700, sprache: 'de', design: 'dunkel',
   });
   kundenzustandSchreiben(4, {});
   assert.equal(kundenzustandLesen(3).warenkorb[0].artikel_name, 'Pommes');
@@ -75,7 +90,7 @@ test('Kundenzustand: zwei Kassen schreiben verschiedene Warenkörbe, jede liest 
 
 test('Kundenzustand: eine Kasse, die noch nie gemeldet hat, liest den Standardzustand', () => {
   const zustand = kundenzustandLesen(8);
-  assert.deepEqual(zustand, { warenkorb: [], fokus: null, summe_cent: null, sprache: 'de' });
+  assert.deepEqual(zustand, { warenkorb: [], fokus: null, summe_cent: null, sprache: 'de', design: 'dunkel' });
   zustand.warenkorb.push({ artikel_name: 'Fremd' });
   assert.deepEqual(kundenzustandLesen(9).warenkorb, []);
 });
@@ -149,7 +164,7 @@ test('Kundenanzeige je Kasse: ungültige Nummer ergibt 400 mit deutschem Text, Z
   assert.equal((await request(app).get('/api/kunde/zustand?kasse=1&kasse=2')).status, 400);
 });
 
-test('Kundenanzeige je Kasse: Rollen unverändert, GET liefert nur die vier bekannten Felder', async () => {
+test('Kundenanzeige je Kasse: Rollen unverändert, GET liefert nur die fünf bekannten Felder', async () => {
   const { app, db } = frischeApp();
   const admin = await angemeldeterAgent(app, db, 'admin');
   assert.equal((await admin.put('/api/kasse/kundenanzeige').send({ kasse: 2 })).status, 403);
@@ -157,7 +172,31 @@ test('Kundenanzeige je Kasse: Rollen unverändert, GET liefert nur die vier beka
 
   const antwort = await request(app).get('/api/kunde/zustand?kasse=2');
   assert.equal(antwort.status, 200);
-  assert.deepEqual(Object.keys(antwort.body).sort(), ['fokus', 'sprache', 'summe_cent', 'warenkorb']);
+  assert.deepEqual(Object.keys(antwort.body).sort(), ['design', 'fokus', 'sprache', 'summe_cent', 'warenkorb']);
+});
+
+test('Kundenanzeige: design der Kasse erscheint in der Kundenansicht, ungültige Werte werden Dunkel', async () => {
+  const { app, db } = frischeApp();
+  const kasse = await angemeldeterAgent(app, db, 'kasse');
+
+  assert.equal((await request(app).get('/api/kunde/zustand')).body.design, 'dunkel');
+
+  assert.equal((await kasse.put('/api/kasse/kundenanzeige').send({ design: 'hell' })).status, 200);
+  assert.equal((await request(app).get('/api/kunde/zustand')).body.design, 'hell');
+
+  assert.equal((await kasse.put('/api/kasse/kundenanzeige').send({ design: 'rot' })).status, 200);
+  assert.equal((await request(app).get('/api/kunde/zustand')).body.design, 'dunkel');
+});
+
+test('Kundenanzeige je Kasse: jede Kasse hat ihr eigenes design', async () => {
+  const { app, db } = frischeApp();
+  const kasse = await angemeldeterAgent(app, db, 'kasse');
+  await kasse.put('/api/kasse/kundenanzeige').send({ kasse: 1, design: 'hell' });
+  await kasse.put('/api/kasse/kundenanzeige').send({ kasse: 2, design: 'dunkel' });
+  await kasse.put('/api/kasse/kundenanzeige').send({ kasse: 2, design: 'dunkel', warenkorb: [] });
+
+  assert.equal((await request(app).get('/api/kunde/zustand?kasse=1')).body.design, 'hell');
+  assert.equal((await request(app).get('/api/kunde/zustand?kasse=2')).body.design, 'dunkel');
 });
 
 test('Kundenanzeige-Artikel: öffentlich, ohne Kosten, nur aktive/nicht gelöschte', async () => {

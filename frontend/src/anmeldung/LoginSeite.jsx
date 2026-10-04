@@ -6,9 +6,16 @@ import { inaktivHinweisAbholen } from './inaktivHinweisSpeicher.js';
 import PasswortAendernFormular from './PasswortAendernFormular.jsx';
 import Urheberrechtshinweis from '../komponenten/Urheberrechtshinweis.jsx';
 import SprachSchalter from '../komponenten/SprachSchalter.jsx';
+import DesignSchalter from '../komponenten/DesignSchalter.jsx';
+import Hinweiskasten from '../komponenten/Hinweiskasten.jsx';
 import NichtGefundenSeite from '../komponenten/NichtGefundenSeite.jsx';
+import { Button } from '@/komponenten/ui/button';
+import { Input } from '@/komponenten/ui/input';
+import { Label } from '@/komponenten/ui/label';
+import { useGeraeteDesign } from '../design/useGeraeteDesign.js';
 import { useStationsSprache } from '../sprache/useStationsSprache.js';
 import { de, tr, inaktivHinweisDe, inaktivHinweisTr } from '../sprache/login.js';
+import { de as kopfzeileDe, tr as kopfzeileTr } from '../sprache/kopfzeile.js';
 
 export default function LoginSeite() {
   const { ansicht } = useParams();
@@ -21,7 +28,9 @@ export default function LoginSeite() {
   const [passwortGeaendert, setPasswortGeaendert] = useState(false);
   const [abgemeldetNachMinuten, setAbgemeldetNachMinuten] = useState(null);
   const [sprache, setSprache] = useStationsSprache();
+  const [design, setDesign] = useGeraeteDesign();
   const texte = sprache === 'tr' ? tr : de;
+  const designTexte = sprache === 'tr' ? kopfzeileTr : kopfzeileDe;
 
   useEffect(() => {
     const minuten = inaktivHinweisAbholen(() => sessionStorage);
@@ -67,60 +76,56 @@ export default function LoginSeite() {
     <>
       <main className="anmeldung flex min-h-screen items-center justify-center p-4">
         <div
-          className="relative w-full max-w-sm rounded-xl border border-linie bg-flaeche p-8 shadow-2xl">
+          className="relative w-full max-w-sm rounded-2xl border border-linie bg-flaeche p-8 shadow-[0_2px_8px_var(--schattenfarbe)]">
           <div className="absolute left-3 top-3">
             <SprachSchalter sprache={sprache} onWahl={setSprache} />
           </div>
-          <Link to="/" className="mx-auto mb-4 block w-28 transition-opacity hover:opacity-80">
-            <img src="/logo/aktuell" alt={texte.vereinslogo} className="h-28 w-28" />
+          <div className="absolute right-3 top-3">
+            <DesignSchalter design={design} onWahl={setDesign} texte={designTexte} />
+          </div>
+          <Link to="/" className="mx-auto mb-4 mt-4 block w-28 transition-opacity hover:opacity-80">
+            <img src="/logo/aktuell" alt={texte.vereinslogo} className="h-28 w-28 rounded-2xl ring-1 ring-linie" />
           </Link>
-          <h1 className="mb-1 text-center font-display text-3xl text-navy">Cermes</h1>
+          <h1 className="mb-1 text-center font-display text-3xl font-bold tracking-tight text-schrift">Cermes</h1>
           <p className="text-center text-schrift-gedimmt">{passwortAendern ? texte.passwortAendern : texte.anmeldung}</p>
-          <p className="mb-6 text-center text-sm italic text-schrift-gedimmt/60">{titel}</p>
+          <p className="mb-6 text-center text-sm font-medium text-schrift-gedimmt">{titel}</p>
 
           {passwortAendern ? (
             <PasswortAendernFormular texte={texte} benutzernameVorbelegt={benutzername}
               beiErfolg={nachPasswortAenderung} beiZurueck={() => setPasswortAendern(false)} />
           ) : (
             <form onSubmit={anmelden}>
-              <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="benutzername">
-                {texte.benutzername}
-              </label>
-              <input id="benutzername" value={benutzername} autoFocus autoComplete="username"
+              <Label htmlFor="benutzername">{texte.benutzername}</Label>
+              <Input id="benutzername" value={benutzername} autoFocus autoComplete="username"
                 onChange={(e) => setBenutzername(e.target.value)} onKeyDown={beiEnterAbsenden}
-                className="mb-4 w-full rounded border border-linie bg-grund px-3 py-3 text-lg outline-none focus:border-blau-hell" />
-    
-              <label className="mb-1 block text-sm text-schrift-gedimmt" htmlFor="passwort">
-                {texte.passwort}
-              </label>
-              <input id="passwort" type="password" value={passwort} autoComplete="current-password"
+                className="mb-4" />
+
+              <Label htmlFor="passwort">{texte.passwort}</Label>
+              <Input id="passwort" type="password" value={passwort} autoComplete="current-password"
                 onChange={(e) => setPasswort(e.target.value)} onKeyDown={beiEnterAbsenden}
-                className="mb-4 w-full rounded border border-linie bg-grund px-3 py-3 text-lg outline-none focus:border-blau-hell" />
-    
+                className="mb-4" />
+
               {passwortGeaendert && (
-                <p className="mb-4 rounded border border-linie bg-flaeche-hell px-3 py-2 text-schrift-gedimmt">
-                  {texte.passwortGeaendert}
-                </p>
+                <Hinweiskasten className="mb-4">{texte.passwortGeaendert}</Hinweiskasten>
               )}
-    
+
               {abgemeldetNachMinuten !== null && (
-                <p className="mb-4 rounded border border-linie bg-flaeche-hell px-3 py-2 text-schrift-gedimmt">
+                <Hinweiskasten className="mb-4">
                   {sprache === 'tr' ? inaktivHinweisTr(abgemeldetNachMinuten) : inaktivHinweisDe(abgemeldetNachMinuten)}
-                </p>
+                </Hinweiskasten>
               )}
-    
-              {fehler && (
-                <p className="mb-4 rounded bg-blau/30 px-3 py-2 text-blau">{fehler}</p>
-              )}
-    
-              <button type="submit" disabled={laeuft}
-                className="w-full cursor-pointer rounded-full bg-blau py-3 text-lg font-bold text-flaeche hover:bg-blau-hell disabled:cursor-not-allowed disabled:opacity-50">
+
+              {fehler && <Hinweiskasten art="fehler" className="mb-4">{fehler}</Hinweiskasten>}
+
+              <Button type="submit" disabled={laeuft}
+                className="h-auto w-full cursor-pointer py-3 text-lg font-semibold">
                 {texte.anmelden}
-              </button>
-              <button type="button" onClick={() => { setPasswortAendern(true); setPasswortGeaendert(false); setFehler(''); }}
-                className="mt-4 block w-full cursor-pointer text-center text-sm text-schrift-gedimmt underline hover:text-navy">
+              </Button>
+              <Button type="button" variant="link"
+                onClick={() => { setPasswortAendern(true); setPasswortGeaendert(false); setFehler(''); }}
+                className="mt-4 h-auto w-full cursor-pointer text-sm text-schrift-gedimmt hover:text-schrift">
                 {texte.passwortAendern}
-              </button>
+              </Button>
             </form>
           )}
         </div>

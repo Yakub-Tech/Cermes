@@ -3,7 +3,7 @@ WORKDIR /bau
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ ./
-RUN npm run build
+RUN npm run build && npm run pruefe-offline
 
 FROM node:22-slim
 WORKDIR /app

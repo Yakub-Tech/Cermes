@@ -11,8 +11,8 @@ export default function WarenkorbListe({ warenkorb, sprache }) {
   const { versatzPx, uebergangSekunden } = usePendelScroll(ueberlaufPx);
 
   return (
-    <aside className="flex w-96 shrink-0 flex-col border-l border-linie bg-flaeche">
-      <h2 className="border-b border-linie px-4 py-3 font-display text-xl text-navy">{texte.deineBestellung}</h2>
+    <aside className="flex w-96 shrink-0 flex-col pb-6 border-l border-linie bg-flaeche">
+      <h2 className="border-b border-linie px-4 py-3 font-display text-xl font-semibold text-schrift">{texte.deineBestellung}</h2>
 
       <div className="min-h-0 flex-1">
         <div

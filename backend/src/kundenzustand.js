@@ -1,7 +1,7 @@
 const zustandJeKasse = new Map();
 
 function standardZustand() {
-  return { warenkorb: [], fokus: null, summe_cent: null, sprache: 'de' };
+  return { warenkorb: [], fokus: null, summe_cent: null, sprache: 'de', design: 'dunkel' };
 }
 
 export function kassenNummerPruefen(wert) {
@@ -25,11 +25,16 @@ function gueltigeSprache(wert) {
   return wert === 'de' || wert === 'tr' ? wert : 'de';
 }
 
+function gueltigesDesign(wert) {
+  return wert === 'hell' ? 'hell' : 'dunkel';
+}
+
 export function kundenzustandSchreiben(kassenNummer, neuerZustand) {
   zustandJeKasse.set(kassenNummer, {
     warenkorb: Array.isArray(neuerZustand?.warenkorb) ? neuerZustand.warenkorb : [],
     fokus: neuerZustand?.fokus ?? null,
     summe_cent: gueltigeSummeCent(neuerZustand?.summe_cent),
     sprache: gueltigeSprache(neuerZustand?.sprache),
+    design: gueltigesDesign(neuerZustand?.design),
   });
 }

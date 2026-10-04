@@ -12,7 +12,7 @@ export default function BestellUebersicht({ warenkorb, summeCent, sprache }) {
 
   return (
     <div className="flex h-screen flex-col items-center bg-grund px-6 py-10">
-      <h1 className="mb-6 text-center font-display text-4xl text-navy">{texte.deineBestellung}</h1>
+      <h1 className="mb-6 text-center font-display text-4xl font-semibold text-schrift">{texte.deineBestellung}</h1>
 
       <div className="min-h-0 w-full max-w-3xl flex-1">
         <div
@@ -48,9 +48,9 @@ export default function BestellUebersicht({ warenkorb, summeCent, sprache }) {
         </div>
       </div>
 
-      <div className="mt-6 flex w-full max-w-3xl items-baseline justify-between rounded-xl bg-flaeche px-6 py-5">
+      <div className="kaertchen-schatten mt-6 flex w-full max-w-3xl items-baseline justify-between rounded-xl border border-linie bg-flaeche px-6 py-5">
         <span className="text-2xl text-schrift-gedimmt">{texte.gesamtsumme}</span>
-        <span className="nummer text-5xl text-navy">{formatEuro(summeCent)}</span>
+        <span className="nummer text-5xl text-schrift">{formatEuro(summeCent)}</span>
       </div>
     </div>
   );

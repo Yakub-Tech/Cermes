@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { apiGet } from '../api.js';
 import { useNeuesteAntwort } from '../neuesteAntwort.js';
 import { useLiveUpdate } from '../useLiveUpdate.js';
+import { useZustandsDesign } from '../design/useZustandsDesign.js';
 import { useVerbindungsStatus } from '../komponenten/useVerbindungsStatus.js';
 import StatusSpalte from './StatusSpalte.jsx';
 import WerbeLeiste from './WerbeLeiste.jsx';
@@ -23,6 +24,8 @@ export default function TvSeite() {
   const [kaertchen, setKaertchen] = useState({ in_bearbeitung: [], abholbereit: [] });
   const [kaertchenGeladen, setKaertchenGeladen] = useState(false);
   const [werbung, setWerbung] = useState([]);
+  const [design, setDesign] = useState('dunkel');
+  useZustandsDesign(design);
   const [virtuelleGroesse, setVirtuelleGroesse] = useState(berechneVirtuelleGroesse);
 
   function kaertchenUebernehmen(daten) {
@@ -35,12 +38,17 @@ export default function TvSeite() {
   function werbungLaden() {
     neueste('/api/tv/werbung', apiGet('/api/tv/werbung'), setWerbung).catch(() => {});
   }
+  function designLaden() {
+    neueste('/api/tv/design', apiGet('/api/tv/design'), (daten) => setDesign(daten.design)).catch(() => {});
+  }
   function alleLaden() {
     kaertchenLaden();
     werbungLaden();
+    designLaden();
   }
   useLiveUpdate(['kaertchen'], kaertchenLaden);
   useLiveUpdate(['werbung'], werbungLaden);
+  useLiveUpdate(['einstellungen'], designLaden);
 
   useEffect(() => {
     if (!ladefehler) return undefined;
@@ -77,20 +85,20 @@ export default function TvSeite() {
                 neueHervorheben={false} />
             </div>
             <div className="min-w-0 flex-1">
-              <StatusSpalte titel="Abholbereit" titelTuerkisch="Hazır"
+              <StatusSpalte titel="Abholbereit" titelTuerkisch="Hazır" titelFarbe="text-erfolg-schrift"
                 kaertchen={kaertchen.abholbereit} geladen={kaertchenGeladen}
                 neueHervorheben />
             </div>
           </div>
           {werbung.length > 0 && (
-            <footer className="flex h-[22%] overflow-hidden rounded-lg bg-flaeche shadow-sm">
+            <footer className="kaertchen-schatten flex h-[22%] overflow-hidden rounded-xl border border-linie bg-flaeche">
               <WerbeLeiste bilder={werbung} />
             </footer>
           )}
         </main>
       </div>
       {(ladefehler || !verbunden) && (
-        <span className="fixed bottom-1 left-1.5 z-50 rounded bg-flaeche/80 px-2 py-0.5 text-xs text-weinrot pointer-events-none select-none">
+        <span className="fixed bottom-1 left-1.5 z-50 rounded border border-gefahr/30 bg-flaeche px-2 py-0.5 text-xs text-gefahr-schrift pointer-events-none select-none">
           Verbindung gestört, Anzeige möglicherweise nicht aktuell · Bağlantı sorunu, bilgiler güncel olmayabilir
         </span>
       )}

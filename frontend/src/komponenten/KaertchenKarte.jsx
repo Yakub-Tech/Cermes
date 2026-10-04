@@ -1,8 +1,11 @@
-import { lesbareSchriftfarbe, dunklereFarbe } from './farbe.js';
+import { lesbareSchriftfarbe, dunklereFarbe, blasserFarbe } from './farbe.js';
 import { zweisprachigerName } from '../sprache/zweisprachigerName.js';
 
-export default function KaertchenKarte({ kaertchen, zeitText, warnung, onTippen, sprache }) {
-  const schrift = lesbareSchriftfarbe(kaertchen.artikel_farbe);
+export default function KaertchenKarte({ kaertchen, zeitText, warnung, onTippen, sprache, abgeblendet = false }) {
+  const flaeche = abgeblendet ? blasserFarbe(kaertchen.artikel_farbe) : kaertchen.artikel_farbe;
+  const schrift = lesbareSchriftfarbe(flaeche);
+  const schwaecher80 = abgeblendet ? '' : 'opacity-80';
+  const schwaecher70 = abgeblendet ? '' : 'opacity-70';
 
   return (
     <button onClick={onTippen}
@@ -10,8 +13,8 @@ export default function KaertchenKarte({ kaertchen, zeitText, warnung, onTippen,
         onTippen ? 'cursor-pointer active:scale-[0.98]' : ''
       } ${warnung ? 'warn-puls' : ''}`}
       style={{
-        backgroundColor: kaertchen.artikel_farbe,
-        borderColor: dunklereFarbe(kaertchen.artikel_farbe),
+        backgroundColor: flaeche,
+        borderColor: dunklereFarbe(flaeche),
         color: schrift,
       }}>
       <span className="nummer block text-5xl">{kaertchen.nummer}</span>
@@ -19,17 +22,17 @@ export default function KaertchenKarte({ kaertchen, zeitText, warnung, onTippen,
         {zweisprachigerName(kaertchen.artikel_name, kaertchen.artikel_name_tr, sprache)}
       </span>
       {kaertchen.beilagen.length > 0 && (
-        <span className="block text-sm opacity-80">
+        <span className={`block text-sm ${schwaecher80}`}>
           {kaertchen.beilagen.map((name, i) => zweisprachigerName(name, (kaertchen.beilagen_tr ?? [])[i], sprache)).join(', ')}
         </span>
       )}
       {kaertchen.sonderwunsch && (
-        <span className="mt-1 block break-words rounded-lg bg-grund/90 px-2 py-1 text-sm font-semibold text-navy">
+        <span className="mt-1 block break-words rounded-lg bg-grund/90 px-2 py-1 text-sm font-semibold text-schrift">
           {kaertchen.sonderwunsch}
         </span>
       )}
       {zeitText && (
-        <span className={`mt-1 block text-sm ${warnung ? 'font-bold' : 'opacity-70'}`}>
+        <span className={`mt-1 block text-sm ${warnung ? 'font-bold' : schwaecher70}`}>
           {zeitText}
         </span>
       )}

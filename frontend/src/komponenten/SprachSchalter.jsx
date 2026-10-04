@@ -1,20 +1,23 @@
 import Flagge from './Flagge.jsx';
 
+const OPTIONEN = [
+  ['de', 'Deutsch'],
+  ['tr', 'Türkçe'],
+];
+
 export default function SprachSchalter({ sprache, onWahl }) {
   return (
-    <div className="flex items-center gap-1.5">
-      <button type="button" onClick={() => onWahl('de')} aria-label="Deutsch"
-        className={`cursor-pointer transition-opacity ${
-          sprache === 'de' ? 'opacity-100' : 'opacity-40 hover:opacity-70'
-        }`}>
-        <Flagge land="de" />
-      </button>
-      <button type="button" onClick={() => onWahl('tr')} aria-label="Türkçe"
-        className={`cursor-pointer transition-opacity ${
-          sprache === 'tr' ? 'opacity-100' : 'opacity-40 hover:opacity-70'
-        }`}>
-        <Flagge land="tr" />
-      </button>
+    <div role="group" aria-label="Sprache / Dil"
+      className="inline-flex rounded-full border border-linie bg-flaeche-hell p-0.5">
+      {OPTIONEN.map(([land, name]) => (
+        <button key={land} type="button" onClick={() => onWahl(land)}
+          aria-label={name} aria-pressed={sprache === land} title={name}
+          className={`cursor-pointer rounded-full px-2.5 py-2.5 transition-opacity ${
+            sprache === land ? 'bg-flaeche shadow-sm' : 'opacity-50 hover:opacity-80'
+          }`}>
+          <Flagge land={land} />
+        </button>
+      ))}
     </div>
   );
 }

@@ -6,7 +6,7 @@ import TvKarte from './TvKarte.jsx';
 
 const MINDESTBREITE_PX = 130;
 
-export default function StatusSpalte({ titel, titelTuerkisch, kaertchen, neueHervorheben, geladen }) {
+export default function StatusSpalte({ titel, titelTuerkisch, titelFarbe = 'text-schrift', kaertchen, neueHervorheben, geladen }) {
   const flussKaertchen = sortiereFuerFluss(kaertchen);
   const { rahmen, inhalt, ueberlauf, ueberlaufPx } = useUeberlaufErkennung(kaertchen);
   const istNeu = useNeueKaertchen(kaertchen, geladen && neueHervorheben);
@@ -14,11 +14,11 @@ export default function StatusSpalte({ titel, titelTuerkisch, kaertchen, neueHer
 
   return (
     <section className="flex h-full min-h-0 flex-col">
-      <div className="grid shrink-0 rounded-t-lg bg-blau py-4 text-center font-display text-4xl text-flaeche">
+      <div className={`grid shrink-0 rounded-t-xl border border-b-0 border-linie bg-flaeche-hell py-4 text-center font-display text-4xl font-semibold tracking-tight ${titelFarbe}`}>
         <h2 className="sprachwechsel sprachwechsel-de">{titel}</h2>
         <h2 className="sprachwechsel sprachwechsel-tr">{titelTuerkisch}</h2>
       </div>
-      <div className="min-h-0 flex-1 overflow-hidden rounded-b-lg bg-flaeche p-3 shadow-sm">
+      <div className="kaertchen-schatten min-h-0 flex-1 overflow-hidden rounded-b-xl border border-linie bg-flaeche p-3">
         <div
           ref={rahmen}
           className={`h-full overflow-hidden ${ueberlauf ? 'verlauf-rand' : ''}`}

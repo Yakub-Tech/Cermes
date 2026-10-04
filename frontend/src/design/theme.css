@@ -1,25 +1,13 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "./farben.css";
 
-@theme {
-  --color-grund: #f4f7fa;
-  --color-flaeche: #ffffff;
-  --color-flaeche-hell: #e9eff6;
-  --color-linie: #ccd8e4;
-  --color-blau: #10538f;
-  --color-blau-hell: #1f74c0;
-  --color-blau-blass: #cfe3f2;
-  --color-navy: #0f2a44;
-  --color-gruen: #1f7a4d;
-  --color-akzent: #d97a06;
-  --color-akzent-hell: #f2a52c;
-  --color-akzent-text: #a85c02;
-  --color-weinrot: #7a1a2f;
-  --color-weinrot-hell: #96233d;
-  --color-schrift: #16202b;
-  --color-schrift-gedimmt: #5a6b7d;
-  --color-tv-grund: #454545;
+@custom-variant dark (&:where([data-design='dunkel'], [data-design='dunkel'] *));
 
-  --font-display: "Palatino", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+@layer base {
+  [data-slot] {
+    border-color: var(--linie);
+  }
 }
 
 .verwaltung {
@@ -48,9 +36,9 @@
 }
 
 body {
-  background-color: var(--color-grund);
-  color: var(--color-schrift);
-  font-family: ui-sans-serif, system-ui, sans-serif;
+  background-color: var(--grund);
+  color: var(--schrift);
+  font-family: var(--font-sans);
 }
 
 :root {
@@ -62,22 +50,21 @@ body {
   font-weight: 800;
 }
 
-.akzentrand {
-  background-image: linear-gradient(90deg,
-    var(--color-blau), var(--color-blau-hell), var(--color-blau));
+.trennlinie {
+  background-color: var(--linie);
 }
 
 .kaertchen-schatten {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 2px 5px var(--schattenfarbe);
 }
 
 .kaertchen-schatten-vertieft {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18), inset 0 2px 5px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 2px 5px var(--schattenfarbe), inset 0 2px 5px var(--schattenfarbe);
 }
 
 @keyframes warn-puls {
-  0%, 100% { box-shadow: 0 0 0 2px var(--color-akzent); }
-  50% { box-shadow: 0 0 0 6px var(--color-akzent-hell); }
+  0%, 100% { box-shadow: 0 0 0 2px var(--haupt); }
+  50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--haupt) 45%, transparent); }
 }
 .warn-puls {
   animation: warn-puls 1.2s ease-in-out infinite;
@@ -185,4 +172,9 @@ body {
   mix-blend-mode: multiply;
   pointer-events: none;
   background-image: var(--putz-relief);
+}
+
+:root[data-design='dunkel'] .putz-textur-hell::before {
+  mix-blend-mode: soft-light;
+  opacity: 0.5;
 }

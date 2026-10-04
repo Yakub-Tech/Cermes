@@ -81,6 +81,7 @@ export const de = {
     kassiervorgang: 'Kassiervorgang', summe_cent: 'Summe', positionen: 'Position',
     abholbereit_warnminuten: 'Warnzeit abholbereit (Minuten)',
     inaktivitaets_abmeldung_minuten: 'Automatische Abmeldung (Minuten)',
+    tv_design: 'Darstellung der TV-Anzeige',
   },
 
   status: {
@@ -92,6 +93,7 @@ export const de = {
   nein: 'nein',
   keineAngabe: '–',
   keine: 'keine',
+  tvDesign: { dunkel: 'dunkel', hell: 'hell' },
   positionsAnschluss: 'Nr. {nummer} {artikel}{beilagen}, {preis}',
 };
 
@@ -178,6 +180,7 @@ export const tr = {
     kassiervorgang: 'Satış işlemi', summe_cent: 'Toplam', positionen: 'Kalem',
     abholbereit_warnminuten: 'Uyarı süresi (dakika)',
     inaktivitaets_abmeldung_minuten: 'Otomatik çıkış süresi (dakika)',
+    tv_design: 'TV ekranının görünümü',
   },
 
   status: {
@@ -189,5 +192,6 @@ export const tr = {
   nein: 'hayır',
   keineAngabe: '–',
   keine: 'yok',
+  tvDesign: { dunkel: 'koyu', hell: 'açık' },
   positionsAnschluss: 'No. {nummer} {artikel}{beilagen}, {preis}',
 };

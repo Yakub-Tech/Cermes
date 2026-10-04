@@ -1,22 +1,24 @@
 import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
+import { Button } from '@/komponenten/ui/button';
+import { Input } from '@/komponenten/ui/input';
+import { EINGABE_DICHT } from './eingabeKlasse.js';
 
-const eingabeKlasse =
-  'rounded border border-linie bg-grund px-2 py-1.5 text-sm outline-none focus:border-blau-hell';
+const EINGABE = `w-auto ${EINGABE_DICHT}`;
 
 export default function AuditFilter({ entwurf, onEntwurfAendern, onAktualisieren, onZuruecksetzen, benutzerOptionen, texte }) {
   return (
     <div className="mb-4 flex flex-wrap items-end gap-2.5">
       <label className="flex flex-col gap-1 text-xs text-schrift-gedimmt">
         {texte.filterVon}
-        <input type="date" value={entwurf.von}
+        <Input type="date" value={entwurf.von}
           onChange={(e) => onEntwurfAendern({ ...entwurf, von: e.target.value })}
-          className={eingabeKlasse} />
+          className={EINGABE} />
       </label>
       <label className="flex flex-col gap-1 text-xs text-schrift-gedimmt">
         {texte.filterBis}
-        <input type="date" value={entwurf.bis}
+        <Input type="date" value={entwurf.bis}
           onChange={(e) => onEntwurfAendern({ ...entwurf, bis: e.target.value })}
-          className={eingabeKlasse} />
+          className={EINGABE} />
       </label>
       <label className="flex flex-col gap-1 text-xs text-schrift-gedimmt">
         {texte.filterBenutzer}
@@ -28,14 +30,12 @@ export default function AuditFilter({ entwurf, onEntwurfAendern, onAktualisieren
           ]}
           klasse="text-sm" />
       </label>
-      <button onClick={onZuruecksetzen}
-        className="cursor-pointer rounded-full border border-linie px-2.5 py-1.5 text-sm text-schrift-gedimmt hover:bg-flaeche-hell">
+      <Button variant="outline" onClick={onZuruecksetzen} className="px-2.5 text-sm text-schrift-gedimmt">
         {texte.filterZuruecksetzen}
-      </button>
-      <button onClick={onAktualisieren}
-        className="kaertchen-schatten cursor-pointer rounded-full bg-blau px-2.5 py-1.5 text-sm font-bold text-flaeche hover:bg-blau-hell">
+      </Button>
+      <Button onClick={onAktualisieren} className="px-2.5 text-sm font-bold">
         {texte.filterAktualisieren}
-      </button>
+      </Button>
     </div>
   );
 }
