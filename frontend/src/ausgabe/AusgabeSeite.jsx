@@ -90,8 +90,8 @@ export default function AusgabeSeite() {
       kaertchen: listen.zuletzt_abgeholt,
       karte: (k) => (
         <div key={k.id} className="flex items-center gap-2">
-          <div className="flex-1 opacity-60">
-            <KaertchenKarte kaertchen={k} zeitText={alterText(k.abgeholt_am, jetzt, sprache)} sprache={sprache} />
+          <div className="flex-1">
+            <KaertchenKarte kaertchen={k} zeitText={alterText(k.abgeholt_am, jetzt, sprache)} sprache={sprache} abgeblendet />
           </div>
           <button
             onClick={() => apiPost(`/api/ausgabe/status/${k.id}`, { status: 'abholbereit' }).catch(aktionAbgelehnt)}

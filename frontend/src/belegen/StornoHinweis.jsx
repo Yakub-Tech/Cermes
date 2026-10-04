@@ -23,7 +23,7 @@ export default function StornoHinweis({ kaertchen, sprache, texte, onVerstanden 
               {k.sonderwunsch && ` (${k.sonderwunsch})`}
             </p>
             <button onClick={() => onVerstanden(k)}
-              className="cursor-pointer rounded-lg border border-white/50 bg-white/20 px-4 py-2 font-semibold text-white hover:bg-white/30 active:scale-[0.98]">
+              className="cursor-pointer rounded-lg border border-white/50 bg-black/30 px-4 py-2 font-semibold text-white hover:bg-black/40 active:scale-[0.98]">
               {texte.stornoVerstanden}
             </button>
           </div>

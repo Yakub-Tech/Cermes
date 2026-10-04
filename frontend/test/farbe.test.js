@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { kontrastverhaeltnis, lesbareSchriftfarbe } from '../src/komponenten/farbe.js';
+import { kontrastverhaeltnis, lesbareSchriftfarbe, blasserFarbe } from '../src/komponenten/farbe.js';
 
 const gerundet = (zahl) => Math.round(zahl * 100) / 100;
 
@@ -46,5 +46,19 @@ test('bei jedem Grauwert erreicht die gewählte Schrift mindestens 4,3 zu 1', ()
     const kanal = wert.toString(16).padStart(2, '0');
     const farbe = `#${kanal}${kanal}${kanal}`;
     assert.ok(kontrastverhaeltnis(farbe, lesbareSchriftfarbe(farbe)) >= 4.3, `zu wenig Kontrast bei ${farbe}`);
+  }
+});
+
+test('blasserFarbe nimmt die Sättigung zurück und lässt Grautöne unverändert', () => {
+  assert.equal(blasserFarbe('#808080'), '#808080');
+  assert.equal(blasserFarbe('#ff0000', 0), '#ff0000');
+  const blass = blasserFarbe('#ff0000', 0.5);
+  assert.equal(blass, '#a62626');
+});
+
+test('Schrift auf der blassen Kartenfarbe bleibt für jede Artikelfarbe bei mindestens 4,5 zu 1', () => {
+  for (const farbe of ['#fdfdfd', '#0a0a0a', '#b53030', '#2563a6', '#16a34a', '#ef4444', '#3b82f6', '#dd6b20', '#7c3aed', '#f5c211']) {
+    const blass = blasserFarbe(farbe);
+    assert.ok(kontrastverhaeltnis(blass, lesbareSchriftfarbe(blass)) >= 4.5, farbe);
   }
 });

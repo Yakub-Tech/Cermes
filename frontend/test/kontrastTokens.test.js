@@ -38,3 +38,32 @@ for (const [name, blockAnfang] of Object.entries(THEMES)) {
     assert.ok(kontrastverhaeltnis(werte['--feldrahmen'], werte['--flaeche-hell']) >= 3, 'zu wenig gegen die Feldfläche');
   });
 }
+
+function mitDeckkraft(vordergrund, untergrund, deckkraft) {
+  let ergebnis = '#';
+  for (const stelle of [1, 3, 5]) {
+    const oben = parseInt(vordergrund.slice(stelle, stelle + 2), 16);
+    const unten = parseInt(untergrund.slice(stelle, stelle + 2), 16);
+    ergebnis += Math.round(oben * deckkraft + unten * (1 - deckkraft)).toString(16).padStart(2, '0');
+  }
+  return ergebnis;
+}
+
+const UNTERGRUENDE = ['--grund', '--flaeche', '--flaeche-hell'];
+const SIGNALE = [
+  { name: 'Rot', schrift: '--gefahr-schrift', flaeche: '--gefahr' },
+  { name: 'Grün', schrift: '--erfolg-schrift', flaeche: '--erfolg' },
+];
+
+for (const signal of SIGNALE) {
+  for (const [name, blockAnfang] of Object.entries(THEMES)) {
+    test(`${name}: ${signal.name}e Schrift im Hinweiskasten hat mindestens 4,5 zu 1`, () => {
+      const werte = farbwerte(blockAnfang);
+      for (const untergrund of UNTERGRUENDE) {
+        const kasten = mitDeckkraft(werte[signal.flaeche], werte[untergrund], 0.15);
+        const verhaeltnis = kontrastverhaeltnis(werte[signal.schrift], kasten);
+        assert.ok(verhaeltnis >= 4.5, `${signal.schrift} auf ${untergrund}: nur ${verhaeltnis.toFixed(2)}`);
+      }
+    });
+  }
+}
