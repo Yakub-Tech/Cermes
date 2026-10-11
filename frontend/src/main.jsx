@@ -6,6 +6,7 @@ import './design/theme.css';
 import { designLesen } from './design/designSpeicher.js';
 import { designAnwenden } from './design/designAnwenden.js';
 import { apiGet } from './api.js';
+import { useLiveUpdate } from './useLiveUpdate.js';
 import LoginSeite from './anmeldung/LoginSeite.jsx';
 import Ersteinrichtung from './anmeldung/Ersteinrichtung.jsx';
 import KasseSeite from './kasse/KasseSeite.jsx';
@@ -31,6 +32,11 @@ function App() {
       setLaedt(false);
     }).catch(() => setLaedt(false));
   }, []);
+
+  // Der Browser merkt sich Favicons hartnäckig, die neue Adresse erzwingt das Neuladen.
+  useLiveUpdate(['logo'], () => {
+    document.querySelector('link[rel="icon"]').href = `/logo/aktuell?v=${Date.now()}`;
+  });
 
   if (laedt) return null;
 

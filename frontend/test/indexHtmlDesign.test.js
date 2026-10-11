@@ -10,3 +10,8 @@ test('index.html setzt das gespeicherte Design vor dem ersten Zeichnen', () => {
   const skriptPosition = html.indexOf('dataset.design');
   assert.ok(skriptPosition < html.indexOf('/src/main.jsx'), 'Skript muss vor dem App-Skript stehen');
 });
+
+test('das Favicon kommt vom aktuellen Logo und nicht aus einer Datei im Projekt', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.ok(html.includes('<link rel="icon" href="/logo/aktuell" />'));
+});
