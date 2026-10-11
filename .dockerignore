@@ -1,0 +1,9 @@
+**/node_modules/
+**/data/
+frontend/dist/
+.git/
+.env
+.env.*
+assets/screenshots/
+*.log
+.DS_Store

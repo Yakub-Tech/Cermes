@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/logo/aktuell" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cermes</title>
+    <script>
+      try {
+        document.documentElement.dataset.design = localStorage.getItem('cermes-design') === 'hell' ? 'hell' : 'dunkel';
+      } catch (fehler) {
+        document.documentElement.dataset.design = 'dunkel';
+      }
+    </script>
+  </head>
+  <body>
+    <div id="wurzel"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

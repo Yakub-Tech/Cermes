@@ -1,0 +1,14 @@
+services:
+  cermes:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - TZ=Europe/Berlin
+      - CERMES_HOST_IP=${CERMES_HOST_IP:-}
+      # Kommt aus der Datei .env neben dieser Datei (Vorlage: .env.beispiel, siehe ANLEITUNG.md).
+      # Bewusst ohne Standardwert: Fehlt es, bleibt die Ersteinrichtung gesperrt.
+      - CERMES_EINRICHTUNGSKENNWORT=${CERMES_EINRICHTUNGSKENNWORT:-}
+    restart: unless-stopped

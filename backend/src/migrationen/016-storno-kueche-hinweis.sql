@@ -1,0 +1,1 @@
+ALTER TABLE kaertchen ADD COLUMN storno_kueche_offen INTEGER NOT NULL DEFAULT 0;

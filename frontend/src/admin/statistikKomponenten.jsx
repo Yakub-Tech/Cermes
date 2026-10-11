@@ -1,0 +1,212 @@
+import {
+  ResponsiveContainer, BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip,
+} from 'recharts';
+import { formatEuro } from '../api.js';
+import { datumAnzeigen } from './datum.js';
+import { artikelSortieren, sortierOptionen } from './artikelSortierung.js';
+import { kennzahlenBauen } from './statistikKennzahlen.js';
+import {
+  stueckFarbe, umsatzFarbe, gewinnFarbe, farbeOhneKosten, gewinnNeutralFarbe, achsenFarbe, gitterFarbe,
+} from './statistikAnsichtFarben.js';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/komponenten/ui/table';
+import Auswahlmenue from '../komponenten/Auswahlmenue.jsx';
+import { de as eigeneDe, tr as eigeneTr } from '../sprache/statistikKomponenten.js';
+import { de as gemeinsamDe, tr as gemeinsamTr } from '../sprache/gemeinsam.js';
+
+const ACHSEN_WINKEL_GRAD = -30;
+const ACHSEN_WINKEL_RAD = (ACHSEN_WINKEL_GRAD * Math.PI) / 180;
+const ACHSEN_COS = Math.cos(ACHSEN_WINKEL_RAD);
+const ACHSEN_SIN = Math.sin(ACHSEN_WINKEL_RAD);
+const ZEICHEN_BREITE = 5.3;
+const TEXT_ABSTAND = 10;
+const ZEILEN_HOEHE = 12;
+const BODEN_PUFFER = 6;
+const ACHSEN_TICK = { fontSize: 10, fill: achsenFarbe };
+
+function ArtikelAchsenTick({ x, y, payload }) {
+  return (
+    <text x={x} y={y} dy={TEXT_ABSTAND} textAnchor="end" fill={achsenFarbe} fontSize={10}
+      transform={`rotate(${ACHSEN_WINKEL_GRAD}, ${x}, ${y})`}>
+      {payload.value}
+    </text>
+  );
+}
+
+export function KennzahlZeile({ kennzahlen }) {
+  return (
+    <div className="flex gap-2.5">
+      {kennzahlen.map((kennzahl) => (
+        <div key={kennzahl.id}
+          className="kaertchen-schatten flex-1 rounded-lg border border-linie bg-flaeche px-4 py-4 text-center">
+          <p className="text-xs text-schrift-gedimmt">{kennzahl.beschriftung}</p>
+          <p className="nummer mt-2 text-3xl" style={kennzahl.farbe ? { color: kennzahl.farbe } : undefined}>
+            {kennzahl.wert}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function BalkenDiagramm({
+  titel, daten, xSchluessel, ySchluessel, werteFormat, kinder, farbe = stueckFarbe, balkenFarbFunktion,
+  schraegeAchse = true, alleBeschriftungen = false, leerText,
+}) {
+  const laengsterName = daten.reduce(
+    (max, zeile) => Math.max(max, String(zeile[xSchluessel]).length), 0,
+  );
+  const tiefsterPunkt = laengsterName * ZEICHEN_BREITE * Math.abs(ACHSEN_SIN)
+    + (TEXT_ABSTAND + ZEILEN_HOEHE) * Math.abs(ACHSEN_COS);
+  const achsenHoehe = schraegeAchse ? Math.max(30, Math.round(tiefsterPunkt) + BODEN_PUFFER) : 24;
+
+  return (
+    <section className="kaertchen-schatten rounded-lg border border-linie bg-flaeche p-2.5">
+      <div className="mb-1.5 flex items-center justify-between">
+        <h3 className="text-sm text-schrift">{titel}</h3>
+        {kinder}
+      </div>
+      {daten.length === 0 ? (
+        <p className="py-6 text-center text-sm text-schrift-gedimmt">{leerText}</p>
+      ) : (
+        <ResponsiveContainer width="100%" height={124 + achsenHoehe}>
+          <BarChart data={daten} margin={{ top: 5, right: 5, left: 5, bottom: 12 }}>
+            <CartesianGrid stroke={gitterFarbe} vertical={false} />
+            <XAxis dataKey={xSchluessel} stroke={achsenFarbe} tickLine={false}
+              interval={alleBeschriftungen ? 0 : 'preserveEnd'} height={achsenHoehe}
+              tick={schraegeAchse ? <ArtikelAchsenTick /> : ACHSEN_TICK} />
+            <YAxis stroke={achsenFarbe} tickLine={false} allowDecimals={false}
+              tickFormatter={werteFormat} width={60} tick={ACHSEN_TICK} />
+            <Tooltip cursor={{ fill: 'var(--flaeche-hell)', opacity: 0.6 }}
+              contentStyle={{
+                backgroundColor: 'var(--flaeche)', border: '1px solid var(--linie)',
+                borderRadius: 6, color: 'var(--schrift)', fontSize: 12, padding: '4px 8px',
+              }}
+              itemStyle={{ color: 'var(--schrift)' }}
+              formatter={(wert) => [werteFormat ? werteFormat(wert) : wert, null]}
+              labelStyle={{ color: 'var(--schrift-gedimmt)' }} />
+            <Bar dataKey={ySchluessel} fill={farbe} radius={[3, 3, 0, 0]} maxBarSize={32}>
+              {balkenFarbFunktion && daten.map((zeile) => (
+                <Cell key={zeile[xSchluessel]} fill={balkenFarbFunktion(zeile)} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      )}
+    </section>
+  );
+}
+
+export function FarbLegende({ sprache = 'de' }) {
+  const texte = sprache === 'tr' ? eigeneTr : eigeneDe;
+  return (
+    <div className="flex items-center gap-3 text-xs text-schrift-gedimmt">
+      <span className="flex items-center gap-1">
+        <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: gewinnFarbe }} />
+        {texte.mitKosten}
+      </span>
+      <span className="flex items-center gap-1">
+        <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: farbeOhneKosten }} />
+        {texte.ohneKosten}
+      </span>
+    </div>
+  );
+}
+
+export function Kennzahlen({ gesamt, stosszeit, sprache = 'de' }) {
+  const texte = sprache === 'tr' ? eigeneTr : eigeneDe;
+  const zeigtGeld = gesamt.umsatz_cent !== undefined;
+  const kostenVollstaendig = !gesamt.stueck_ohne_kosten;
+  const farben = {
+    portionen: stueckFarbe,
+    umsatz: umsatzFarbe,
+    gewinn: kostenVollstaendig ? gewinnFarbe : gewinnNeutralFarbe,
+    marge: kostenVollstaendig ? gewinnFarbe : gewinnNeutralFarbe,
+  };
+  const kennzahlen = kennzahlenBauen(gesamt, stosszeit, sprache).map((k) => ({ ...k, farbe: farben[k.id] }));
+
+  return (
+    <div className="space-y-2.5">
+      <KennzahlZeile kennzahlen={kennzahlen} />
+      {zeigtGeld && gesamt.stueck_ohne_kosten > 0 && (
+        <div className="kaertchen-schatten rounded-lg border border-linie bg-flaeche px-4 py-2.5">
+          <p className="text-xs italic text-gefahr-schrift">
+            {texte.stueckOhneKostenVorspann}{gesamt.stueck_ohne_kosten}{texte.stueckOhneKostenNachspann}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function ArtikelDiagramme({ gesamt, artikel, leerText, sortierung, onSortierung, sprache = 'de' }) {
+  const texte = sprache === 'tr' ? eigeneTr : eigeneDe;
+  const zeigtGeld = gesamt.umsatz_cent !== undefined;
+
+  return (
+    <div className="space-y-2.5">
+      <div className="flex items-center justify-end gap-1.5">
+        <span className="text-xs text-schrift-gedimmt">{texte.sortierungLabel}</span>
+        <Auswahlmenue wert={sortierung} onWahl={onSortierung} optionen={sortierOptionen(sprache)}
+          klasse="text-xs kaertchen-schatten" />
+      </div>
+
+      <BalkenDiagramm titel={texte.titelStueckzahl}
+        daten={artikelSortieren(artikel, sortierung, 'stueck')}
+        xSchluessel="artikel_name" ySchluessel="stueck" farbe={stueckFarbe}
+        leerText={leerText} alleBeschriftungen />
+
+      {zeigtGeld && (
+        <>
+          <BalkenDiagramm titel={texte.titelUmsatz}
+            daten={artikelSortieren(artikel, sortierung, 'umsatz_cent')}
+            xSchluessel="artikel_name" ySchluessel="umsatz_cent" werteFormat={formatEuro}
+            farbe={umsatzFarbe} leerText={leerText} alleBeschriftungen />
+
+          <BalkenDiagramm titel={texte.titelGewinn}
+            daten={artikelSortieren(artikel, sortierung, 'gewinn_cent')}
+            xSchluessel="artikel_name" ySchluessel="gewinn_cent" werteFormat={formatEuro}
+            farbe={gewinnFarbe}
+            balkenFarbFunktion={(zeile) => (zeile.stueck_ohne_kosten > 0 ? farbeOhneKosten : gewinnFarbe)}
+            leerText={leerText} kinder={<FarbLegende sprache={sprache} />} alleBeschriftungen />
+        </>
+      )}
+    </div>
+  );
+}
+
+export function StornoTabelle({ stornos, mitDatum = false, sprache = 'de' }) {
+  const texte = sprache === 'tr' ? { ...gemeinsamTr, ...eigeneTr } : { ...gemeinsamDe, ...eigeneDe };
+  return (
+    <section className="kaertchen-schatten rounded-lg border border-linie bg-flaeche p-2.5">
+      <h3 className="mb-2 text-sm">{mitDatum ? texte.titelZeitraum : texte.titelTag}</h3>
+      {stornos.length === 0 ? (
+        <p className="text-sm text-schrift-gedimmt">{texte.keineStornos}</p>
+      ) : (
+        <Table rahmenlos>
+          <TableHeader>
+            <TableRow>
+              {mitDatum && <TableHead className="px-1.5 py-1.5">{texte.spalteDatum}</TableHead>}
+              <TableHead className="px-1.5 py-1.5">{texte.spalteUhrzeit}</TableHead>
+              <TableHead className="px-1.5 py-1.5">{texte.spalteNummer}</TableHead>
+              <TableHead className="px-1.5 py-1.5">{texte.spalteArtikel}</TableHead>
+              <TableHead className="px-1.5 py-1.5">{texte.spalteBetrag}</TableHead>
+              <TableHead className="px-1.5 py-1.5">{texte.spalteStorniertVon}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {stornos.map((storno, index) => (
+              <TableRow key={index}>
+                {mitDatum && <TableCell className="px-1.5 py-1.5">{datumAnzeigen(storno.datum)}</TableCell>}
+                <TableCell className="px-1.5 py-1.5">{storno.zeit}{texte.uhr ? ` ${texte.uhr}` : ''}</TableCell>
+                <TableCell className="nummer px-1.5 py-1.5">{storno.nummer}</TableCell>
+                <TableCell className="px-1.5 py-1.5">{storno.artikel_name}</TableCell>
+                <TableCell className="nummer px-1.5 py-1.5">{formatEuro(storno.preis_cent)}</TableCell>
+                <TableCell className="px-1.5 py-1.5">{storno.storniert_von}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+    </section>
+  );
+}

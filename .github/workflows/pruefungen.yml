@@ -1,0 +1,36 @@
+name: Prüfungen
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pruefen:
+    name: Tests, Build und Offline-Prüfung
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Backend-Abhängigkeiten installieren
+        run: npm --prefix backend ci
+      - name: Frontend-Abhängigkeiten installieren
+        run: npm --prefix frontend ci
+      - name: Backend testen
+        run: npm --prefix backend test
+      - name: Frontend testen
+        run: npm --prefix frontend test
+      - name: Frontend bauen
+        run: npm --prefix frontend run build
+      - name: Offline-Betrieb prüfen
+        run: npm --prefix frontend run pruefe-offline
